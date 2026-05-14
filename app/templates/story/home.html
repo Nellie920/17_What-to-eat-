@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-column align-items-center justify-content-center h-100">
+    <h1 class="page-title">愛與選擇之書</h1>
+    <h2 class="page-subtitle">Whispers of Fate</h2>
+    
+    <div class="mt-5 text-center glass-panel p-5" style="max-width: 600px;">
+        <p class="mb-4" style="font-size: 1.2rem; text-shadow: 1px 1px 5px black;">
+            歡迎回來，<span style="color: var(--primary-gold);">{{ user.display_name or user.username }}</span>。<br>命運的齒輪已經開始轉動，你的選擇將決定一切...
+        </p>
+        
+        <div class="d-flex flex-column gap-3 mt-5">
+            <a href="{{ url_for('story.play_story', node_id='prologue') }}" class="btn btn-gold btn-lg py-3 fs-4">
+                <i class="fa-solid fa-play me-2"></i> 開始全新章節
+            </a>
+            <a href="{{ url_for('save.list_saves') }}" class="btn btn-glass btn-lg py-3 fs-4">
+                <i class="fa-solid fa-book-bookmark me-2"></i> 繼續上次故事
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
