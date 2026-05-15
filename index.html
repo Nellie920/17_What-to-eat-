@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>愛與選擇之書 Whispers of Fate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+    <div id="app">
+        <!-- 背景裝飾元素 -->
+        <div class="bg-particles"></div>
+        
+        <!-- 往返上一頁按鈕 -->
+        <button id="back-btn" class="back-btn" onclick="handleBack()">
+            <span class="icon">⟵</span>
+        </button>
+        
+        <!-- 攻略對象性別選擇畫面 -->
+        <div id="target-gender-selection" class="screen active">
+            <div class="glass-panel">
+                <h1 class="title">選擇攻略對象</h1>
+                <p class="subtitle">命運的紅線，將牽引你走向何方？</p>
+                <div class="options-container">
+                    <button class="choice-btn" onclick="selectTargetGender('male', event)">
+                        <span class="icon">♂</span>
+                        <span class="text">男性</span>
+                    </button>
+                    <button class="choice-btn" onclick="selectTargetGender('female', event)">
+                        <span class="icon">♀</span>
+                        <span class="text">女性</span>
+                    </button>
+                    <button class="choice-btn" onclick="selectTargetGender('random', event)">
+                        <span class="icon">❓</span>
+                        <span class="text">隨機</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 攻略對象特定角色選擇畫面 -->
+        <div id="target-character-selection" class="screen">
+            <div class="glass-panel large">
+                <h1 class="title">選擇心儀的對象</h1>
+                <p class="subtitle">誰會是你這段故事的羈絆？</p>
+                <div class="character-grid" id="character-grid">
+                    <!-- 動態生成角色卡片 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 玩家自身性別選擇畫面 -->
+        <div id="player-gender-selection" class="screen">
+            <div class="glass-panel">
+                <h1 class="title">選擇你的化身</h1>
+                <p class="subtitle">在這段故事中，你將以什麼身分展開？</p>
+                <div class="options-container">
+                    <button class="choice-btn" onclick="selectPlayerGender('male', event)">
+                        <span class="icon">👦</span>
+                        <span class="text">男性</span>
+                    </button>
+                    <button class="choice-btn" onclick="selectPlayerGender('female', event)">
+                        <span class="icon">👧</span>
+                        <span class="text">女性</span>
+                    </button>
+                    <button class="choice-btn" onclick="selectPlayerGender('random', event)">
+                        <span class="icon">❓</span>
+                        <span class="text">隨機</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 確認返回主頁面彈窗 -->
+        <div id="confirm-modal" class="modal-overlay" onclick="closeModal(event)">
+            <div class="modal-content glass-panel" onclick="event.stopPropagation()">
+                <h2 class="modal-title">是否返回主頁面？</h2>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeModal(event)">取消</button>
+                    <button class="modal-btn confirm" onclick="returnToMainMenu()">返回</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js?v=2"></script>
+</body>
+</html>
