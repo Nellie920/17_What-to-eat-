@@ -7,6 +7,16 @@
     --bg-dark: #0f0a18;
     --glass-bg: rgba(20, 15, 30, 0.4);
     --glass-border: rgba(255, 255, 255, 0.15);
+    
+    /* 對話框主題色 */
+    --npc-dialogue-bg: rgba(214, 51, 108, 0.1);
+    --npc-dialogue-border: #d6336c;
+    --player-dialogue-bg: rgba(79, 172, 254, 0.1);
+    --player-dialogue-border: #4facfe;
+    
+    /* 文字顏色 */
+    --dialogue-text-color: #ffffff;
+    --action-text-color: #b0b0b0;
 }
 
 * {
@@ -411,4 +421,418 @@ body {
 .info-icon:hover {
     background: var(--primary-color);
     transform: scale(1.15);
+}
+
+/* 確認結果畫面 */
+.confirmation-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+    margin: 2rem 0 3rem 0;
+}
+
+.result-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.result-label {
+    font-size: 1.2rem;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+}
+
+.character-card.static {
+    cursor: default;
+    width: 220px;
+}
+
+.character-card.static:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    border-color: var(--glass-border);
+}
+
+.heart-divider {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    animation: heartbeat 2s infinite;
+    text-shadow: 0 0 20px var(--primary-glow);
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    15% { transform: scale(1.2); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.2); }
+    60% { transform: scale(1); }
+}
+
+.choice-btn.primary {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    flex-direction: row;
+    padding: 1.2rem 3.5rem;
+    font-size: 1.3rem;
+    box-shadow: 0 5px 20px rgba(214, 51, 108, 0.4);
+    margin: 0 auto;
+}
+
+.choice-btn.primary:hover {
+    background: var(--primary-hover);
+    box-shadow: 0 8px 25px rgba(214, 51, 108, 0.6);
+    transform: translateY(-5px);
+}
+
+/* 遊戲主畫面排版 (上下佈局) */
+.game-container.column-layout {
+    flex-direction: column;
+    padding: 0;
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 10, 20, 0.4);
+}
+
+/* 側邊欄 (可折疊) */
+.sidebar {
+    position: absolute;
+    left: 0;
+    top: 12.5vh;
+    width: 70px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-left: none;
+    border-radius: 0 20px 20px 0;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 20;
+    box-shadow: 5px 0 20px rgba(0,0,0,0.3);
+}
+
+.sidebar.collapsed {
+    left: -70px; /* 完全隱藏內容區 */
+}
+
+/* 側邊欄標籤圖標 */
+.toggle-tab {
+    position: absolute;
+    right: -45px;
+    top: 20px;
+    width: 45px;
+    height: 50px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+    backdrop-filter: blur(10px);
+    color: var(--text-light);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.toggle-tab:hover {
+    color: var(--primary-color);
+    text-shadow: 0 0 10px var(--primary-glow);
+}
+
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.8rem;
+    padding: 2rem 0;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.icon-btn:hover {
+    opacity: 1;
+    transform: scale(1.15);
+    text-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* 防誤觸遮罩 */
+.sidebar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0);
+    z-index: 15;
+    pointer-events: none;
+    transition: background 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    pointer-events: auto;
+    background: rgba(0,0,0,0.4);
+}
+
+/* 上部區域 (佔比約 3/4) */
+.top-area {
+    height: 75vh;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    padding: 2rem 2rem 1rem 5rem; /* 左側預留空間給標籤 */
+    gap: 2rem;
+    overflow: hidden;
+}
+
+/* 左側：立繪區 (佔約 1/3) */
+.character-display {
+    flex: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* 讓卡位置中 */
+}
+
+/* 確保遊戲主畫面的角色卡片能正常顯示 */
+#game-character-card {
+    width: 280px; /* 稍微放大卡片 */
+    height: auto;
+}
+
+/* 右側：劇情與對話紀錄區 (佔約 2/3) */
+.story-history-wrapper {
+    flex: 2;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.story-history-panel {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 2rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    scroll-behavior: smooth;
+}
+
+/* 捲軸美化 */
+.story-history-panel::-webkit-scrollbar {
+    width: 8px;
+}
+.story-history-panel::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    margin: 1rem 0;
+}
+.story-history-panel::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+}
+
+/* 一鍵到底部按鈕 */
+.scroll-bottom-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(214, 51, 108, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0; /* 預設隱藏 */
+    transition: opacity 0.3s ease, transform 0.2s ease;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.scroll-bottom-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.scroll-bottom-btn:hover {
+    transform: scale(1.1);
+}
+
+.history-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.system-text {
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.dialogue-line {
+    color: var(--dialogue-text-color);
+    font-size: 1.2rem;
+    line-height: 1.6;
+    background: rgba(0,0,0,0.2);
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    border-left: 4px solid var(--text-dim);
+}
+
+.dialogue-line .speaker {
+    font-weight: bold;
+    color: var(--text-dim);
+    margin-right: 10px;
+}
+
+.action-text {
+    color: var(--action-text-color);
+    font-style: italic; /* 動作文字可以加個斜體增加區別 */
+}
+
+.dialogue-line.npc {
+    background: var(--npc-dialogue-bg);
+    border-left-color: var(--npc-dialogue-border);
+}
+.dialogue-line.npc .speaker {
+    color: var(--npc-dialogue-border);
+}
+
+.dialogue-line.player {
+    background: var(--player-dialogue-bg);
+    border-left-color: var(--player-dialogue-border);
+}
+.dialogue-line.player .speaker {
+    color: var(--player-dialogue-border);
+}
+
+/* 下部區域 (佔比約 1/4) */
+.bottom-area {
+    height: 25vh;
+    width: 100%;
+    padding: 0 2rem 2rem 5rem;
+    display: flex;
+}
+
+.choices-container {
+    width: 100%;
+    height: 100%; /* 填滿整個下部區域的高度 */
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid var(--glass-border);
+}
+
+.choices-title {
+    color: var(--text-dim);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+.choices-list.horizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center; /* 垂直居中選項 */
+    flex-wrap: wrap;
+    flex-grow: 1; /* 佔滿剩餘高度 */
+}
+
+.choices-list.horizontal .choice-btn {
+    flex: 1;
+    min-width: 250px;
+    max-width: 350px;
+    height: 60px; /* 固定一個漂亮的高度 */
+    padding: 0 1rem;
+    font-size: 1.1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.choices-list.horizontal .choice-btn:hover {
+    background: rgba(214, 51, 108, 0.2);
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+    box-shadow: 0 5px 15px rgba(214, 51, 108, 0.2);
+}
+
+/* 存檔欄位樣式 */
+.saveload-slots {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.save-slot {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 1rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.save-slot:hover {
+    background: rgba(214, 51, 108, 0.2);
+    border-color: var(--primary-color);
+}
+
+.save-slot.empty {
+    opacity: 0.5;
+    justify-content: center;
+    align-items: center;
+    font-style: italic;
+}
+
+.save-info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.save-date {
+    font-size: 0.9rem;
+    color: var(--text-dim);
 }
