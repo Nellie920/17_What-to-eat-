@@ -27,7 +27,7 @@ class SaveSystemWidget {
         // 懸浮按鈕 (FAB)
         const fab = document.createElement('div');
         fab.className = 'save-widget-fab';
-        fab.innerHTML = '💾';
+        fab.innerHTML = '<span>💾</span> <span>回顧存檔</span>';
         fab.title = '回顧存檔';
         fab.onclick = () => this.openModal();
         document.body.appendChild(fab);
