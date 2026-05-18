@@ -1,149 +1,148 @@
-// 模擬玩家與故事狀態
-const MOCK_PLAYER_ID = 1;
-const STORY_ID = 'main_story_01';
-
-// 模擬劇情資料
-const storyNodes = [
-    { chapter: 1, text: "這是一個關於選擇與命運的故事...", node: "intro" },
-    { chapter: 1, text: "你走進了一個昏暗的房間，桌上放著一封信。", node: "room_enter" },
-    { chapter: 1, text: "信件上寫著：『一切都將在今晚結束。』", node: "read_letter" },
-    { chapter: 2, text: "第二章：未知的旅程。你決定離開房間尋找真相。", node: "chapter_2_start" }
-];
-
-let currentNodeIndex = 0;
-
-// DOM 元素
-const storyScreen = document.getElementById('storyScreen');
-const chapterTitle = document.getElementById('chapterTitle');
-const dialogueText = document.getElementById('dialogueText');
-const nextBtn = document.getElementById('nextBtn');
-const saveToast = document.getElementById('saveToast');
-const reviewSavesBtn = document.getElementById('reviewSavesBtn');
-const savesModal = document.getElementById('savesModal');
-const closeModalBtn = document.getElementById('closeModalBtn');
-const savesList = document.getElementById('savesList');
-
-// API 基礎 URL (假設未來後端運行在 3000 port)
-const API_BASE_URL = 'http://localhost:3000/api';
-
-// 更新畫面顯示
-function updateStoryScreen() {
-    const currentNode = storyNodes[currentNodeIndex];
-    chapterTitle.textContent = `Chapter ${currentNode.chapter}`;
-    
-    // 淡出淡入效果
-    dialogueText.style.opacity = 0;
-    setTimeout(() => {
-        dialogueText.textContent = currentNode.text;
-        dialogueText.style.opacity = 1;
-    }, 300);
-}
-
-// 觸發自動存檔
-async function triggerAutoSave() {
-    const currentNode = storyNodes[currentNodeIndex];
-    
-    const saveData = {
-        player_id: MOCK_PLAYER_ID,
-        story_id: STORY_ID,
-        current_chapter: currentNode.chapter,
-        current_node: currentNode.node,
-        saved_state: {
-            inventory: ['letter'],
-            health: 100,
-            mood: 'curious'
-        }
-    };
-
-    try {
-        // 在沒有後端的情況下，只會顯示 Error，但我們在前端模擬成功動畫
-        const response = await fetch(`${API_BASE_URL}/save`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(saveData)
-        });
+/**
+ * Save System Widget
+ * 將存檔系統封裝成獨立的 Widget，可輕易整合到任何網站
+ */
+class SaveSystemWidget {
+    constructor(config = {}) {
+        this.apiBaseUrl = config.apiBaseUrl || 'http://localhost:3000/api';
+        this.playerId = config.playerId || 1;
+        this.storyId = config.storyId || 'main_story';
         
-        if (!response.ok) throw new Error('API Error');
-        showSaveToast();
-    } catch (error) {
-        console.log('後端未啟動，模擬存檔成功:', saveData);
-        showSaveToast(); // 即使後端沒開，也顯示 UI 動畫讓用戶看見效果
-    }
-}
-
-// 顯示存檔成功提示
-function showSaveToast() {
-    saveToast.classList.remove('hidden');
-    saveToast.classList.add('show');
-    
-    setTimeout(() => {
-        saveToast.classList.remove('show');
-        setTimeout(() => saveToast.classList.add('hidden'), 400); // 等待動畫完成
-    }, 2000);
-}
-
-// 點擊下一步
-nextBtn.addEventListener('click', () => {
-    if (currentNodeIndex < storyNodes.length - 1) {
-        currentNodeIndex++;
-        updateStoryScreen();
-        triggerAutoSave();
-    } else {
-        dialogueText.textContent = "故事已經結束，感謝遊玩。";
-        nextBtn.style.display = 'none';
-    }
-});
-
-// 開啟回顧存檔 Modal
-reviewSavesBtn.addEventListener('click', async () => {
-    savesModal.classList.remove('hidden');
-    savesList.innerHTML = '<div class="loading-text">載入存檔中...</div>';
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/saves/${MOCK_PLAYER_ID}`);
-        if (!response.ok) throw new Error('API Error');
-        const { data } = await response.json();
-        renderSaves(data);
-    } catch (error) {
-        console.log('後端未啟動，模擬渲染存檔列表');
-        // 模擬假資料
-        renderSaves([
-            {
-                progress_id: 1,
-                story_id: 'main_story_01',
-                current_chapter: 1,
-                current_node: 'read_letter',
-                last_played_at: new Date().toISOString()
-            }
-        ]);
-    }
-});
-
-// 渲染存檔列表
-function renderSaves(saves) {
-    if (!saves || saves.length === 0) {
-        savesList.innerHTML = '<div class="loading-text">目前沒有任何存檔紀錄</div>';
-        return;
+        // 初始化 Widget
+        this.init();
     }
 
-    savesList.innerHTML = saves.map(save => {
-        const date = new Date(save.last_played_at).toLocaleString('zh-TW');
-        return `
-            <div class="save-item">
-                <div class="save-info">
-                    <h3>章節 ${save.current_chapter} - 節點: ${save.current_node}</h3>
-                    <p>最後存檔時間: ${date}</p>
+    init() {
+        // 確保 DOM 載入後再注入 HTML
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.injectHTML());
+        } else {
+            this.injectHTML();
+        }
+    }
+
+    injectHTML() {
+        // 建立懸浮按鈕 (FAB)
+        const fab = document.createElement('div');
+        fab.className = 'save-widget-fab';
+        fab.innerHTML = '💾';
+        fab.title = '回顧存檔';
+        fab.onclick = () => this.openModal();
+        document.body.appendChild(fab);
+
+        // 建立 Toast 提示
+        const toast = document.createElement('div');
+        toast.className = 'save-widget-toast';
+        toast.innerHTML = '<span>💾</span> 進度已自動儲存';
+        this.toastEl = toast;
+        document.body.appendChild(toast);
+
+        // 建立 Modal
+        const overlay = document.createElement('div');
+        overlay.className = 'save-widget-overlay';
+        overlay.innerHTML = `
+            <div class="save-widget-modal">
+                <div class="save-widget-header">
+                    <h2>存檔紀錄</h2>
+                    <button class="save-widget-close">&times;</button>
                 </div>
-                <button class="load-btn" onclick="alert('模擬載入進度 ID: ${save.progress_id}')">讀取</button>
+                <div class="save-widget-body">
+                    <!-- 列表動態生成 -->
+                    <div style="text-align: center; color: #94a3b8;">載入中...</div>
+                </div>
             </div>
         `;
-    }).join('');
+        
+        // 綁定關閉事件
+        overlay.querySelector('.save-widget-close').onclick = () => this.closeModal();
+        overlay.onclick = (e) => {
+            if (e.target === overlay) this.closeModal();
+        };
+
+        this.overlayEl = overlay;
+        this.bodyEl = overlay.querySelector('.save-widget-body');
+        document.body.appendChild(overlay);
+    }
+
+    openModal() {
+        this.overlayEl.classList.add('active');
+        this.fetchSaves();
+    }
+
+    closeModal() {
+        this.overlayEl.classList.remove('active');
+    }
+
+    showToast() {
+        this.toastEl.classList.add('show');
+        setTimeout(() => {
+            this.toastEl.classList.remove('show');
+        }, 2500);
+    }
+
+    // 提供給主遊戲呼叫的公開方法：觸發自動存檔
+    async triggerSave(chapter = 1, node = 'auto_save_point', state = {}) {
+        const payload = {
+            player_id: this.playerId,
+            story_id: this.storyId,
+            current_chapter: chapter,
+            current_node: node,
+            saved_state: state
+        };
+
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/save`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                this.showToast();
+            }
+        } catch (e) {
+            console.log('[Save Widget] 後端未啟動，模擬存檔成功:', payload);
+            this.showToast();
+        }
+    }
+
+    async fetchSaves() {
+        this.bodyEl.innerHTML = '<div style="text-align: center; color: #94a3b8;">載入中...</div>';
+        
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/saves/${this.playerId}`);
+            if (!response.ok) throw new Error('API Error');
+            const { data } = await response.json();
+            this.renderSaves(data);
+        } catch (e) {
+            console.log('[Save Widget] 後端未啟動，模擬讀取資料');
+            // 模擬假資料
+            this.renderSaves([
+                { progress_id: 1, current_chapter: 1, current_node: '覺醒', last_played_at: new Date().toISOString() },
+                { progress_id: 2, current_chapter: 1, current_node: '開場', last_played_at: new Date(Date.now() - 3600000).toISOString() }
+            ]);
+        }
+    }
+
+    renderSaves(saves) {
+        if (!saves || saves.length === 0) {
+            this.bodyEl.innerHTML = '<div style="text-align: center; color: #94a3b8;">目前沒有任何存檔紀錄</div>';
+            return;
+        }
+
+        this.bodyEl.innerHTML = saves.map(save => {
+            const dateStr = new Date(save.last_played_at).toLocaleString('zh-TW');
+            return `
+                <div class="save-widget-item">
+                    <div class="save-widget-info">
+                        <h3>章節 ${save.current_chapter} - ${save.current_node}</h3>
+                        <p>${dateStr}</p>
+                    </div>
+                    <button class="save-widget-load-btn" onclick="alert('準備載入存檔ID: ${save.progress_id}')">讀取</button>
+                </div>
+            `;
+        }).join('');
+    }
 }
 
-// 關閉 Modal
-closeModalBtn.addEventListener('click', () => {
-    savesModal.classList.add('hidden');
-});
-
-// 初始化
-updateStoryScreen();
+// 實例化 Widget，並掛載到 window 全域物件，讓主遊戲可以呼叫
+window.saveWidget = new SaveSystemWidget();
