@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-container glass-panel mt-5">
+    <h2 class="text-center mb-5 page-title">存檔紀錄<br><small class="page-subtitle fs-4">Save Data</small></h2>
+    
+    {% if saves %}
+        {% for save in saves %}
+        <div class="save-slot">
+            <div>
+                <h4 class="mb-1" style="color: var(--primary-gold);">章節：{{ save.node_id }}</h4>
+                <small class="text-muted">儲存時間：{{ save.saved_at }}</small>
+            </div>
+            <div class="d-flex gap-2">
+                <form action="{{ url_for('save.load_save', save_id=save.id) }}" method="POST">
+                    <button type="submit" class="btn btn-gold"><i class="fa-solid fa-play"></i> 讀取</button>
+                </form>
+                <form action="{{ url_for('save.delete_save', save_id=save.id) }}" method="POST" onsubmit="return confirm('確定要刪除這個存檔嗎？');">
+                    <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash"></i> 刪除</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5">
+            <h4 class="text-muted">目前沒有任何存檔紀錄。</h4>
+            <a href="{{ url_for('story.home') }}" class="btn btn-glass mt-3">回主選單</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
