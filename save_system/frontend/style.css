@@ -1,279 +1,187 @@
-:root {
-    --primary-color: #7b2cbf;
-    --primary-hover: #9d4edd;
-    --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-    --glass-bg: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --text-color: #f8fafc;
-    --text-muted: #94a3b8;
-}
+/* 
+ * Save System Widget CSS 
+ * 所有的樣式都加上特定的 namespace 或 prefix，避免污染主網站 
+ */
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: 'Outfit', sans-serif;
-    background: var(--bg-gradient);
-    color: var(--text-color);
-    min-height: 100vh;
+/* 懸浮按鈕 (Floating Action Button) */
+.save-widget-fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #7b2cbf 0%, #9d4edd 100%);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
     display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
-}
-
-/* Glassmorphism Utilities */
-.glass-panel {
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-}
-
-.glass-header {
-    display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 1.2rem 2rem;
-    background: rgba(15, 23, 42, 0.7);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--glass-border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-.logo {
-    font-size: 1.5rem;
-    font-weight: 600;
-    letter-spacing: 1px;
-    background: linear-gradient(90deg, #c084fc, #ec4899);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-/* Buttons */
-.premium-btn {
-    background: var(--glass-bg);
-    color: var(--text-color);
-    border: 1px solid var(--glass-border);
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 24px;
     cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.premium-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateY(-2px);
-}
-
-.premium-btn.primary {
-    background: var(--primary-color);
-    border-color: var(--primary-hover);
     box-shadow: 0 4px 15px rgba(123, 44, 191, 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 9998;
+    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.premium-btn.primary:hover {
-    background: var(--primary-hover);
+.save-widget-fab:hover {
+    transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(123, 44, 191, 0.6);
 }
 
-/* Game Main Area */
-.game-container {
-    max-width: 800px;
-    width: 90%;
-    margin: 4rem auto;
-    padding: 3rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    position: relative;
-    overflow: hidden;
-}
-
-/* 裝飾性光暈 */
-.game-container::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(123,44,191,0.1) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-}
-
-.story-screen {
-    z-index: 1;
-    min-height: 200px;
-    text-align: center;
-}
-
-.story-screen h1 {
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-}
-
-.story-screen p {
-    font-size: 1.2rem;
-    line-height: 1.8;
-    color: #cbd5e1;
-}
-
-.controls {
-    z-index: 1;
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-}
-
-/* Save Toast Animation */
-.save-toast {
-    position: fixed;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: rgba(16, 185, 129, 0.2);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: #34d399;
-    padding: 0.8rem 1.5rem;
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: 1000;
-    backdrop-filter: blur(8px);
-}
-
-.save-toast.show {
-    transform: translateX(-50%) translateY(0);
-}
-
-/* Modal */
-.modal-overlay {
+/* Modal Overlay */
+.save-widget-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 999;
-    opacity: 1;
-    visibility: visible;
-    transition: all 0.3s ease;
-}
-
-.modal-overlay.hidden {
+    z-index: 9999;
     opacity: 0;
     visibility: hidden;
+    transition: all 0.3s ease;
+    font-family: 'Outfit', sans-serif;
 }
 
-.modal-content {
+.save-widget-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal Content (Glassmorphism) */
+.save-widget-modal {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
     width: 90%;
-    max-width: 600px;
+    max-width: 500px;
     max-height: 80vh;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
-    transform: scale(1);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.modal-overlay.hidden .modal-content {
     transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: #f8fafc;
 }
 
-.modal-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--glass-border);
+.save-widget-overlay.active .save-widget-modal {
+    transform: scale(1);
+}
+
+/* Header */
+.save-widget-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.modal-header h2 {
+.save-widget-header h2 {
+    margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
+    background: linear-gradient(90deg, #c084fc, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-.close-btn {
+.save-widget-close {
     background: none;
     border: none;
-    color: var(--text-color);
-    font-size: 2rem;
+    color: #94a3b8;
+    font-size: 1.8rem;
     cursor: pointer;
     line-height: 1;
     transition: color 0.2s;
 }
 
-.close-btn:hover {
+.save-widget-close:hover {
     color: #ef4444;
 }
 
-.modal-body {
-    padding: 1.5rem;
+/* Body */
+.save-widget-body {
+    padding: 24px;
     overflow-y: auto;
     flex: 1;
-}
-
-.saves-list {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 12px;
 }
 
-.save-item {
+/* Save Item */
+.save-widget-item {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
-    padding: 1.2rem;
+    padding: 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     transition: all 0.2s ease;
 }
 
-.save-item:hover {
+.save-widget-item:hover {
     background: rgba(255, 255, 255, 0.08);
     transform: translateX(5px);
 }
 
-.save-info h3 {
-    margin-bottom: 0.4rem;
+.save-widget-info h3 {
+    margin: 0 0 4px 0;
     font-size: 1.1rem;
     color: #e2e8f0;
 }
 
-.save-info p {
-    font-size: 0.9rem;
-    color: var(--text-muted);
+.save-widget-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #94a3b8;
 }
 
-.load-btn {
+.save-widget-load-btn {
     background: rgba(123, 44, 191, 0.2);
     color: #c084fc;
     border: 1px solid #7b2cbf;
-    padding: 0.5rem 1rem;
+    padding: 8px 16px;
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
+    font-weight: 500;
 }
 
-.load-btn:hover {
-    background: var(--primary-color);
+.save-widget-load-btn:hover {
+    background: #7b2cbf;
     color: white;
+}
+
+/* Save Toast */
+.save-widget-toast {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34d399;
+    padding: 12px 20px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10000;
+    backdrop-filter: blur(8px);
+    font-family: 'Outfit', sans-serif;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.save-widget-toast.show {
+    transform: translateX(0);
 }
