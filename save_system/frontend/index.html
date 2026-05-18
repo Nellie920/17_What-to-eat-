@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Game Auto-Save System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 頂部導覽列 -->
+    <header class="glass-header">
+        <div class="logo">Visual Novel System</div>
+        <button id="reviewSavesBtn" class="premium-btn">回顧存檔</button>
+    </header>
+
+    <!-- 遊戲主畫面 (模擬) -->
+    <main class="game-container glass-panel">
+        <div id="storyScreen" class="story-screen">
+            <h1 id="chapterTitle">Chapter 1: The Beginning</h1>
+            <p id="dialogueText">這是一個關於選擇與命運的故事...</p>
+        </div>
+        
+        <div class="controls">
+            <button id="nextBtn" class="premium-btn primary">下一步 (觸發自動存檔)</button>
+        </div>
+        
+        <!-- 自動存檔提示 -->
+        <div id="saveToast" class="save-toast hidden">
+            <span class="icon">💾</span> 遊戲進度已自動儲存
+        </div>
+    </main>
+
+    <!-- 回顧存檔彈出視窗 (Modal) -->
+    <div id="savesModal" class="modal-overlay hidden">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h2>存檔紀錄回顧</h2>
+                <button id="closeModalBtn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="savesList" class="saves-list">
+                    <!-- 存檔項目將透過 JS 動態生成 -->
+                    <div class="loading-text">載入中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
