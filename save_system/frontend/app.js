@@ -1,6 +1,6 @@
 /**
  * Save System Widget
- * 將存檔系統封裝成獨立的 Widget，可輕易整合到任何網站
+ * 將存檔系統封裝成獨立的 Widget，提供「存檔」與「讀檔(Callback/Event)」介面
  */
 class SaveSystemWidget {
     constructor(config = {}) {
@@ -8,12 +8,14 @@ class SaveSystemWidget {
         this.playerId = config.playerId || 1;
         this.storyId = config.storyId || 'main_story';
         
-        // 初始化 Widget
+        // 當使用者點擊「讀檔」且成功取得資料後，會呼叫此回呼函數 (Callback)
+        // 外部的主劇情程式可以透過設定這個 callback 來接收讀檔資料，進而切換劇情
+        this.onLoadSave = config.onLoadSave || null;
+        
         this.init();
     }
 
     init() {
-        // 確保 DOM 載入後再注入 HTML
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.injectHTML());
         } else {
@@ -22,7 +24,7 @@ class SaveSystemWidget {
     }
 
     injectHTML() {
-        // 建立懸浮按鈕 (FAB)
+        // 懸浮按鈕 (FAB)
         const fab = document.createElement('div');
         fab.className = 'save-widget-fab';
         fab.innerHTML = '💾';
@@ -30,14 +32,14 @@ class SaveSystemWidget {
         fab.onclick = () => this.openModal();
         document.body.appendChild(fab);
 
-        // 建立 Toast 提示
+        // Toast 提示
         const toast = document.createElement('div');
         toast.className = 'save-widget-toast';
-        toast.innerHTML = '<span>💾</span> 進度已自動儲存';
+        toast.innerHTML = '<span>💾</span> <span class="toast-text">進度已自動儲存</span>';
         this.toastEl = toast;
         document.body.appendChild(toast);
 
-        // 建立 Modal
+        // Modal 視窗
         const overlay = document.createElement('div');
         overlay.className = 'save-widget-overlay';
         overlay.innerHTML = `
@@ -47,13 +49,11 @@ class SaveSystemWidget {
                     <button class="save-widget-close">&times;</button>
                 </div>
                 <div class="save-widget-body">
-                    <!-- 列表動態生成 -->
                     <div style="text-align: center; color: #94a3b8;">載入中...</div>
                 </div>
             </div>
         `;
         
-        // 綁定關閉事件
         overlay.querySelector('.save-widget-close').onclick = () => this.closeModal();
         overlay.onclick = (e) => {
             if (e.target === overlay) this.closeModal();
@@ -73,14 +73,17 @@ class SaveSystemWidget {
         this.overlayEl.classList.remove('active');
     }
 
-    showToast() {
+    showToast(message = '進度已自動儲存') {
+        this.toastEl.querySelector('.toast-text').textContent = message;
         this.toastEl.classList.add('show');
         setTimeout(() => {
             this.toastEl.classList.remove('show');
         }, 2500);
     }
 
-    // 提供給主遊戲呼叫的公開方法：觸發自動存檔
+    // ----------------------------------------------------
+    // API: 自動存檔
+    // ----------------------------------------------------
     async triggerSave(chapter = 1, node = 'auto_save_point', state = {}) {
         const payload = {
             player_id: this.playerId,
@@ -97,14 +100,17 @@ class SaveSystemWidget {
                 body: JSON.stringify(payload)
             });
             if (response.ok) {
-                this.showToast();
+                this.showToast('進度已自動儲存');
             }
         } catch (e) {
             console.log('[Save Widget] 後端未啟動，模擬存檔成功:', payload);
-            this.showToast();
+            this.showToast('進度已自動儲存');
         }
     }
 
+    // ----------------------------------------------------
+    // API: 讀取所有存檔列表
+    // ----------------------------------------------------
     async fetchSaves() {
         this.bodyEl.innerHTML = '<div style="text-align: center; color: #94a3b8;">載入中...</div>';
         
@@ -114,11 +120,10 @@ class SaveSystemWidget {
             const { data } = await response.json();
             this.renderSaves(data);
         } catch (e) {
-            console.log('[Save Widget] 後端未啟動，模擬讀取資料');
-            // 模擬假資料
+            console.log('[Save Widget] 後端未啟動，模擬讀取存檔列表');
             this.renderSaves([
-                { progress_id: 1, current_chapter: 1, current_node: '覺醒', last_played_at: new Date().toISOString() },
-                { progress_id: 2, current_chapter: 1, current_node: '開場', last_played_at: new Date(Date.now() - 3600000).toISOString() }
+                { progress_id: 1, current_chapter: 1, current_node: '覺醒', last_played_at: new Date().toISOString(), saved_state: { health: 100 } },
+                { progress_id: 2, current_chapter: 1, current_node: '探索房間', last_played_at: new Date(Date.now() - 3600000).toISOString(), saved_state: { health: 80, items: ['鑰匙'] } }
             ]);
         }
     }
@@ -129,20 +134,59 @@ class SaveSystemWidget {
             return;
         }
 
-        this.bodyEl.innerHTML = saves.map(save => {
+        // 清空容器
+        this.bodyEl.innerHTML = '';
+
+        saves.forEach(save => {
             const dateStr = new Date(save.last_played_at).toLocaleString('zh-TW');
-            return `
-                <div class="save-widget-item">
-                    <div class="save-widget-info">
-                        <h3>章節 ${save.current_chapter} - ${save.current_node}</h3>
-                        <p>${dateStr}</p>
-                    </div>
-                    <button class="save-widget-load-btn" onclick="alert('準備載入存檔ID: ${save.progress_id}')">讀取</button>
+            const itemHTML = document.createElement('div');
+            itemHTML.className = 'save-widget-item';
+            itemHTML.innerHTML = `
+                <div class="save-widget-info">
+                    <h3>章節 ${save.current_chapter} - ${save.current_node}</h3>
+                    <p>${dateStr}</p>
                 </div>
+                <button class="save-widget-load-btn">讀取</button>
             `;
-        }).join('');
+            
+            // 綁定讀取按鈕事件
+            const btn = itemHTML.querySelector('.save-widget-load-btn');
+            btn.onclick = () => this.executeLoadSave(save.progress_id, save);
+            
+            this.bodyEl.appendChild(itemHTML);
+        });
+    }
+
+    // ----------------------------------------------------
+    // API: 執行單一讀檔，並呼叫 Callback 通知主系統
+    // ----------------------------------------------------
+    async executeLoadSave(progressId, mockData = null) {
+        let loadedData = null;
+        
+        try {
+            // 嘗試呼叫後端讀取完整單一存檔資料
+            const response = await fetch(`${this.apiBaseUrl}/load/${progressId}`);
+            if (!response.ok) throw new Error('API Error');
+            const result = await response.json();
+            loadedData = result.data;
+        } catch (e) {
+            console.log(`[Save Widget] 後端未啟動，使用模擬資料讀檔 (ID: ${progressId})`);
+            loadedData = mockData;
+        }
+
+        this.closeModal();
+        this.showToast('✅ 讀檔成功');
+
+        // 第一種通知方式：執行 Callback (如果有設定)
+        if (this.onLoadSave && typeof this.onLoadSave === 'function') {
+            this.onLoadSave(loadedData);
+        }
+
+        // 第二種通知方式：發送全局 DOM 自訂事件，主系統可以直接 window.addEventListener('onSaveLoaded', ...)
+        const loadEvent = new CustomEvent('onSaveLoaded', { detail: loadedData });
+        window.dispatchEvent(loadEvent);
     }
 }
 
-// 實例化 Widget，並掛載到 window 全域物件，讓主遊戲可以呼叫
+// 實例化 Widget，並預設發送 Event，也可以被覆寫
 window.saveWidget = new SaveSystemWidget();
