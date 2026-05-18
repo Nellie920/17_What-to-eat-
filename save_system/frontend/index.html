@@ -3,50 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Story Game Auto-Save System</title>
+    <title>Story Game (Main Site Mock)</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- 只需要引入這兩個檔案，就會自動在右下角生成存檔系統！ -->
     <link rel="stylesheet" href="style.css">
+    <script src="app.js" defer></script>
+    
+    <style>
+        /* 模擬主要網站的樣式 (非 Widget 的樣式) */
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        .main-content {
+            max-width: 800px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        .main-content h1 {
+            color: #ec4899;
+        }
+        .story-placeholder {
+            margin-top: 50px;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        button.next-scene {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <!-- 頂部導覽列 -->
-    <header class="glass-header">
-        <div class="logo">Visual Novel System</div>
-        <button id="reviewSavesBtn" class="premium-btn">回顧存檔</button>
-    </header>
-
-    <!-- 遊戲主畫面 (模擬) -->
-    <main class="game-container glass-panel">
-        <div id="storyScreen" class="story-screen">
-            <h1 id="chapterTitle">Chapter 1: The Beginning</h1>
-            <p id="dialogueText">這是一個關於選擇與命運的故事...</p>
-        </div>
-        
-        <div class="controls">
-            <button id="nextBtn" class="premium-btn primary">下一步 (觸發自動存檔)</button>
-        </div>
-        
-        <!-- 自動存檔提示 -->
-        <div id="saveToast" class="save-toast hidden">
-            <span class="icon">💾</span> 遊戲進度已自動儲存
-        </div>
-    </main>
-
-    <!-- 回顧存檔彈出視窗 (Modal) -->
-    <div id="savesModal" class="modal-overlay hidden">
-        <div class="modal-content glass-panel">
-            <div class="modal-header">
-                <h2>存檔紀錄回顧</h2>
-                <button id="closeModalBtn" class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="savesList" class="saves-list">
-                    <!-- 存檔項目將透過 JS 動態生成 -->
-                    <div class="loading-text">載入中...</div>
-                </div>
-            </div>
+    <div class="main-content">
+        <h1>主網站劇情畫面 (Mock)</h1>
+        <div class="story-placeholder">
+            <h2 id="sceneTitle">第一章：覺醒</h2>
+            <p id="sceneText">你睜開眼睛，發現自己躺在一個陌生的房間裡...</p>
+            <button class="next-scene" onclick="window.saveWidget.triggerSave(1, '探索房間', { health: 100 })">推進劇情並自動存檔</button>
         </div>
     </div>
-
-    <script src="app.js"></script>
 </body>
 </html>
