@@ -122,8 +122,8 @@ class SaveSystemWidget {
         } catch (e) {
             console.log('[Save Widget] 後端未啟動，模擬讀取存檔列表');
             this.renderSaves([
-                { progress_id: 1, current_chapter: 1, current_node: '覺醒', last_played_at: new Date().toISOString(), saved_state: { health: 100 } },
-                { progress_id: 2, current_chapter: 1, current_node: '探索房間', last_played_at: new Date(Date.now() - 3600000).toISOString(), saved_state: { health: 80, items: ['鑰匙'] } }
+                { progress_id: 1, current_chapter: 1, current_node: '覺醒', last_played_at: new Date().toISOString(), saved_state: { health: 100, step: 0 } },
+                { progress_id: 2, current_chapter: 1, current_node: '探索房間', last_played_at: new Date(Date.now() - 3600000).toISOString(), saved_state: { health: 80, items: ['鑰匙'], step: 5 } }
             ]);
         }
     }
