@@ -97,8 +97,8 @@
             document.getElementById('sceneText').innerText = `你繼續往前走，發現了一些有趣的線索... (進度已自動儲存)`;
             
             logSystem(`觸發存檔：章節 ${currentChapter}, 節點 ${nodeName}`);
-            // 呼叫 Widget 的公開方法自動存檔
-            window.saveWidget.triggerSave(currentChapter, nodeName, { health: 100 - step * 5 });
+            // 呼叫 Widget 的公開方法自動存檔，並將 step 存入 saved_state 以便讀檔時恢復
+            window.saveWidget.triggerSave(currentChapter, nodeName, { health: 100 - step * 5, step: step });
         }
 
         function logSystem(msg) {
@@ -109,26 +109,33 @@
 
         // ==========================================
         // 核心：監聽 Widget 傳來的「讀檔事件」
-        // 其他分支的劇情網頁只需要加上這段監聽器，就能無痛接收讀檔資料！
         // ==========================================
         window.addEventListener('onSaveLoaded', (event) => {
             const saveData = event.detail;
             
-            // 收到資料後，執行切換劇情的邏輯
-            logSystem(`⭐⭐⭐ 收到讀檔請求！準備載入資料：⭐⭐⭐<br>${JSON.stringify(saveData)}`);
+            logSystem(`⭐⭐⭐ 收到讀檔請求！⭐⭐⭐<br>已載入存檔：${saveData.current_node}`);
             
-            // 模擬畫面更新
-            document.getElementById('sceneInfo').innerText = `目前狀態：已讀取存檔`;
-            document.getElementById('sceneTitle').innerText = `章節 ${saveData.current_chapter} - ${saveData.current_node}`;
+            // 1. 恢復變數狀態 (這是「繼續推進劇情」的關鍵)
+            currentChapter = saveData.current_chapter || 1;
+            if (saveData.saved_state && saveData.saved_state.step !== undefined) {
+                step = saveData.saved_state.step;
+            } else {
+                // 如果是假資料沒帶 step，用個隨機數或0來模擬
+                step = 0; 
+            }
+
+            // 2. 更新畫面顯示
+            document.getElementById('sceneInfo').innerText = `目前狀態：已讀取存檔 (恢復至步驟 ${step})`;
+            document.getElementById('sceneTitle').innerText = `章節 ${currentChapter} - ${saveData.current_node}`;
             
             let extraInfo = '';
             if(saveData.saved_state) {
                 extraInfo = `<br><br><small style="color:#94a3b8">載入狀態：${JSON.stringify(saveData.saved_state)}</small>`;
             }
-            document.getElementById('sceneText').innerHTML = `時空流轉，你回到了過去的這個時刻...` + extraInfo;
+            document.getElementById('sceneText').innerHTML = `時空流轉，你回到了過去的這個時刻... 現在你可以繼續往下玩了！` + extraInfo;
             
-            // 這裡可以呼叫您的主劇情引擎載入對應腳本
-            // e.g. YourStoryEngine.loadScene(saveData.current_node);
+            // 3. 提示玩家可以繼續操作
+            logSystem(`系統已將進度重置回步驟 ${step}。請點擊「推進劇情」按鈕繼續遊玩。`);
         });
     </script>
 </body>
