@@ -1,8 +1,19 @@
-from flask import Blueprint, request, render_template, redirect, url_for, session, flash
+import os
+import json
+from flask import Blueprint, request, render_template, redirect, url_for, session, flash, current_app
 from app.models.user import User
 from app.models.achievement import Achievement
 
 story_bp = Blueprint('story', __name__)
+
+def load_story_data():
+    """載入靜態故事文本"""
+    data_path = os.path.join(current_app.root_path, 'data', 'story.json')
+    try:
+        with open(data_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        return {}
 
 @story_bp.route('/', methods=['GET'])
 def home():
@@ -28,12 +39,16 @@ def play_story(node_id):
     
     user = User.get_by_id(session['user_id'])
     
-    # 此處應實作讀取靜態故事文本 (JSON) 或資料庫邏輯。
-    # 為了示範，先傳遞虛擬的 story_data 給模板。
-    story_data = {
-        'node_id': node_id,
-        'text': f"這是劇情節點 {node_id} 的內容...",
-    }
+    # 讀取靜態故事文本 (JSON)
+    story_db = load_story_data()
+    
+    # 若找不到節點，預設回到 chapter1 或給予提示
+    if node_id not in story_db:
+        flash('找不到該劇情節點，已為您回到起點。', 'warning')
+        return redirect(url_for('story.play_story', node_id='chapter1'))
+        
+    story_data = story_db[node_id]
+    story_data['node_id'] = node_id
     
     # 示範隱藏成就解鎖邏輯
     if node_id == 'secret_ending':
