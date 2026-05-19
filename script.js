@@ -1,29 +1,17 @@
-/**
- * 舊校舍的約定 - 劇情與資料模組 (擴展長度與 30 種專屬結局版)
- * 
- * 由於您負責開發核心邏輯與顯示系統，這裡已將所有與 DOM (畫面) 相關的程式碼移除，
- * 僅保留純粹的資料結構 (Data Structures) 與狀態常數。
- */
-
-// 1. 遊戲初始狀態模板
-export const initialState = {
-    trust: 0,
-    curiosity: 0,
-    fear: 0,
-    affection: 0,
-    courage: 0,
-    mystery_route: false,
-    ice_route: false,
-    normal_route: false,
-    discovered_secret: false,
-    followed_target: false,
-    recovered_memory: false,
-    abandoned_partner: false,
-    targetKey: null
+// --- 資料結構 ---
+let gameState = {
+    currentNode: 'start',
+    targetKey: null,
+    stats: {
+        trust: 0, curiosity: 0, fear: 0, affection: 0, courage: 0
+    },
+    flags: {
+        mystery_route: false, ice_route: false, normal_route: false,
+        followed_target: false, recovered_memory: false, abandoned_partner: false
+    }
 };
 
-// 2. 角色資料庫
-export const characters = {
+const characters = {
     m1: { name: "洛頁彥" },
     m2: { name: "齊勻楠" },
     m3: { name: "秦陌寂" },
@@ -32,7 +20,6 @@ export const characters = {
     f3: { name: "顧音棉" }
 };
 
-// 動態建立劇情節點
 function buildStoryNodes() {
     const nodes = {
         'start': {
@@ -48,7 +35,7 @@ function buildStoryNodes() {
             'choices': [
                 {'text': "扮演男生 (對象為女性)", 'next': "select_target_f"},
                 {'text': "扮演女生 (對象為男性)", 'next': "select_target_m"},
-                {'text': "交給命運決定 (隨機)", 'next': "random_gender"}
+                {'text': "交給命運決定 (隨機)", 'next': "select_target_f"} // 簡化處理
             ]
         },
         'select_target_m': {
@@ -420,8 +407,9 @@ function buildStoryNodes() {
         }
     };
 
-    // Generate full nodes dictionary
-    for (let [char_id, data] of Object.entries(storylines)) {
+    // 生成完整節點
+    for (let char_id in storylines) {
+        const data = storylines[char_id];
         nodes[`intro_${char_id}`] = {
             'text': data['intro'],
             'choices': data['intro_choices'].map(c => ({'text': c[0], 'statChange': c[1], 'next': `lunch_${char_id}`}))
@@ -480,141 +468,166 @@ function buildStoryNodes() {
     return nodes;
 }
 
-// 3. 匯出節點資料庫
-export const storyNodes = buildStoryNodes();
+const storyNodes = buildStoryNodes();
 
-// 4. 結局資料庫 (30種專屬結局)
-export const endings = {
+const endings = {
     'm1': {
-        'end_true': {
-            'title': "【TRUE END】約好的滑板特訓",
-            'desc': "你完全恢復了記憶。洛頁彥紅著眼眶抱住你，隨後笑著拿出準備已久的專屬滑板送給你：「對不起讓你久等了！這次，換我帶著你飛啦！」"
-        },
-        'end_good': {
-            'title': "【GOOD END】不再害怕的未來",
-            'desc': "雖然記憶沒有完全恢復，但他在夕陽下緊緊牽著你的手：「不管過去如何，從今以後的每一天，我都會像這樣陪著你、保護你！」"
-        },
-        'end_normal': {
-            'title': "【NORMAL END】吵鬧的日常",
-            'desc': "傳聞平息，洛頁彥又恢復了平時粗心大意的樣子，每天中午都吵著要你分他便當的配菜，過著吵鬧卻平凡的校園生活。"
-        },
-        'end_bad': {
-            'title': "【BAD END】破碎的頭盔",
-            'desc': "你在黑暗中因為恐懼而拋下他逃跑。當你帶著人回到舊校舍時，只在地上找到那頂充滿裂痕的舊頭盔，而洛頁彥再也沒有出現過。"
-        },
-        'end_comedy': {
-            'title': "【COMEDY END】滑板大暴走",
-            'desc': "因為你們的慌亂逃跑引發了校園祭大混亂，他情急之下踩著滑板帶你衝刺，最後直直撞進了校長室！兩人慘遭留校察看打掃廁所一個月。"
-        }
+        'end_true': { 'title': "【TRUE END】約好的滑板特訓", 'desc': "你完全恢復了記憶。洛頁彥紅著眼眶抱住你，隨後笑著拿出準備已久的專屬滑板送給你：「對不起讓你久等了！這次，換我帶著你飛啦！」" },
+        'end_good': { 'title': "【GOOD END】不再害怕的未來", 'desc': "雖然記憶沒有完全恢復，但他在夕陽下緊緊牽著你的手：「不管過去如何，從今以後的每一天，我都會像這樣陪著你、保護你！」" },
+        'end_normal': { 'title': "【NORMAL END】吵鬧的日常", 'desc': "傳聞平息，洛頁彥又恢復了平時粗心大意的樣子，每天中午都吵著要你分他便當的配菜，過著吵鬧卻平凡的校園生活。" },
+        'end_bad': { 'title': "【BAD END】破碎的頭盔", 'desc': "你在黑暗中因為恐懼而拋下他逃跑。當你帶著人回到舊校舍時，只在地上找到那頂充滿裂痕的舊頭盔，而洛頁彥再也沒有出現過。" },
+        'end_comedy': { 'title': "【COMEDY END】滑板大暴走", 'desc': "因為你們的慌亂逃跑引發了校園祭大混亂，他情急之下踩著滑板帶你衝刺，最後直直撞進了校長室！兩人慘遭留校察看打掃廁所一個月。" }
     },
     'm2': {
-        'end_true': {
-            'title': "【TRUE END】100%的奇蹟",
-            'desc': "記憶恢復，你解開了日記的密碼鎖。齊勻楠緊緊抱住你，聲音微顫：「你打破了我所有的風險計算與邏輯...但我心甘情願。」"
-        },
-        'end_good': {
-            'title': "【GOOD END】重新計算的戀愛",
-            'desc': "雖然記憶沒恢復，但他決定放下過去的執念，微笑著說：「看來我必須重新計算『如何讓你每天都心跳加速』的機率了。」"
-        },
-        'end_normal': {
-            'title': "【NORMAL END】平靜的數據",
-            'desc': "事件平息，齊勻楠依然每天精準計算著你的卡路里，你們維持著充滿邏輯卻略顯平淡的同學關係。"
-        },
-        'end_bad': {
-            'title': "【BAD END】無法計算的深淵",
-            'desc': "你不聽勸告走入黑暗，他爲了救你而被吞噬。幾天後，你收到了一份他生前寄出的、未完成的『舊校舍生存機率報告』。"
-        },
-        'end_comedy': {
-            'title': "【COMEDY END】完美計畫大崩壞",
-            'desc': "因為你的無厘頭舉動，他的紅外線感測器引發了全校防盜警報！你們被當成竊賊在操場被警衛狂追，他完美的形象徹底掃地。"
-        }
+        'end_true': { 'title': "【TRUE END】100%的奇蹟", 'desc': "記憶恢復，你解開了日記的密碼鎖。齊勻楠緊緊抱住你，聲音微顫：「你打破了我所有的風險計算與邏輯...但我心甘情願。」" },
+        'end_good': { 'title': "【GOOD END】重新計算的戀愛", 'desc': "雖然記憶沒恢復，但他決定放下過去的執念，微笑著說：「看來我必須重新計算『如何讓你每天都心跳加速』的機率了。」" },
+        'end_normal': { 'title': "【NORMAL END】平靜的數據", 'desc': "事件平息，齊勻楠依然每天精準計算著你的卡路里，你們維持著充滿邏輯卻略顯平淡的同學關係。" },
+        'end_bad': { 'title': "【BAD END】無法計算的深淵", 'desc': "你不聽勸告走入黑暗，他爲了救你而被吞噬。幾天後，你收到了一份他生前寄出的、未完成的『舊校舍生存機率報告』。" },
+        'end_comedy': { 'title': "【COMEDY END】完美計畫大崩壞", 'desc': "因為你的無厘頭舉動，他的紅外線感測器引發了全校防盜警報！你們被當成竊賊在操場被警衛狂追，他完美的形象徹底掃地。" }
     },
     'm3': {
-        'end_true': {
-            'title': "【TRUE END】不再需要的醫藥箱",
-            'desc': "記憶恢復，秦陌寂摘下眼鏡，溫柔地輕吻你的額頭：「太好了，以後我不需要再為你準備OK繃，只要準備婚戒就好了。」"
-        },
-        'end_good': {
-            'title': "【GOOD END】溫暖的茶香",
-            'desc': "雖然沒恢復記憶，但他依然每天為你泡一杯安神茶。你們並肩坐在長椅上看著夕陽，享受著平靜且溫馨的陪伴。"
-        },
-        'end_normal': {
-            'title': "【NORMAL END】可靠的學長",
-            'desc': "事件結束，舊校舍被拆除。秦陌寂依然是你最可靠的學長，但你們之間始終保持著禮貌的距離。"
-        },
-        'end_bad': {
-            'title': "【BAD END】無盡的黑夜",
-            'desc': "恐懼讓你推開了他，獨自面對怪談。最後你在黑暗中失去了意識，再也喝不到學長親手泡的安神茶了。"
-        },
-        'end_comedy': {
-            'title': "【COMEDY END】校園祭最速傳說",
-            'desc': "你嚇得拉著他狂奔，結果文弱的他體力透支差點暈倒，最後被你一路用公主抱扛出校門，成為了全校師生目瞪口呆的傳奇。"
-        }
+        'end_true': { 'title': "【TRUE END】不再需要的醫藥箱", 'desc': "記憶恢復，秦陌寂摘下眼鏡，溫柔地輕吻你的額頭：「太好了，以後我不需要再為你準備OK繃，只要準備婚戒就好了。」" },
+        'end_good': { 'title': "【GOOD END】溫暖的茶香", 'desc': "雖然沒恢復記憶，但他依然每天為你泡一杯安神茶。你們並肩坐在長椅上看著夕陽，享受著平靜且溫馨的陪伴。" },
+        'end_normal': { 'title': "【NORMAL END】可靠的學長", 'desc': "事件結束，舊校舍被拆除。秦陌寂依然是你最可靠的學長，但你們之間始終保持著禮貌的距離。" },
+        'end_bad': { 'title': "【BAD END】無盡的黑夜", 'desc': "恐懼讓你推開了他，獨自面對怪談。最後你在黑暗中失去了意識，再也喝不到學長親手泡的安神茶了。" },
+        'end_comedy': { 'title': "【COMEDY END】校園祭最速傳說", 'desc': "你嚇得拉著他狂奔，結果文弱的他體力透支差點暈倒，最後被你一路用公主抱扛出校門，成為了全校師生目瞪口呆的傳奇。" }
     },
     'f1': {
-        'end_true': {
-            'title': "【TRUE END】盛開的秘密花園",
-            'desc': "記憶恢復，你們一起重新整理了舊校舍後方的荒廢花園。田媛寧幸福地笑著：「這次，花朵一定會永遠盛開的，就像我們一樣。」"
-        },
-        'end_good': {
-            'title': "【GOOD END】新的花語",
-            'desc': "雖然沒恢復記憶，但她送給你一束代表「重新開始」的花朵，勇敢地主動牽起你的手迎向未來。"
-        },
-        'end_normal': {
-            'title': "【NORMAL END】寧靜的頂樓午餐",
-            'desc': "傳聞平息，你們依舊每天在頂樓分享手工便當，過著安穩、恬靜的普通校園生活。"
-        },
-        'end_bad': {
-            'title': "【BAD END】枯萎的約定",
-            'desc': "你因為害怕而逃跑，舊校舍的黑暗吞噬了一切，連同田媛寧一起消失。那座曾經承諾要一起照顧的花園，徹底荒蕪了。"
-        },
-        'end_comedy': {
-            'title': "【COMEDY END】貓咪大戰爭",
-            'desc': "逃跑時你不小心踩到她常餵的那隻流浪貓的尾巴，引發全校流浪貓集體暴走！你們被貓咪大軍追得抱頭鼠竄，狼狽不堪。"
-        }
+        'end_true': { 'title': "【TRUE END】盛開的秘密花園", 'desc': "記憶恢復，你們一起重新整理了舊校舍後方的荒廢花園。田媛寧幸福地笑著：「這次，花朵一定會永遠盛開的，就像我們一樣。」" },
+        'end_good': { 'title': "【GOOD END】新的花語", 'desc': "雖然沒恢復記憶，但她送給你一束代表「重新開始」的花朵，勇敢地主動牽起你的手迎向未來。" },
+        'end_normal': { 'title': "【NORMAL END】寧靜的頂樓午餐", 'desc': "傳聞平息，你們依舊每天在頂樓分享手工便當，過著安穩、恬靜的普通校園生活。" },
+        'end_bad': { 'title': "【BAD END】枯萎的約定", 'desc': "你因為害怕而逃跑，舊校舍的黑暗吞噬了一切，連同田媛寧一起消失。那座曾經承諾要一起照顧的花園，徹底荒蕪了。" },
+        'end_comedy': { 'title': "【COMEDY END】貓咪大戰爭", 'desc': "逃跑時你不小心踩到她常餵的那隻流浪貓的尾巴，引發全校流浪貓集體暴走！你們被貓咪大軍追得抱頭鼠竄，狼狽不堪。" }
     },
     'f2': {
-        'end_true': {
-            'title': "【TRUE END】解開的心鎖",
-            'desc': "機關盒與記憶同時解開。張栖鈴紅著臉撇過頭：「算你聰明...既然你想起來了，以後本小姐的奶茶，就交給你買一輩子了！」"
-        },
-        'end_good': {
-            'title': "【GOOD END】專屬跑腿員",
-            'desc': "雖然沒想起來，但她似乎更依賴你了。「發什麼呆？還不快去幫我買午餐，過來，牽著我的手一起去！」"
-        },
-        'end_normal': {
-            'title': "【NORMAL END】麻煩的日常",
-            'desc': "事件平息，她依舊每天霸佔交誼廳的沙發睡覺，而你依舊是那個常常被她呼之即來的跑腿同學。"
-        },
-        'end_bad': {
-            'title': "【BAD END】無法找回的寶物",
-            'desc': "你丟下她逃跑了。當你後悔回到舊校舍時，那裡只剩下一個永遠打不開的機關盒，而她再也沒有回來過。"
-        },
-        'end_comedy': {
-            'title': "【COMEDY END】女王的制裁",
-            'desc': "因為你丟下她逃跑，她氣得在全校廣播你的糗事，讓你徹底社會性死亡，最後你只好在操場當眾下跪求饒，成了全校笑柄。"
-        }
+        'end_true': { 'title': "【TRUE END】解開的心鎖", 'desc': "機關盒與記憶同時解開。張栖鈴紅著臉撇過頭：「算你聰明...既然你想起來了，以後本小姐的奶茶，就交給你買一輩子了！」" },
+        'end_good': { 'title': "【GOOD END】專屬跑腿員", 'desc': "雖然沒想起來，但她似乎更依賴你了。「發什麼呆？還不快去幫我買午餐，過來，牽著我的手一起去！」" },
+        'end_normal': { 'title': "【NORMAL END】麻煩的日常", 'desc': "事件平息，她依舊每天霸佔交誼廳的沙發睡覺，而你依舊是那個常常被她呼之即來的跑腿同學。" },
+        'end_bad': { 'title': "【BAD END】無法找回的寶物", 'desc': "你丟下她逃跑了。當你後悔回到舊校舍時，那裡只剩下一個永遠打不開的機關盒，而她再也沒有回來過。" },
+        'end_comedy': { 'title': "【COMEDY END】女王的制裁", 'desc': "因為你丟下她逃跑，她氣得在全校廣播你的糗事，讓你徹底社會性死亡，最後你只好在操場當眾下跪求饒，成了全校笑柄。" }
     },
     'f3': {
-        'end_true': {
-            'title': "【TRUE END】最完美的快門",
-            'desc': "記憶恢復，顧音棉破涕為笑，舉起修好的相機拍下你溫柔的笑容：「這張完美的照片，本小姐會當作傳家寶永遠珍藏的！」"
-        },
-        'end_good': {
-            'title': "【GOOD END】新的探險",
-            'desc': "雖然沒恢復記憶，但她馬上又發明了『戀愛探測儀』，每天跟在你身邊嘰嘰喳喳，你們展開了全新的熱鬧生活。"
-        },
-        'end_normal': {
-            'title': "【NORMAL END】和平的校園",
-            'desc': "舊校舍的傳聞消失了，她也覺得無趣而收起了幽靈探測儀，你們回歸了吵吵鬧鬧但和平的普通日常。"
-        },
-        'end_bad': {
-            'title': "【BAD END】底片上的黑影",
-            'desc': "你不信任她而獨自離開，最後在舊校舍深處迷失。幾天後，有人在地上發現了她的相機，裡面只洗出一張拍到可怕黑影的相片。"
-        },
-        'end_comedy': {
-            'title': "【COMEDY END】抓鬼大師的災難",
-            'desc': "逃跑時她的各種發明連環爆炸，把舊校舍炸得滿目瘡痍！你們兩人被迫穿著清潔服打掃了一整學期，還上了校刊頭版。"
+        'end_true': { 'title': "【TRUE END】最完美的快門", 'desc': "記憶恢復，顧音棉破涕為笑，舉起修好的相機拍下你溫柔的笑容：「這張完美的照片，本小姐會當作傳家寶永遠珍藏的！」" },
+        'end_good': { 'title': "【GOOD END】新的探險", 'desc': "雖然沒恢復記憶，但她馬上又發明了『戀愛探測儀』，每天跟在你身邊嘰嘰喳喳，你們展開了全新的熱鬧生活。" },
+        'end_normal': { 'title': "【NORMAL END】和平的校園", 'desc': "舊校舍的傳聞消失了，她也覺得無趣而收起了幽靈探測儀，你們回歸了吵吵鬧鬧但和平的普通日常。" },
+        'end_bad': { 'title': "【BAD END】底片上的黑影", 'desc': "你不信任她而獨自離開，最後在舊校舍深處迷失。幾天後，有人在地上發現了她的相機，裡面只洗出一張拍到可怕黑影的相片。" },
+        'end_comedy': { 'title': "【COMEDY END】抓鬼大師的災難", 'desc': "逃跑時她的各種發明連環爆炸，把舊校舍炸得滿目瘡痍！你們兩人被迫穿著清潔服打掃了一整學期，還上了校刊頭版。" }
+    }
+};
+
+// --- 遊戲邏輯與 DOM 操作 ---
+function initGame() {
+    gameState = {
+        currentNode: 'start',
+        targetKey: null,
+        stats: { trust: 0, curiosity: 0, fear: 0, affection: 0, courage: 0 },
+        flags: { mystery_route: false, ice_route: false, normal_route: false, followed_target: false, recovered_memory: false, abandoned_partner: false }
+    };
+    
+    // 隱藏結局畫面，顯示故事畫面
+    document.getElementById('ending-box').classList.add('hidden');
+    document.getElementById('story-text').classList.remove('hidden');
+    document.getElementById('choices').classList.remove('hidden');
+    
+    renderNode('start');
+}
+
+function renderNode(nodeId) {
+    // 處理章節邏輯跳轉
+    if (nodeId === 'eval_chapter3') {
+        let tKey = gameState.targetKey;
+        if (!tKey) tKey = 'm1'; // 防呆
+        if (gameState.stats.curiosity >= 2 || gameState.flags.followed_target) {
+            nodeId = `memory_${tKey}`;
+        } else {
+            nodeId = `memory_alt_${tKey}`;
         }
     }
+    
+    // 處理結局跳轉
+    if (nodeId === 'eval_ending') {
+        showEnding();
+        return;
+    }
+
+    gameState.currentNode = nodeId;
+    const node = storyNodes[nodeId];
+    
+    if (!node) {
+        document.getElementById('story-text').innerText = "劇情載入錯誤！找不到節點: " + nodeId;
+        return;
+    }
+
+    // 渲染文字
+    document.getElementById('story-text').innerText = node.text;
+    
+    // 渲染選項
+    const choicesContainer = document.getElementById('choices');
+    choicesContainer.innerHTML = '';
+    
+    node.choices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerText = choice.text;
+        btn.onclick = () => makeChoice(choice);
+        choicesContainer.appendChild(btn);
+    });
+}
+
+function makeChoice(choice) {
+    if (choice.targetKey) {
+        gameState.targetKey = choice.targetKey;
+    }
+    
+    if (choice.statChange) {
+        for (let key in choice.statChange) {
+            if (typeof choice.statChange[key] === 'boolean') {
+                gameState.flags[key] = choice.statChange[key];
+            } else {
+                if (!gameState.stats[key]) gameState.stats[key] = 0;
+                gameState.stats[key] += choice.statChange[key];
+            }
+        }
+    }
+    
+    renderNode(choice.next);
+}
+
+function showEnding() {
+    let endKey = 'end_normal';
+    const stats = gameState.stats;
+    const flags = gameState.flags;
+
+    // 結局判定邏輯
+    if (flags.abandoned_partner) {
+        if (stats.fear >= 2) {
+            endKey = 'end_bad';
+        } else {
+            endKey = 'end_comedy';
+        }
+    } else if (flags.recovered_memory && stats.trust >= 2 && stats.affection >= 2) {
+        endKey = 'end_true';
+    } else if (stats.affection >= 2 && stats.trust >= 1) {
+        endKey = 'end_good';
+    }
+    
+    const targetKey = gameState.targetKey || 'm1';
+    let ending = endings[targetKey][endKey];
+    if (!ending) ending = endings['m1']['end_normal']; // 預設防呆
+    
+    // 切換畫面
+    document.getElementById('story-text').classList.add('hidden');
+    document.getElementById('choices').classList.add('hidden');
+    
+    const endingBox = document.getElementById('ending-box');
+    endingBox.classList.remove('hidden');
+    
+    document.getElementById('ending-title').innerText = ending.title;
+    document.getElementById('ending-desc').innerText = ending.desc;
+}
+
+// 綁定事件並啟動遊戲
+window.onload = () => {
+    document.getElementById('restart-btn').onclick = initGame;
+    initGame();
 };
