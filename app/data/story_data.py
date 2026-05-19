@@ -461,6 +461,25 @@ def build_story_nodes():
                 {'text': c[0], 'statChange': c[1], 'next': "eval_chapter3"} for c in data['aftermath_choices']
             ]
         }
+        
+        memory_text_choice = "「我都想起來了，對不起讓妳久等了。」" if char_id.startswith('f') else "「我都想起來了，對不起讓你久等了。」"
+        nodes[f'memory_{char_id}'] = {
+            'text': data['memory'],
+            'choices': [
+                {'text': memory_text_choice, 'statChange': {'trust': 3, 'affection': 3, 'recovered_memory': True}, 'next': "eval_ending"},
+                {'text': "崩潰地質問：「為什麼要瞞著我！」", 'statChange': {'fear': 3, 'affection': -2}, 'next': "eval_ending"},
+                {'text': "無法承受事實，轉身逃跑", 'statChange': {'abandoned_partner': True}, 'next': "eval_ending"}
+            ]
+        }
+        
+        nodes[f'memory_alt_{char_id}'] = {
+            'text': data['memory_alt'],
+            'choices': [
+                {'text': "牽起手：「以後也一起來看煙火吧。」", 'statChange': {'affection': 3, 'trust': 2}, 'next': "eval_ending"},
+                {'text': "「我們...是不是小時候一起看過煙火？」", 'statChange': {'trust': 3, 'recovered_memory': True}, 'next': "eval_ending"},
+                {'text': "假裝沒聽見", 'statChange': {'abandoned_partner': True}, 'next': "eval_ending"}
+            ]
+        }
 
     return nodes
 
