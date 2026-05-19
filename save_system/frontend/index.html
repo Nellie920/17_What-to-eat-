@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Game (Main Site Mock)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- 引入 Widget 樣式與邏輯 -->
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js" defer></script>
+    
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        .main-content {
+            max-width: 800px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        .main-content h1 {
+            color: #ec4899;
+        }
+        .story-placeholder {
+            margin-top: 50px;
+            padding: 40px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        .scene-info {
+            color: #3b82f6;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        button.next-scene {
+            margin-top: 30px;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        button.next-scene:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+        #systemLog {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            color: #a3e635;
+            text-align: left;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            min-height: 80px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <h1>主網站劇情畫面 (Mock)</h1>
+        <p>這是一個模擬其他分支（如 D1410497）的主劇情網頁。<br>您可以點擊右下角的 Widget 測試讀檔功能，系統會捕捉讀檔事件並在這裡反應。</p>
+        
+        <div class="story-placeholder">
+            <div class="scene-info" id="sceneInfo">目前狀態：全新遊戲</div>
+            <h2 id="sceneTitle">第一章：覺醒</h2>
+            <p id="sceneText">你睜開眼睛，發現自己躺在一個陌生的房間裡...</p>
+            <button class="next-scene" onclick="progressStory()">推進劇情並自動存檔</button>
+        </div>
+
+        <div id="systemLog">
+            > 系統日誌就緒...
+        </div>
+    </div>
+
+    <script>
+        let currentChapter = 1;
+        let step = 0;
+
+        // 模擬推進劇情
+        function progressStory() {
+            step++;
+            const nodeName = `場景_${step}`;
+            document.getElementById('sceneInfo').innerText = `目前狀態：遊戲進行中 (步驟 ${step})`;
+            document.getElementById('sceneTitle').innerText = `第一章：探索 (第 ${step} 步)`;
+            document.getElementById('sceneText').innerText = `你繼續往前走，發現了一些有趣的線索... (進度已自動儲存)`;
+            
+            logSystem(`觸發存檔：章節 ${currentChapter}, 節點 ${nodeName}`);
+            // 呼叫 Widget 的公開方法自動存檔，並將 step 存入 saved_state 以便讀檔時恢復
+            window.saveWidget.triggerSave(currentChapter, nodeName, { health: 100 - step * 5, step: step });
+        }
+
+        function logSystem(msg) {
+            const log = document.getElementById('systemLog');
+            log.innerHTML += `<br>> ${msg}`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // ==========================================
+        // 核心：監聽 Widget 傳來的「讀檔事件」
+        // ==========================================
+        window.addEventListener('onSaveLoaded', (event) => {
+            const saveData = event.detail;
+            
+            logSystem(`⭐⭐⭐ 收到讀檔請求！⭐⭐⭐<br>已載入存檔：${saveData.current_node}`);
+            
+            // 1. 恢復變數狀態 (這是「繼續推進劇情」的關鍵)
+            currentChapter = saveData.current_chapter || 1;
+            if (saveData.saved_state && saveData.saved_state.step !== undefined) {
+                step = saveData.saved_state.step;
+            } else {
+                // 如果是假資料沒帶 step，用個隨機數或0來模擬
+                step = 0; 
+            }
+
+            // 2. 更新畫面顯示
+            document.getElementById('sceneInfo').innerText = `目前狀態：已讀取存檔 (恢復至步驟 ${step})`;
+            document.getElementById('sceneTitle').innerText = `章節 ${currentChapter} - ${saveData.current_node}`;
+            
+            let extraInfo = '';
+            if(saveData.saved_state) {
+                extraInfo = `<br><br><small style="color:#94a3b8">載入狀態：${JSON.stringify(saveData.saved_state)}</small>`;
+            }
+            document.getElementById('sceneText').innerHTML = `時空流轉，你回到了過去的這個時刻... 現在你可以繼續往下玩了！` + extraInfo;
+            
+            // 3. 提示玩家可以繼續操作
+            logSystem(`系統已將進度重置回步驟 ${step}。請點擊「推進劇情」按鈕繼續遊玩。`);
+        });
+    </script>
+</body>
+</html>

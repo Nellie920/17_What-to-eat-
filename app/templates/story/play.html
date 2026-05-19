@@ -2,18 +2,25 @@
 
 {% block content %}
 <div class="d-flex flex-column h-100">
-    <div class="story-box glass-panel shadow-lg">
-        <p class="mb-0">{{ story.text }}</p>
+    <div class="mb-3 text-end" style="color: #cbd5e1; font-size: 0.9rem;">
+        <span>好感: {{ state.affection }}</span> | 
+        <span>信任: {{ state.trust }}</span> | 
+        <span>恐懼: {{ state.fear }}</span> | 
+        <span>好奇: {{ state.curiosity }}</span>
+    </div>
+
+    <div class="story-box glass-panel shadow-lg mb-4">
+        <p class="mb-0" style="white-space: pre-wrap;">{{ story.text }}</p>
     </div>
     
     <div class="options-container">
-        <!-- 虛擬選項供示範 -->
-        <a href="{{ url_for('story.play_story', node_id='chapter1') }}" class="option-btn fs-5">
-            1. 繼續前進，探索前方的未知。
-        </a>
-        <a href="{{ url_for('story.play_story', node_id='secret_ending') }}" class="option-btn fs-5">
-            2. 觸碰那發光的神秘水晶。
-        </a>
+        {% for choice in story.choices %}
+        <form action="{{ url_for('story.make_choice', node_id=story.node_id, choice_id=choice.id) }}" method="POST" class="d-grid mb-3">
+            <button type="submit" class="option-btn fs-5 text-start">
+                {{ choice.text }}
+            </button>
+        </form>
+        {% endfor %}
         
         <form action="{{ url_for('save.create_save') }}" method="POST" class="mt-4 text-end">
             <input type="hidden" name="node_id" value="{{ story.node_id }}">
