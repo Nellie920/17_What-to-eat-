@@ -1,237 +1,610 @@
-let state = {
-    trust: 0,
-    curiosity: 0,
-    fear: 0,
-    affection: 0,
-    courage: 0,
-    mystery_route: false,
-    ice_route: false,
-    normal_route: false,
-    discovered_secret: false,
-    followed_target: false,
-    recovered_memory: false,
-    abandoned_partner: false
-};
-
-let targetName = "神秘人";
-
-// Story Data
-const nodes = {
-    start: {
-        text: "歡迎來到《舊校舍的約定》。\n請選擇你想要體驗的戀愛故事類型：",
-        choices: [
-            { text: "男男戀 (BL)", target: "學長", next: "node_intro" },
-            { text: "女女戀 (GL)", target: "學姊", next: "node_intro" },
-            { text: "男女戀 (HL)", target: "HL", next: "node_hl_gender" }
-        ]
-    },
-    node_hl_gender: {
-        text: "請選擇你想扮演的性別：",
-        choices: [
-            { text: "扮演男生 (對象為女同學)", target: "女同學", next: "node_intro" },
-            { text: "扮演女生 (對象為男同學)", target: "男同學", next: "node_intro" },
-            { text: "交給命運決定 (隨機)", target: "random", next: "node_intro" }
-        ]
-    },
-    node_intro: {
-        text: "第一章：奇怪的初遇\n\n放學後的走廊上，你第一次遇見了{target}。\n對方直直地看著你，卻突然叫出你的名字：「你果然回來了。」\n但你非常確定，自己從來沒有見過對方。",
-        choices: [
-            { text: "「你是不是認錯人了？」", effect: () => { state.trust += 2; state.curiosity += 1; }, next: "node_festival_prep" },
-            { text: "「……你調查我？」", effect: () => { state.fear += 1; state.mystery_route = true; }, next: "node_festival_prep" },
-            { text: "轉身直接離開", effect: () => { state.affection -= 1; state.ice_route = true; }, next: "node_festival_prep" }
-        ]
-    },
-    node_festival_prep: {
-        text: "隔天，{target}居然轉到你的班上，而且就坐在你旁邊。\n下課時，{target}靜靜地看著窗外，似乎有著沉重的心事。",
-        choices: [
-            { text: "主動搭話：「那個...我們昨天見過吧？」", effect: () => { state.affection += 2; state.trust += 1; }, next: "node_festival" },
-            { text: "試探性地問：「聽說舊校舍有奇怪的傳聞...」", effect: () => { state.curiosity += 2; state.fear += 1; }, next: "node_festival" },
-            { text: "裝作不認識，自己趴著睡覺", effect: () => { state.fear += 1; state.ice_route = true; }, next: "node_festival" }
-        ]
-    },
-    node_festival: {
-        text: "第二章：校園祭的邀約\n\n學校開始流傳都市傳說：「夜晚的舊校舍，會吞沒某個人。」\n與此同時，你發現{target}最近的行為越來越異常，經常盯著舊校舍的方向看。",
-        choices: [
-            { text: "邀請{target}：「我們一起去舊校舍調查吧！」", effect: () => { state.courage += 1; state.trust += 1; }, next: "node_investigate" },
-            { text: "決定放學後偷偷跟蹤{target}", effect: () => { state.fear += 1; state.followed_target = true; }, next: "node_follow" },
-            { text: "裝作沒事，邀請{target}去逛校園祭攤位", effect: () => { state.affection += 2; state.normal_route = true; }, next: "node_daily_life" }
-        ]
-    },
-    node_investigate: {
-        text: "你們一起來到了陰暗的舊校舍。突然，一陣冷風吹過，門「砰」一聲關上了。\n{target}緊緊抓住你的手：「別怕，我會保護你...就像以前一樣。」",
-        choices: [
-            { text: "握緊對方的手：「我不怕，因為有你在。」", effect: () => { state.affection += 3; state.trust += 2; }, next: "eval_chapter3" },
-            { text: "趁機詢問：「你說的『以前』到底是什麼意思？」", effect: () => { state.curiosity += 2; }, next: "eval_chapter3" },
-            { text: "嚇得甩開手，獨自往反方向跑", effect: () => { state.fear += 3; state.abandoned_partner = true; }, next: "eval_chapter3" }
-        ]
-    },
-    node_follow: {
-        text: "你跟著{target}來到了舊校舍，卻不小心踩斷了樹枝。\n{target}猛然回頭，眼神複雜地看著你：「你不該來這裡的...會想起來的。」",
-        choices: [
-            { text: "勇敢對峙：「把你知道的全部告訴我！」", effect: () => { state.curiosity += 2; state.courage += 1; }, next: "eval_chapter3" },
-            { text: "軟化態度：「我只是...很在意你。」", effect: () => { state.trust += 2; state.affection += 2; }, next: "eval_chapter3" },
-            { text: "覺得太詭異了，轉身就跑", effect: () => { state.fear += 3; state.abandoned_partner = true; }, next: "eval_chapter3" }
-        ]
-    },
-    node_daily_life: {
-        text: "你們在校園祭逛著各種攤位，氣氛十分融洽。\n看著{target}開心的笑容，你覺得那些可怕的傳聞似乎都很遙遠。",
-        choices: [
-            { text: "買了對方一直在看的章魚燒並餵給對方吃", effect: () => { state.affection += 3; state.trust += 1; }, next: "eval_chapter3" },
-            { text: "狀似無意地問：「你為什麼總是避開舊校舍？」", effect: () => { state.curiosity += 1; state.fear += 1; }, next: "eval_chapter3" },
-            { text: "覺得無聊，丟下對方自己去玩鬼屋", effect: () => { state.abandoned_partner = true; }, next: "eval_chapter3" }
-        ]
-    },
-    node_memory: {
-        text: "第三章：封印的記憶\n\n隨著調查深入，你在一本舊校刊裡發現了驚人的真相。\n小時候，你曾在舊校舍發生過嚴重事故，而當時{target}就在現場，甚至為了救你受了傷。\n難怪你失去了那段記憶...",
-        choices: [
-            { text: "找到{target}並抱住對方：「我都想起來了，對不起讓你久等了。」", effect: () => { state.trust += 3; state.affection += 3; state.recovered_memory = true; }, next: "eval_ending" },
-            { text: "崩潰地質問對方：「為什麼要瞞著我！你是不是有什麼企圖？」", effect: () => { state.fear += 3; state.affection -= 2; }, next: "eval_ending" },
-            { text: "無法承受這個事實，選擇逃避並轉學", effect: () => { state.abandoned_partner = true; }, next: "eval_ending" }
-        ]
-    },
-    node_memory_alt: {
-        text: "第三章：未解之謎\n\n校園祭進入了尾聲，天空綻放著燦爛的煙火。\n{target}站在你身邊，眼神溫柔卻帶著一絲寂寞：「只要你平安開心就好...」",
-        choices: [
-            { text: "牽起對方的手：「以後也一起來看煙火吧。」", effect: () => { state.affection += 3; state.trust += 2; }, next: "eval_ending" },
-            { text: "腦海中閃過一個畫面：「我們...是不是小時候一起看過煙火？」", effect: () => { state.trust += 3; state.recovered_memory = true; }, next: "eval_ending" },
-            { text: "假裝沒聽見，逕自走回教室", effect: () => { state.abandoned_partner = true; }, next: "eval_ending" }
-        ]
+// Game State
+const gameState = {
+    currentStep: 'targetGender', 
+    targetGender: null,
+    targetCharacter: null,
+    playerGender: null,
+    resolvedTargetGender: null,
+    resolvedTargetCharacter: null,
+    resolvedPlayerGender: null,
+    preferences: {
+        npcColor: '#d6336c',
+        playerColor: '#4facfe',
+        textColor: '#ffffff',
+        actionColor: '#b0b0b0'
     }
 };
 
-const endings = {
-    end_true: {
-        title: "【TRUE END】你終於想起我了",
-        desc: "主角完全恢復童年記憶。原來兩人曾約定：「以後一定要再見面。」在燦爛的煙火下，兩人正式確認了關係，解開了舊校舍的都市傳說。"
-    },
-    end_good: {
-        title: "【GOOD END】至少這次沒有錯過",
-        desc: "雖然記憶沒有完全恢復，但過去的羈絆讓你們再次互相吸引。兩人選擇從現在開始重新認識彼此，迎向新的未來。"
-    },
-    end_normal: {
-        title: "【NORMAL END】普通的校園日常",
-        desc: "事件平息後，舊校舍的傳聞也漸漸被遺忘。你們維持著普通的同學關係，過著平凡而寧靜的校園生活。"
-    },
-    end_bad: {
-        title: "【BAD END】消失的人",
-        desc: "強烈的恐懼與不信任讓你做出了錯誤的選擇。你獨自前往舊校舍尋找真相，卻被黑暗吞噬，成為了下一個都市傳說..."
-    },
-    end_comedy: {
-        title: "【COMEDY END】大型社死現場",
-        desc: "因為你各種無厘頭的逃跑與拋棄隊友行為，引發了校園祭的連環意外！最後你們兩人在全校師生面前出了大糗，成為了另一種意義上的傳說。"
-    }
+// Character Data
+const charactersData = {
+    male: [
+        { id: 'A1', name: '洛頁彥', icon: '👦' },
+        { id: 'A2', name: '齊勻楠', icon: '🧑' },
+        { id: 'A3', name: '秦陌寂', icon: '👨' }
+    ],
+    female: [
+        { id: 'B1', name: '田媛寧', icon: '👧' },
+        { id: 'B2', name: '張栖鈴', icon: '👩' },
+        { id: 'B3', name: '顧音棉', icon: '👱‍♀️' }
+    ]
 };
 
-// UI Elements
-const storyTextEl = document.getElementById('story-text');
-const choicesEl = document.getElementById('choices');
-const statsEl = document.getElementById('stats');
-const endingBoxEl = document.getElementById('ending-box');
-const endingTitleEl = document.getElementById('ending-title');
-const endingDescEl = document.getElementById('ending-desc');
-const restartBtn = document.getElementById('restart-btn');
-
-function updateStats() {
-    statsEl.innerHTML = `<span>好感: ${state.affection}</span> | <span>信任: ${state.trust}</span> | <span>恐懼: ${state.fear}</span> | <span>好奇: ${state.curiosity}</span>`;
-}
-
-function parseText(text) {
-    return text.replace(/\{target\}/g, targetName);
-}
-
-function renderNode(nodeId) {
-    // 邏輯匯流點處理
-    if (nodeId === "eval_chapter3") {
-        if (state.curiosity >= 2 || state.followed_target) {
-            renderNode("node_memory");
-        } else {
-            renderNode("node_memory_alt");
-        }
-        return;
-    }
-
-    if (nodeId === "eval_ending") {
-        renderEnding();
-        return;
-    }
-
-    const node = nodes[nodeId];
+// Select Target Gender
+function selectTargetGender(gender, event) {
+    // 1. Update state
+    gameState.targetGender = gender;
+    console.log("選擇攻略對象性別:", gender);
     
-    // 動畫重置
-    storyTextEl.style.animation = 'none';
-    storyTextEl.offsetHeight; 
-    storyTextEl.style.animation = null;
-    
-    storyTextEl.innerText = parseText(node.text);
-    choicesEl.innerHTML = '';
-    
-    node.choices.forEach(choice => {
-        const btn = document.createElement('button');
-        btn.className = 'btn';
-        btn.innerText = choice.text;
-        btn.onclick = () => {
-            // 處理目標名稱替換
-            if (choice.target) {
-                if (choice.target === "random") {
-                    targetName = Math.random() > 0.5 ? "女同學" : "男同學";
-                } else if (choice.target !== "HL") {
-                    targetName = choice.target;
-                }
-            }
-            // 執行選項效果
-            if (choice.effect) choice.effect();
-            updateStats();
-            // 進入下一個節點
-            renderNode(choice.next);
-        };
-        choicesEl.appendChild(btn);
+    // 2. Visual feedback
+    // Remove selected class from all buttons
+    const buttons = document.querySelectorAll('#target-gender-selection .choice-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('selected');
+        btn.style.pointerEvents = 'none'; // Prevent clicking while processing
     });
+    
+    // Add selected class to the clicked button
+    const clickedBtn = event.currentTarget;
+    clickedBtn.classList.add('selected');
+    
+    // 3. Transition to the next step
+    setTimeout(() => {
+        if (gender === 'random') {
+            showPlayerGenderSelection();
+        } else {
+            showCharacterSelection(gender);
+        }
+    }, 600);
 }
 
-function renderEnding() {
-    choicesEl.classList.add('hidden');
-    storyTextEl.classList.add('hidden');
-    statsEl.classList.add('hidden');
-    endingBoxEl.classList.remove('hidden');
+// Show Target Character Selection Screen
+function showCharacterSelection(gender) {
+    gameState.currentStep = 'targetCharacter';
     
-    let endKey = 'end_normal';
+    // Hide current screen
+    document.getElementById('target-gender-selection').classList.remove('active');
     
-    // 結局判定邏輯
-    if (state.abandoned_partner) {
-        endKey = 'end_comedy';
-    } else if (state.fear >= 3 && state.trust <= 2) {
-        endKey = 'end_bad';
-    } else if (state.trust >= 5 && state.affection >= 5 && state.recovered_memory) {
-        endKey = 'end_true';
-    } else if (state.affection >= 4 && state.trust >= 3) {
-        endKey = 'end_good';
+    // Generate character cards
+    const grid = document.getElementById('character-grid');
+    grid.innerHTML = '';
+    
+    const chars = charactersData[gender];
+    chars.forEach(char => {
+        grid.appendChild(createCharacterCard(char));
+    });
+    
+    // Add random option
+    grid.appendChild(createCharacterCard({ id: 'random_char', name: '隨機', icon: '❓' }));
+    
+    // Show new screen
+    setTimeout(() => {
+        document.getElementById('target-character-selection').classList.add('active');
+    }, 50);
+}
+
+// Create a character card element
+function createCharacterCard(char) {
+    const div = document.createElement('div');
+    div.className = 'character-card';
+    div.onclick = (e) => selectTargetCharacter(char.id, e);
+    
+    let infoHtml = '';
+    if (char.id !== 'random_char') {
+        // 放大鏡圖標，點擊查看人物介紹
+        infoHtml = `<div class="info-icon" onclick="showCharacterInfo('${char.id}', event)">🔍</div>`;
+    }
+    
+    div.innerHTML = `
+        <div class="char-image-placeholder">
+            ${char.icon}
+            ${infoHtml}
+            <div class="char-name-banner">${char.name}</div>
+        </div>
+    `;
+    return div;
+}
+
+// Select a target character
+function selectTargetCharacter(charId, event) {
+    gameState.targetCharacter = charId;
+    
+    const cards = document.querySelectorAll('#target-character-selection .character-card');
+    cards.forEach(card => {
+        card.classList.remove('selected');
+        card.style.pointerEvents = 'none';
+    });
+    
+    event.currentTarget.classList.add('selected');
+    
+    setTimeout(() => {
+        showPlayerGenderSelection();
+    }, 600);
+}
+
+// Show character info
+function showCharacterInfo(charId, event) {
+    event.stopPropagation(); // 防止觸發卡片選擇
+    alert(`【展示人物介紹】\n這裡將在後續階段實作詳細的 ${charId} 介紹彈窗！`);
+}
+
+// Show Player Gender Selection Screen
+function showPlayerGenderSelection() {
+    gameState.currentStep = 'playerGender';
+    
+    // Hide previous screens
+    document.getElementById('target-gender-selection').classList.remove('active');
+    document.getElementById('target-character-selection').classList.remove('active');
+    
+    // Show player gender screen
+    setTimeout(() => {
+        document.getElementById('player-gender-selection').classList.add('active');
+    }, 50);
+}
+
+// Select Player Gender
+function selectPlayerGender(gender, event) {
+    gameState.playerGender = gender;
+    
+    const buttons = document.querySelectorAll('#player-gender-selection .choice-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('selected');
+        btn.style.pointerEvents = 'none';
+    });
+    
+    event.currentTarget.classList.add('selected');
+    
+    setTimeout(() => {
+        resolveRandomSelections();
+        showConfirmationScreen();
+    }, 600);
+}
+
+// Resolve Random Selections
+function resolveRandomSelections() {
+    // 1. Resolve Target Gender
+    if (gameState.targetGender === 'random') {
+        const genders = ['male', 'female'];
+        gameState.resolvedTargetGender = genders[Math.floor(Math.random() * genders.length)];
+    } else {
+        gameState.resolvedTargetGender = gameState.targetGender;
     }
 
-    const ending = endings[endKey];
-    endingTitleEl.innerText = ending.title;
-    endingDescEl.innerText = parseText(ending.desc);
+    // 2. Resolve Target Character
+    if (!gameState.targetCharacter || gameState.targetCharacter === 'random_char' || gameState.targetGender === 'random') {
+        const chars = charactersData[gameState.resolvedTargetGender];
+        const randomChar = chars[Math.floor(Math.random() * chars.length)];
+        gameState.resolvedTargetCharacter = randomChar.id;
+    } else {
+        gameState.resolvedTargetCharacter = gameState.targetCharacter;
+    }
+
+    // 3. Resolve Player Gender
+    if (gameState.playerGender === 'random') {
+        const genders = ['male', 'female'];
+        gameState.resolvedPlayerGender = genders[Math.floor(Math.random() * genders.length)];
+    } else {
+        gameState.resolvedPlayerGender = gameState.playerGender;
+    }
 }
 
-function initGame() {
-    // 初始化狀態
-    state = {
-        trust: 0, curiosity: 0, fear: 0, affection: 0, courage: 0,
-        mystery_route: false, ice_route: false, normal_route: false,
-        discovered_secret: false, followed_target: false,
-        recovered_memory: false, abandoned_partner: false
+// Show Confirmation Screen
+function showConfirmationScreen() {
+    gameState.currentStep = 'confirmation';
+    
+    // Hide previous screens
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    
+    // Get resolved character data
+    const targetGenderGroup = charactersData[gameState.resolvedTargetGender];
+    const targetCharData = targetGenderGroup.find(c => c.id === gameState.resolvedTargetCharacter);
+    
+    // Populate Target Card
+    const targetCardHtml = `
+        <div class="char-image-placeholder">
+            ${targetCharData.icon}
+            <div class="info-icon" onclick="showCharacterInfo('${targetCharData.id}', event)">🔍</div>
+            <div class="char-name-banner">${targetCharData.name}</div>
+        </div>
+    `;
+    document.getElementById('confirm-target-card').innerHTML = targetCardHtml;
+    
+    // Populate Player Card
+    const playerIcon = gameState.resolvedPlayerGender === 'male' ? '👦' : '👧';
+    const playerText = gameState.resolvedPlayerGender === 'male' ? '男性化身' : '女性化身';
+    const playerCardHtml = `
+        <div class="char-image-placeholder">
+            ${playerIcon}
+            <div class="char-name-banner">${playerText}</div>
+        </div>
+    `;
+    document.getElementById('confirm-player-card').innerHTML = playerCardHtml;
+    
+    // Show Screen
+    setTimeout(() => {
+        document.getElementById('confirmation-screen').classList.add('active');
+    }, 50);
+}
+
+// Start Game (proceed to Phase 2)
+function startGame() {
+    gameState.currentStep = 'game';
+    
+    // 1. 自動載入該劇情(角色)的專屬顏色設定，若無則重置為預設
+    const charPrefsStr = localStorage.getItem(`whispers_prefs_${gameState.resolvedTargetCharacter}`);
+    if (charPrefsStr) {
+        gameState.preferences = JSON.parse(charPrefsStr);
+    } else {
+        gameState.preferences = {
+            npcColor: '#d6336c',
+            playerColor: '#4facfe',
+            textColor: '#ffffff',
+            actionColor: '#b0b0b0'
+        };
+    }
+    
+    // 應用設定到畫面
+    const p = gameState.preferences;
+    document.documentElement.style.setProperty('--npc-dialogue-border', p.npcColor);
+    document.documentElement.style.setProperty('--player-dialogue-border', p.playerColor);
+    document.documentElement.style.setProperty('--dialogue-text-color', p.textColor);
+    document.documentElement.style.setProperty('--action-text-color', p.actionColor);
+    document.documentElement.style.setProperty('--npc-dialogue-bg', hexToRgba(p.npcColor, 0.1));
+    document.documentElement.style.setProperty('--player-dialogue-bg', hexToRgba(p.playerColor, 0.1));
+    
+    // 2. Hide previous screens and back button
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('back-btn').style.display = 'none';
+    
+    // 渲染遊戲中的立繪卡片
+    const targetCharData = charactersData[gameState.resolvedTargetGender].find(c => c.id === gameState.resolvedTargetCharacter);
+    const charCardHtml = `
+        <div class="char-image-placeholder">
+            ${targetCharData.icon}
+            <div class="info-icon" onclick="showCharacterInfo('${targetCharData.id}', event)">🔍</div>
+            <div class="char-name-banner">${targetCharData.name}</div>
+        </div>
+    `;
+    document.getElementById('game-character-card').innerHTML = charCardHtml;
+    
+    // Show game screen
+    setTimeout(() => {
+        document.getElementById('game-screen').classList.add('active');
+        initScrollListener();
+        scrollToBottom();
+    }, 50);
+}
+
+// 初始化對話紀錄捲動監聽
+function initScrollListener() {
+    const historyPanel = document.getElementById('dialogue-history');
+    const scrollBtn = document.getElementById('scroll-bottom-btn');
+    if (historyPanel && scrollBtn) {
+        historyPanel.onscroll = () => {
+            // 距離底部大於 50px 則顯示按鈕
+            if (historyPanel.scrollHeight - historyPanel.scrollTop - historyPanel.clientHeight > 50) {
+                scrollBtn.classList.add('visible');
+            } else {
+                scrollBtn.classList.remove('visible');
+            }
+        };
+    }
+}
+
+// 將對話紀錄捲至最底
+function scrollToBottom() {
+    const historyPanel = document.getElementById('dialogue-history');
+    if (historyPanel) {
+        historyPanel.scrollTo({
+            top: historyPanel.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Show Exit Confirmation in Game Screen
+function showExitConfirm() {
+    const modal = document.getElementById('confirm-modal');
+    modal.classList.add('active');
+}
+
+// Handle Back Button Click
+function handleBack() {
+    if (gameState.currentStep === 'targetGender') {
+        // 目前在第一個畫面，詢問是否返回主頁面
+        const modal = document.getElementById('confirm-modal');
+        modal.classList.add('active');
+    } else if (gameState.currentStep === 'targetCharacter') {
+        // 從角色選擇返回性別選擇
+        document.getElementById('target-character-selection').classList.remove('active');
+        setTimeout(() => {
+            document.getElementById('target-gender-selection').classList.add('active');
+        }, 300);
+        gameState.currentStep = 'targetGender';
+        
+        // 復原性別選擇按鈕狀態
+        const buttons = document.querySelectorAll('#target-gender-selection .choice-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('selected');
+            btn.style.pointerEvents = 'auto';
+        });
+    } else if (gameState.currentStep === 'playerGender') {
+        // 從玩家性別選擇返回
+        document.getElementById('player-gender-selection').classList.remove('active');
+        
+        setTimeout(() => {
+            if (gameState.targetGender === 'random') {
+                // 若前面選擇隨機性別，則返回性別選擇
+                document.getElementById('target-gender-selection').classList.add('active');
+                gameState.currentStep = 'targetGender';
+                
+                // 復原性別選擇的按鈕狀態
+                const buttons = document.querySelectorAll('#target-gender-selection .choice-btn');
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected');
+                    btn.style.pointerEvents = 'auto';
+                });
+            } else {
+                // 否則返回特定角色選擇
+                document.getElementById('target-character-selection').classList.add('active');
+                gameState.currentStep = 'targetCharacter';
+                
+                // 復原角色選擇的卡片狀態
+                const cards = document.querySelectorAll('#target-character-selection .character-card');
+                cards.forEach(card => {
+                    card.classList.remove('selected');
+                    card.style.pointerEvents = 'auto';
+                });
+            }
+        }, 300);
+    } else if (gameState.currentStep === 'confirmation') {
+        // 從確認畫面返回玩家性別選擇
+        document.getElementById('confirmation-screen').classList.remove('active');
+        
+        setTimeout(() => {
+            document.getElementById('player-gender-selection').classList.add('active');
+        }, 300);
+        gameState.currentStep = 'playerGender';
+        
+        // 復原玩家性別選擇的按鈕狀態
+        const buttons = document.querySelectorAll('#player-gender-selection .choice-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('selected');
+            btn.style.pointerEvents = 'auto';
+        });
+    }
+}
+
+// Close Modal
+function closeModal(event) {
+    const modal = document.getElementById('confirm-modal');
+    modal.classList.remove('active');
+}
+
+// Return to Main Menu
+function returnToMainMenu() {
+    alert('【模擬返回主頁面】\n將在此處切換回遊戲主選單畫面！');
+    closeModal();
+    // 實際遊戲中這裡會執行 window.location.href = 'main.html' 或進行畫面的卸載
+}
+
+// Toggle Sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('game-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    if (sidebar.classList.contains('collapsed')) {
+        sidebar.classList.remove('collapsed');
+        overlay.classList.add('active');
+    } else {
+        sidebar.classList.add('collapsed');
+        overlay.classList.remove('active');
+    }
+}
+
+// Settings Modal Logic
+function getBrightness(hex) {
+    if (!hex.startsWith('#') || hex.length !== 7) return 255;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    // 使用標準亮度公式
+    return 0.299 * r + 0.587 * g + 0.114 * b;
+}
+
+function hexToRgba(hex, alpha) {
+    if (hex.length !== 7) return `rgba(255, 255, 255, ${alpha})`;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function openSettingsModal() {
+    const rootStyles = getComputedStyle(document.documentElement);
+    let npcColor = rootStyles.getPropertyValue('--npc-dialogue-border').trim();
+    let playerColor = rootStyles.getPropertyValue('--player-dialogue-border').trim();
+    let textColor = rootStyles.getPropertyValue('--dialogue-text-color').trim();
+    let actionColor = rootStyles.getPropertyValue('--action-text-color').trim();
+    
+    if (!npcColor.startsWith('#')) npcColor = '#d6336c';
+    if (!playerColor.startsWith('#')) playerColor = '#4facfe';
+    if (!textColor.startsWith('#')) textColor = '#ffffff';
+    if (!actionColor.startsWith('#')) actionColor = '#b0b0b0';
+    
+    document.getElementById('npc-color-picker').value = npcColor;
+    document.getElementById('player-color-picker').value = playerColor;
+    document.getElementById('text-color-picker').value = textColor;
+    document.getElementById('action-color-picker').value = actionColor;
+    document.getElementById('settings-error').style.display = 'none';
+    
+    document.getElementById('settings-modal').classList.add('active');
+}
+
+function closeSettingsModal(event) {
+    if (event) event.stopPropagation();
+    document.getElementById('settings-modal').classList.remove('active');
+}
+
+function saveSettings() {
+    const npcColor = document.getElementById('npc-color-picker').value;
+    const playerColor = document.getElementById('player-color-picker').value;
+    const textColor = document.getElementById('text-color-picker').value;
+    const actionColor = document.getElementById('action-color-picker').value;
+    const errorMsg = document.getElementById('settings-error');
+    
+    // 防呆機制：顏色不得相同
+    if (npcColor.toLowerCase() === playerColor.toLowerCase()) {
+        errorMsg.innerText = '防呆提示：雙方對話框顏色不得完全相同！';
+        errorMsg.style.display = 'block';
+        return; 
+    }
+    
+    // 防呆機制：文字顏色必須比動作顏色更「深」(在這裡也就是亮度較高/白，因為是深色底)
+    // 比較兩者的亮度，預期一般文字亮度 > 動作文字亮度
+    if (getBrightness(textColor) <= getBrightness(actionColor)) {
+        errorMsg.innerText = '防呆提示：一般文字顏色必須比動作文字更顯眼(亮度較高)！';
+        errorMsg.style.display = 'block';
+        return;
+    }
+    
+    // 儲存設定至 gameState 
+    gameState.preferences = {
+        npcColor: npcColor,
+        playerColor: playerColor,
+        textColor: textColor,
+        actionColor: actionColor
     };
-    targetName = "神秘人";
     
-    choicesEl.classList.remove('hidden');
-    storyTextEl.classList.remove('hidden');
-    statsEl.classList.remove('hidden');
-    endingBoxEl.classList.add('hidden');
+    // 將顏色設定獨立綁定至「當前劇情(攻略對象)」，自動寫入 localStorage
+    if (gameState.resolvedTargetCharacter) {
+        localStorage.setItem(`whispers_prefs_${gameState.resolvedTargetCharacter}`, JSON.stringify(gameState.preferences));
+    }
     
-    updateStats();
-    renderNode('start');
+    // 儲存設定至 CSS 變數
+    document.documentElement.style.setProperty('--npc-dialogue-border', npcColor);
+    document.documentElement.style.setProperty('--player-dialogue-border', playerColor);
+    document.documentElement.style.setProperty('--dialogue-text-color', textColor);
+    document.documentElement.style.setProperty('--action-text-color', actionColor);
+    
+    // 動態產生對應且具有 10% 透明度的背景色
+    document.documentElement.style.setProperty('--npc-dialogue-bg', hexToRgba(npcColor, 0.1));
+    document.documentElement.style.setProperty('--player-dialogue-bg', hexToRgba(playerColor, 0.1));
+    
+    closeSettingsModal();
 }
 
-restartBtn.addEventListener('click', initGame);
+// 動態格式化對話文字 (未來 2-3 打字機使用)
+function formatDialogueText(text) {
+    return text.replace(/(\(.*?\)|（.*?）)/g, '<span class="action-text">$1</span>');
+}
 
-// 遊戲啟動
-initGame();
+// ==================== 存檔與讀檔系統 ====================
+let currentSaveLoadMode = 'save';
+const MAX_SAVE_SLOTS = 3;
+
+function openSaveLoadModal(mode) {
+    currentSaveLoadMode = mode;
+    document.getElementById('saveload-title').innerText = mode === 'save' ? '選擇存檔欄位' : '選擇讀檔欄位';
+    
+    const container = document.getElementById('saveload-slots-container');
+    container.innerHTML = ''; // 清空舊選項
+    
+    for (let i = 1; i <= MAX_SAVE_SLOTS; i++) {
+        const slotData = localStorage.getItem(`whispers_save_${i}`);
+        const slotEl = document.createElement('div');
+        
+        if (slotData) {
+            const data = JSON.parse(slotData);
+            const dateStr = new Date(data.timestamp).toLocaleString();
+            let targetName = '未知';
+            if (data.resolvedTargetGender && data.resolvedTargetCharacter) {
+                const charData = charactersData[data.resolvedTargetGender].find(c => c.id === data.resolvedTargetCharacter);
+                if (charData) targetName = charData.name;
+            }
+            
+            slotEl.className = 'save-slot';
+            slotEl.innerHTML = `
+                <div class="save-info-row">
+                    <strong>Slot ${i} - 攻略對象: ${targetName}</strong>
+                    <span class="save-date">${dateStr}</span>
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-dim);">
+                    點擊以${mode === 'save' ? '覆蓋存檔' : '讀取進度'}
+                </div>
+            `;
+        } else {
+            slotEl.className = 'save-slot empty';
+            slotEl.innerHTML = `<div>Slot ${i} - 空白欄位</div>`;
+            if (mode === 'load') {
+                slotEl.style.pointerEvents = 'none';
+                slotEl.style.opacity = '0.3';
+            }
+        }
+        
+        slotEl.onclick = () => handleSaveLoadSlot(i);
+        container.appendChild(slotEl);
+    }
+    
+    document.getElementById('saveload-modal').classList.add('active');
+}
+
+function closeSaveLoadModal(event) {
+    if (event) event.stopPropagation();
+    document.getElementById('saveload-modal').classList.remove('active');
+}
+
+function handleSaveLoadSlot(slotId) {
+    if (currentSaveLoadMode === 'save') {
+        // 儲存目前的遊戲狀態與偏好設定
+        const saveData = {
+            ...gameState,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(`whispers_save_${slotId}`, JSON.stringify(saveData));
+        alert(`已成功儲存進度與偏好設定至 Slot ${slotId}`);
+        closeSaveLoadModal();
+    } else {
+        // 讀取進度與偏好設定
+        const slotData = localStorage.getItem(`whispers_save_${slotId}`);
+        if (slotData) {
+            const parsedData = JSON.parse(slotData);
+            Object.assign(gameState, parsedData);
+            
+            // 套用讀取到的專屬設定
+            if (gameState.preferences) {
+                const p = gameState.preferences;
+                document.documentElement.style.setProperty('--npc-dialogue-border', p.npcColor);
+                document.documentElement.style.setProperty('--player-dialogue-border', p.playerColor);
+                document.documentElement.style.setProperty('--dialogue-text-color', p.textColor);
+                document.documentElement.style.setProperty('--action-text-color', p.actionColor);
+                
+                document.documentElement.style.setProperty('--npc-dialogue-bg', hexToRgba(p.npcColor, 0.1));
+                document.documentElement.style.setProperty('--player-dialogue-bg', hexToRgba(p.playerColor, 0.1));
+            }
+            
+            alert(`已讀取 Slot ${slotId} 的進度與設定！`);
+            closeSaveLoadModal();
+            
+            // 恢復遊戲畫面
+            if (gameState.currentStep === 'game') {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById('game-screen').classList.add('active');
+                
+                // 重新渲染左側立繪卡片
+                const targetCharData = charactersData[gameState.resolvedTargetGender].find(c => c.id === gameState.resolvedTargetCharacter);
+                const charCardHtml = `
+                    <div class="char-image-placeholder">
+                        ${targetCharData.icon}
+                        <div class="info-icon" onclick="showCharacterInfo('${targetCharData.id}', event)">🔍</div>
+                        <div class="char-name-banner">${targetCharData.name}</div>
+                    </div>
+                `;
+                document.getElementById('game-character-card').innerHTML = charCardHtml;
+                
+                // (如果已有實作對話紀錄重建，這裡也會一併處理)
+                scrollToBottom();
+            }
+        }
+    }
+}
+

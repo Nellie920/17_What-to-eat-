@@ -3,171 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>成就解鎖展示</title>
-    <style>
-        /* 基本頁面樣式設定 */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        .btn-container {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        button {
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: bold;
-            color: white;
-            background-color: #ff6b6b;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s, transform 0.1s;
-        }
-
-        button:hover {
-            background-color: #ff4757;
-        }
-
-        button:active {
-            transform: scale(0.95);
-        }
-
-        /* Toast 容器，固定在畫面上方居中 */
-        #toast-container {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* Toast 單個提示框樣式 */
-        .toast {
-            background-color: #ffffff;
-            color: #333333;
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-            font-size: 18px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            border-left: 6px solid #f1c40f;
-            /* 綁定動畫：0.5秒滑入，然後停留3秒，最後0.5秒淡出 (3s + 0.5s = 3.5s時觸發) */
-            animation: slideIn 0.5s ease-out forwards, fadeOut 0.5s ease-in 3.5s forwards;
-            opacity: 0;
-        }
-
-        /* 定義從上方滑入的動畫 */
-        @keyframes slideIn {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* 定義自動淡出的動畫 */
-        @keyframes fadeOut {
-            from {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateY(-50%);
-                opacity: 0;
-            }
-        }
-    </style>
+    <title>愛與選擇之書 Whispers of Fate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
-    <h1>成就系統測試</h1>
-    <div class="btn-container">
-        <!-- 點擊觸發成就解鎖功能 -->
-        <button onclick="unlockAchievement(1, 1)">解鎖成就：達成初次結局</button>
-        <button onclick="unlockAchievement(1, 2)">解鎖成就：找到隱藏彩蛋</button>
-        <button onclick="unlockAchievement(1, 3)">解鎖成就：母胎單身狗</button>
+    <div id="app">
+        <!-- 背景裝飾元素 -->
+        <div class="bg-particles"></div>
+        
+        <!-- 往返上一頁按鈕 -->
+        <button id="back-btn" class="back-btn" onclick="handleBack()">
+            <span class="icon">⟵</span>
+        </button>
+        
+        <!-- 攻略對象性別選擇畫面 -->
+        <div id="target-gender-selection" class="screen active">
+            <div class="glass-panel">
+                <h1 class="title">選擇攻略對象</h1>
+                <p class="subtitle">命運的紅線，將牽引你走向何方？</p>
+                <div class="options-container">
+                    <button class="choice-btn" onclick="selectTargetGender('male', event)">
+                        <span class="icon">♂</span>
+                        <span class="text">男性</span>
+                    </button>
+                    <button class="choice-btn" onclick="selectTargetGender('female', event)">
+                        <span class="icon">♀</span>
+                        <span class="text">女性</span>
+                    </button>
+                    <button class="choice-btn" onclick="selectTargetGender('random', event)">
+                        <span class="icon">❓</span>
+                        <span class="text">隨機</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 攻略對象特定角色選擇畫面 -->
+        <div id="target-character-selection" class="screen">
+            <div class="glass-panel large">
+                <h1 class="title">選擇心儀的對象</h1>
+                <p class="subtitle">誰會是你這段故事的羈絆？</p>
+                <div class="character-grid" id="character-grid">
+                    <!-- 動態生成角色卡片 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 玩家自身性別選擇畫面 -->
+        <div id="player-gender-selection" class="screen">
+            <div class="glass-panel">
+                <h1 class="title">選擇你的化身</h1>
+                <p class="subtitle">在這段故事中，你將以什麼身分展開？</p>
+                <div class="options-container">
+                    <button class="choice-btn" onclick="selectPlayerGender('male', event)">
+                        <span class="icon">👦</span>
+                        <span class="text">男性</span>
+                    </button>
+                    <button class="choice-btn" onclick="selectPlayerGender('female', event)">
+                        <span class="icon">👧</span>
+                        <span class="text">女性</span>
+                    </button>
+                    <button class="choice-btn" onclick="selectPlayerGender('random', event)">
+                        <span class="icon">❓</span>
+                        <span class="text">隨機</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 確認結果畫面 -->
+        <div id="confirmation-screen" class="screen">
+            <div class="glass-panel">
+                <h1 class="title">命運已定</h1>
+                <p class="subtitle">這將是你與對方的故事開端</p>
+                <div class="confirmation-content">
+                    <div class="result-box">
+                        <p class="result-label">攻略對象</p>
+                        <div id="confirm-target-card" class="character-card static">
+                            <!-- JS將填入攻略對象資訊 -->
+                        </div>
+                    </div>
+                    <div class="heart-divider">♥️</div>
+                    <div class="result-box">
+                        <p class="result-label">你的化身</p>
+                        <div id="confirm-player-card" class="character-card static">
+                            <!-- JS將填入玩家資訊 -->
+                        </div>
+                    </div>
+                </div>
+                <button class="choice-btn primary" onclick="startGame()">確認並開始遊玩</button>
+            </div>
+        </div>
+
+        <!-- 遊戲主畫面 -->
+        <div id="game-screen" class="screen">
+            <div class="game-container column-layout">
+                <!-- 側邊欄與防誤觸遮罩 -->
+                <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+                <div id="game-sidebar" class="sidebar collapsed">
+                    <button class="toggle-tab" onclick="toggleSidebar()">☰</button>
+                    <div class="sidebar-content">
+                        <button class="icon-btn" title="回主選單" onclick="showExitConfirm()">🏠</button>
+                        <button class="icon-btn" title="存檔" onclick="openSaveLoadModal('save')">💾</button>
+                        <button class="icon-btn" title="讀檔" onclick="openSaveLoadModal('load')">📂</button>
+                        <button class="icon-btn" title="設定" onclick="openSettingsModal()">⚙️</button>
+                    </div>
+                </div>
+
+                <!-- 上部: 劇情與立繪 (3/4) -->
+                <div class="top-area">
+                    <div class="character-display">
+                        <!-- 將被 JS 動態替換為當前攻略對象的卡片，保有放大鏡功能 -->
+                        <div id="game-character-card" class="character-card static">
+                            <div class="char-image-placeholder">
+                                <span style="font-size: 4rem;">?</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="story-history-wrapper">
+                        <div class="story-history-panel glass-panel" id="dialogue-history">
+                            <div class="history-content">
+                                <p class="system-text">歡迎進入《愛與選擇之書》，接下來的故事將由此展開...</p>
+                                <p class="dialogue-line"><span class="speaker">神秘聲音</span>這將是你與對方的故事開端。</p>
+                                <!-- 預設塞入測試對話，產生捲動軸以測試功能 -->
+                                <p class="dialogue-line system"><span class="speaker">系統</span><span class="action-text">(測試長對話)</span> 如果對話超過版面，可以往下滑動。</p>
+                                <p class="dialogue-line player"><span class="speaker">你</span><span class="action-text">(點了點頭)</span> 測試紀錄1...</p>
+                                <p class="dialogue-line npc"><span class="speaker">對方</span><span class="action-text">(微微一笑)</span> 測試紀錄2...</p>
+                                <p class="dialogue-line player"><span class="speaker">你</span>測試紀錄3...</p>
+                                <p class="dialogue-line npc"><span class="speaker">對方</span>這裡是最底部！</p>
+                            </div>
+                        </div>
+                        <button class="scroll-bottom-btn" id="scroll-bottom-btn" onclick="scrollToBottom()" title="一鍵到底部">⬇</button>
+                    </div>
+                </div>
+
+                <!-- 下部: 玩家選項區 (1/4) -->
+                <div class="bottom-area">
+                    <div class="choices-container glass-panel">
+                        <h3 class="choices-title">你的回應...</h3>
+                        <div class="choices-list horizontal">
+                            <button class="choice-btn" onclick="alert('點擊了選項一')">溫和地向對方打招呼</button>
+                            <button class="choice-btn" onclick="alert('點擊了選項二')">保持沉默，觀察對方</button>
+                            <button class="choice-btn" onclick="alert('點擊了選項三')">試圖轉移話題</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 存檔/讀檔彈窗 -->
+        <div id="saveload-modal" class="modal-overlay" onclick="closeSaveLoadModal(event)">
+            <div class="modal-content glass-panel" onclick="event.stopPropagation()">
+                <h2 class="modal-title" id="saveload-title">選擇存檔欄位</h2>
+                <div class="saveload-slots" id="saveload-slots-container" style="display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0; max-height: 300px; overflow-y: auto;">
+                    <!-- JS 動態生成槽位 -->
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeSaveLoadModal(event)">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 設定彈窗 -->
+        <div id="settings-modal" class="modal-overlay" onclick="closeSettingsModal(event)">
+            <div class="modal-content glass-panel" onclick="event.stopPropagation()">
+                <h2 class="modal-title">對話框顏色設定</h2>
+                
+                <div class="settings-group" style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0;">
+                    <label style="font-size: 1.2rem;">對方對話框：</label>
+                    <input type="color" id="npc-color-picker" value="#d6336c" style="width: 60px; height: 35px; cursor: pointer; border: none; background: transparent;">
+                </div>
+                
+                <div class="settings-group" style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0;">
+                    <label style="font-size: 1.2rem;">玩家對話框：</label>
+                    <input type="color" id="player-color-picker" value="#4facfe" style="width: 60px; height: 35px; cursor: pointer; border: none; background: transparent;">
+                </div>
+                
+                <hr style="border: 1px solid rgba(255,255,255,0.1); margin: 1.5rem 0;">
+                
+                <div class="settings-group" style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0;">
+                    <label style="font-size: 1.2rem;">一般文字顏色：</label>
+                    <input type="color" id="text-color-picker" value="#ffffff" style="width: 60px; height: 35px; cursor: pointer; border: none; background: transparent;">
+                </div>
+                
+                <div class="settings-group" style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0;">
+                    <label style="font-size: 1.2rem;">動作文字顏色 (括號)：</label>
+                    <input type="color" id="action-color-picker" value="#b0b0b0" style="width: 60px; height: 35px; cursor: pointer; border: none; background: transparent;">
+                </div>
+                
+                <p id="settings-error" class="error-msg" style="color: #ff4d4f; font-size: 1rem; display: none; text-align: center; margin-bottom: 1rem;">防呆提示：雙方顏色不得完全相同！</p>
+                
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeSettingsModal(event)">取消</button>
+                    <button class="modal-btn confirm" onclick="saveSettings()">儲存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 確認返回主頁面彈窗 -->
+        <div id="confirm-modal" class="modal-overlay" onclick="closeModal(event)">
+            <div class="modal-content glass-panel" onclick="event.stopPropagation()">
+                <h2 class="modal-title">是否返回主頁面？</h2>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeModal(event)">取消</button>
+                    <button class="modal-btn confirm" onclick="returnToMainMenu()">返回</button>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <!-- 提示框的容器 -->
-    <div id="toast-container"></div>
-
-    <script>
-        // 解鎖成就的非同步函數
-        async function unlockAchievement(userId, achievementId) {
-            try {
-                const response = await fetch('/api/achievement/unlock', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        achievement_id: achievementId
-                    })
-                });
-
-                const result = await response.json();
-
-                // 根據後端回傳的結果顯示對應的 Toast
-                if (response.ok && result.success) {
-                    showToast('🏆 恭喜獲得成就！');
-                } else if (!result.success && result.message === "已解鎖過此成就") {
-                    showToast('ℹ️ 已經解鎖過此成就了喔！', '#3498db');
-                } else {
-                    showToast('❌ 解鎖失敗：' + result.message, '#e74c3c');
-                }
-            } catch (error) {
-                console.error('API 請求失敗:', error);
-                showToast('❌ 系統錯誤，請稍後再試', '#e74c3c');
-            }
-        }
-
-        // 顯示 Toast 提示框的函數
-        function showToast(message, color = '#f1c40f') {
-            const container = document.getElementById('toast-container');
-            
-            // 建立 Toast 元素
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.style.borderLeftColor = color;
-            toast.innerHTML = `<span>${message}</span>`;
-            
-            // 加入到容器中，觸發動畫
-            container.appendChild(toast);
-
-            // 動畫總時長約為 4 秒 (0.5滑入 + 3停留 + 0.5滑出)
-            // 在 4 秒後將元素從 DOM 移除，避免佔用資源
-            setTimeout(() => {
-                if (container.contains(toast)) {
-                    container.removeChild(toast);
-                }
-            }, 4000);
-        }
-    </script>
+    <script src="script.js?v=2"></script>
 </body>
 </html>
