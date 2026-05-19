@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-column h-100">
+    <div class="story-box glass-panel shadow-lg">
+        <p class="mb-0">{{ story.text }}</p>
+    </div>
+    
+    <div class="options-container">
+        <!-- 虛擬選項供示範 -->
+        <a href="{{ url_for('story.play_story', node_id='chapter1') }}" class="option-btn fs-5">
+            1. 繼續前進，探索前方的未知。
+        </a>
+        <a href="{{ url_for('story.play_story', node_id='secret_ending') }}" class="option-btn fs-5">
+            2. 觸碰那發光的神秘水晶。
+        </a>
+        
+        <!-- 自動存檔觸發器 (隱藏)，取代原本的手動存檔表單 -->
+        <script>
+            // 當進入新節點時，自動呼叫 Widget 進行存檔
+            if (window.saveWidget) {
+                window.saveWidget.triggerSave(1, '{{ story.node_id }}', {});
+            }
+        </script>
+    </div>
+</div>
+{% endblock %}
