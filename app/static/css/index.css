@@ -1,0 +1,899 @@
+/* ==========================================================================
+   戀愛互動式故事網站 - 視覺設計系統 (Vanilla CSS Design System)
+   ========================================================================== */
+
+/* 🌸 1. 核心設計變數與主題調色盤 🌸 */
+:root {
+  /* 微甜粉紅 (預設主題 Default Pink) */
+  --primary-pink: #ff69b4;
+  --primary-pink-glow: rgba(255, 105, 180, 0.4);
+  --bg-gradient: linear-gradient(135deg, #ffe4e1 0%, #ffc0cb 100%);
+  --text-primary: #4a4a4a;
+  --text-inverse: #ffffff;
+  --font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+  --hud-bg: rgba(255, 255, 255, 0.15);
+  --border-color: rgba(255, 255, 255, 0.35);
+  --shadow-color: rgba(255, 105, 180, 0.15);
+  --btn-gradient: linear-gradient(135deg, #ff85a1 0%, #fd6c9e 100%);
+  --slider-track: rgba(255, 255, 255, 0.4);
+}
+
+/* 深海湛藍主題 (Ocean Blue) */
+.theme-ocean-blue {
+  --primary-pink: #3498db;
+  --primary-pink-glow: rgba(52, 152, 219, 0.4);
+  --bg-gradient: linear-gradient(135deg, #ebf5fb 0%, #aed6f1 100%);
+  --text-primary: #2c3e50;
+  --btn-gradient: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+  --shadow-color: rgba(52, 152, 219, 0.15);
+}
+
+/* 夢幻紫羅主題 (Royal Violet) */
+.theme-royal-violet {
+  --primary-pink: #9b59b6;
+  --primary-pink-glow: rgba(155, 89, 182, 0.4);
+  --bg-gradient: linear-gradient(135deg, #f5eef8 0%, #d7bde2 100%);
+  --text-primary: #34495e;
+  --btn-gradient: linear-gradient(135deg, #bb8fce 0%, #9b59b6 100%);
+  --shadow-color: rgba(155, 89, 182, 0.15);
+}
+
+/* 極致深夜主題 (Midnight Dark) */
+.theme-midnight-dark {
+  --primary-pink: #e74c3c;
+  --primary-pink-glow: rgba(231, 76, 60, 0.4);
+  --bg-gradient: linear-gradient(135deg, #2c3e50 0%, #0f172a 100%);
+  --text-primary: #e2e8f0;
+  --hud-bg: rgba(15, 23, 42, 0.4);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --btn-gradient: linear-gradient(135deg, #f1948a 0%, #e74c3c 100%);
+  --shadow-color: rgba(231, 76, 60, 0.15);
+  --slider-track: rgba(255, 255, 255, 0.1);
+}
+
+/* 🌸 2. 全域基礎樣式與版面 🌸 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  user-select: none;
+}
+
+.text-pink { color: var(--primary-pink); }
+.text-gold { color: #f1c40f; }
+.w-100 { width: 100%; }
+
+/* 玻璃擬態核心樣式 (Glassmorphism Utilities) */
+.glassmorphism {
+  background: var(--hud-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+}
+
+/* 🌸 3. 首頁大廳 (Lobby Screen) 🌸 */
+.screen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg-gradient);
+  transition: opacity 0.6s ease-in-out, visibility 0.6s;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.screen-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.lobby-card {
+  padding: 50px 40px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  border-radius: 32px;
+}
+
+.heart-pulse-logo {
+  font-size: 4.5rem;
+  color: var(--primary-pink);
+  margin-bottom: 20px;
+  animation: heart-pulse 2s infinite ease-in-out;
+}
+
+.logo-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  background: var(--btn-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.8;
+  margin-bottom: 35px;
+}
+
+.btn-primary-glowing {
+  background: var(--btn-gradient);
+  border: none;
+  color: var(--text-inverse);
+  padding: 16px 36px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px var(--primary-pink-glow), 0 0 0px var(--primary-pink-glow);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.btn-primary-glowing:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 10px 25px var(--primary-pink-glow), 0 0 12px var(--primary-pink);
+}
+
+.lobby-footer-note {
+  margin-top: 25px;
+  font-size: 0.85rem;
+  opacity: 0.6;
+  line-height: 1.5;
+}
+
+.auth-quick-link {
+  margin-top: 30px;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.auth-quick-link a {
+  color: var(--primary-pink);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.auth-quick-link a:hover {
+  opacity: 0.7;
+}
+
+/* 🌸 4. 遊戲主框架與 HUD 導航列 🌸 */
+.game-viewport {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.scene-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  z-index: -2;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.scene-background-dim {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: -1;
+}
+
+/* HUD 導航列 */
+.hud-header {
+  height: 70px;
+  margin: 15px 20px;
+  padding: 0 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+  border-radius: 18px;
+}
+
+.hud-left, .hud-right, .audio-control-panel {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.player-badge {
+  background: rgba(255, 255, 255, 0.3);
+  padding: 6px 16px;
+  border-radius: 30px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.theme-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.theme-dot.pink { background-color: var(--primary-pink); }
+
+/* F-06: 音量滑桿 HUD 控制 */
+.audio-control-panel {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 20px;
+  border-radius: 30px;
+  border: 1px solid var(--border-color);
+}
+
+.hud-icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: transform 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.hud-icon-btn:hover {
+  transform: scale(1.15);
+  color: var(--primary-pink);
+}
+
+.volume-slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slider-icon {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.hud-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 90px;
+  height: 5px;
+  border-radius: 5px;
+  background: var(--slider-track);
+  outline: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.hud-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary-pink);
+  box-shadow: 0 0 6px var(--primary-pink-glow);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.hud-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}
+
+.hud-text-btn {
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 6px 18px;
+  border-radius: 30px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.hud-text-btn:hover {
+  background: var(--primary-pink);
+  color: var(--text-inverse);
+  box-shadow: 0 4px 10px var(--primary-pink-glow);
+}
+
+/* 🌸 5. 對話與選擇肢主介面 🌸 */
+.story-main-area {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 40px 40px 40px;
+  z-index: 5;
+}
+
+/* 選擇肢 */
+.choices-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 650px;
+  margin-bottom: 25px;
+  z-index: 10;
+}
+
+.choice-button {
+  width: 100%;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: 15px;
+  padding: 16px 25px;
+  color: var(--text-primary);
+  font-size: 1.05rem;
+  font-weight: 500;
+  cursor: pointer;
+  transform: translateY(20px);
+  opacity: 0;
+  animation: slide-in-up 0.5s forwards cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.choice-button:hover {
+  transform: translateY(-4px) scale(1.015);
+  background: rgba(255, 255, 255, 0.3);
+  border-color: var(--primary-pink);
+  box-shadow: 0 10px 20px var(--shadow-color), 0 0 8px var(--primary-pink-glow);
+}
+
+/* 對話框 */
+.dialogue-container {
+  width: 100%;
+  max-width: 850px;
+  padding: 25px 35px;
+  min-height: 160px;
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.dialogue-container:hover {
+  border-color: var(--primary-pink-glow);
+}
+
+.speaker-tag-wrapper {
+  position: absolute;
+  top: -18px;
+  left: 30px;
+}
+
+.speaker-tag {
+  background: var(--btn-gradient);
+  color: var(--text-inverse);
+  padding: 6px 20px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 10px var(--shadow-color);
+}
+
+.dialogue-body {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  letter-spacing: 1px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.skip-indicator {
+  position: absolute;
+  bottom: 12px;
+  right: 25px;
+  font-size: 0.75rem;
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.skip-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary-pink);
+  animation: pulse-glowing 1.5s infinite ease-in-out;
+}
+
+/* 🌸 6. 側邊抽屜選單 (Drawers) 與彈窗 (Modals) 🌸 */
+.drawer-overlay, .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: flex-end;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s;
+}
+
+.drawer-overlay.active, .modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 抽屜樣式 (右側滑入) */
+.drawer-content {
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  border-radius: 30px 0 0 30px;
+  border-right: none;
+  padding: 35px;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.drawer-overlay.active .drawer-content {
+  transform: translateX(0);
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 15px;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-close:hover {
+  transform: rotate(90deg);
+  color: var(--primary-pink);
+}
+
+/* 存檔專用樣式 */
+.quick-save-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.quick-save-box input, .form-group input {
+  flex-grow: 1;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 12px 18px;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  transition: border-color 0.2s;
+}
+
+.quick-save-box input:focus, .form-group input:focus {
+  border-color: var(--primary-pink);
+}
+
+.btn-action {
+  background: var(--btn-gradient);
+  color: var(--text-inverse);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-action:hover { opacity: 0.9; }
+
+.drawer-list-area {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* 存檔卡片樣式 */
+.saves-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.save-card {
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.save-card:hover {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: var(--primary-pink-glow);
+}
+
+.save-info h4 {
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.save-info p {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.save-meta {
+  font-size: 0.85rem;
+  margin-top: 6px;
+  display: flex;
+  gap: 10px;
+  opacity: 0.8;
+}
+
+.save-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-save-load {
+  background: #2ecc71;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-save-del {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 50px 0;
+  opacity: 0.5;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+/* 成就面板樣式 */
+.achievement-summary-hud {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 10px 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.achievements-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.achievement-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 15px 20px;
+  transition: all 0.2s;
+  filter: grayscale(100%);
+  opacity: 0.6;
+}
+
+.achievement-card.unlocked {
+  filter: grayscale(0%);
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.45);
+  border-color: #f1c40f;
+  box-shadow: 0 0 10px rgba(241, 196, 15, 0.15);
+}
+
+.achievement-icon {
+  font-size: 2.2rem;
+}
+
+.achievement-details h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.achievement-details p {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.achievement-details .unlock-time {
+  font-size: 0.7rem;
+  opacity: 0.5;
+  margin-top: 4px;
+}
+
+/* 彈窗樣式 (置中彈出) */
+.modal-overlay {
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-card {
+  width: 90%;
+  max-width: 440px;
+  padding: 30px;
+  position: relative;
+  transform: scale(0.9);
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.modal-overlay.active .modal-card {
+  transform: scale(1);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.auth-form {
+  display: none;
+}
+
+.auth-form.active {
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.form-footer {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.form-footer a {
+  color: var(--primary-pink);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* 介面主題色選擇器 */
+.theme-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 5px;
+}
+
+.theme-palette-btn {
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-family);
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.theme-palette-btn:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.theme-palette-btn.active {
+  border-color: var(--primary-pink);
+  background: var(--btn-gradient);
+  color: var(--text-inverse);
+}
+
+.color-preview {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.8);
+}
+
+.modal-footer-logout {
+  margin-top: 30px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-logout-danger {
+  background: rgba(231, 76, 60, 0.15);
+  border: 1px solid rgba(231, 76, 60, 0.3);
+  color: #e74c3c;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-logout-danger:hover {
+  background: #e74c3c;
+  color: #fff;
+}
+
+/* 🌸 7. 特效與動畫樣式庫 (F-06 Special Keyframes) 🌸 */
+
+/* 畫面震動特效 (Screen Shake) */
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(0px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(2px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(2px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(0deg); }
+}
+
+.effect-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* 全螢幕紅色閃爍特效 (Screen Flash Overlay) */
+#flash-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+}
+
+@keyframes flash {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.effect-flash {
+  animation: flash 0.4s ease-out forwards;
+}
+
+/* Logo 呼吸發光動畫 */
+@keyframes heart-pulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px var(--primary-pink-glow)); }
+  50% { transform: scale(1.1); filter: drop-shadow(0 0 15px var(--primary-pink)); }
+}
+
+/* 呼吸跳動特效 */
+.animate-pulse {
+  animation: heart-pulse 2.2s infinite ease-in-out;
+}
+
+/* 呼吸發光小圓點 */
+@keyframes pulse-glowing {
+  0%, 100% { opacity: 0.3; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* CSS 載入動畫 */
+@keyframes slide-in-up {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease forwards;
+}
+
+/* 自訂捲軸滾動條 */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-pink);
+}
