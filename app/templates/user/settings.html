@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-container glass-panel mt-5">
+    <h2 class="text-center mb-5 page-title">個人設定<br><small class="page-subtitle fs-4">Settings</small></h2>
+    
+    <form action="{{ url_for('user.update_settings') }}" method="POST">
+        <div class="mb-4">
+            <label for="display_name" class="form-label fs-5"><i class="fa-solid fa-signature"></i> 角色名稱</label>
+            <input type="text" class="form-control form-control-lg" id="display_name" name="display_name" value="{{ user.display_name or '' }}" placeholder="請輸入您在故事中的稱呼">
+        </div>
+        <div class="mb-5">
+            <label for="theme" class="form-label fs-5"><i class="fa-solid fa-palette"></i> 佈景主題</label>
+            <select class="form-select form-select-lg" id="theme" name="theme">
+                <option value="light" {% if user.theme == 'light' %}selected{% endif %}>明亮主題 (Light)</option>
+                <option value="dark" {% if user.theme == 'dark' %}selected{% endif %}>暗黑浪漫 (Dark)</option>
+            </select>
+            <div class="form-text text-light opacity-50 mt-2">註：為配合專題展示，目前介面已全域套用暗黑浪漫與玻璃擬態設計。</div>
+        </div>
+        <div class="d-grid">
+            <button type="submit" class="btn btn-gold btn-lg">儲存設定</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

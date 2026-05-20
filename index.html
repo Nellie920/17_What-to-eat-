@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>愛與選擇之書 Whispers of Fate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+    <div id="app">
+        <!-- 背景裝飾元素 -->
+        <div class="bg-particles"></div>
+        
+        <!-- 往返上一頁按鈕 -->
+        <button id="back-btn" class="back-btn" onclick="handleBack()">
+            <span class="icon">⟵</span>
+        </button>
+        
+        <!-- 攻略對象性別選擇畫面 -->
+        <div id="target-gender-selection" class="screen active">
+            <div class="glass-panel">
+                <h1 class="title">選擇攻略對象</h1>
+                <p class="subtitle">命運的紅線，將牽引你走向何方？</p>
+                <div class="options-container">
+                    <button class="choice-btn" onclick="selectTargetGender('male', event)">
+                        <span class="icon">♂</span>
+                        <span class="text">男性</span>
+                    </button>
+                    <button class="choice-btn" onclick="selectTargetGender('female', event)">
+                        <span class="icon">♀</span>
+                        <span class="text">女性</span>
+                    </button>
+                    <button class="choice-btn" onclick="selectTargetGender('random', event)">
+                        <span class="icon">❓</span>
+                        <span class="text">隨機</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 攻略對象特定角色選擇畫面 -->
+        <div id="target-character-selection" class="screen">
+            <div class="glass-panel large">
+                <h1 class="title">選擇心儀的對象</h1>
+                <p class="subtitle">誰會是你這段故事的羈絆？</p>
+                <div class="character-grid" id="character-grid">
+                    <!-- 動態生成角色卡片 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 玩家自身性別選擇畫面 -->
+        <div id="player-gender-selection" class="screen">
+            <div class="glass-panel">
+                <h1 class="title">選擇你的化身</h1>
+                <p class="subtitle">在這段故事中，你將以什麼身分展開？</p>
+                <div class="options-container">
+                    <button class="choice-btn" onclick="selectPlayerGender('male', event)">
+                        <span class="icon">👦</span>
+                        <span class="text">男性</span>
+                    </button>
+                    <button class="choice-btn" onclick="selectPlayerGender('female', event)">
+                        <span class="icon">👧</span>
+                        <span class="text">女性</span>
+                    </button>
+                    <button class="choice-btn" onclick="selectPlayerGender('random', event)">
+                        <span class="icon">❓</span>
+                        <span class="text">隨機</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 確認結果畫面 -->
+        <div id="confirmation-screen" class="screen">
+            <div class="glass-panel">
+                <h1 class="title">命運已定</h1>
+                <p class="subtitle">這將是你與對方的故事開端</p>
+                <div class="confirmation-content">
+                    <div class="result-box">
+                        <p class="result-label">攻略對象</p>
+                        <div id="confirm-target-card" class="character-card static">
+                            <!-- JS將填入攻略對象資訊 -->
+                        </div>
+                    </div>
+                    <div class="heart-divider">♥️</div>
+                    <div class="result-box">
+                        <p class="result-label">你的化身</p>
+                        <div id="confirm-player-card" class="character-card static">
+                            <!-- JS將填入玩家資訊 -->
+                        </div>
+                    </div>
+                </div>
+                <button class="choice-btn primary" onclick="startGame()">確認並開始遊玩</button>
+            </div>
+        </div>
+
+        <!-- 遊戲主畫面 -->
+        <div id="game-screen" class="screen">
+            <div class="game-container column-layout">
+                <!-- 側邊欄與防誤觸遮罩 -->
+                <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+                <div id="game-sidebar" class="sidebar collapsed">
+                    <button class="toggle-tab" onclick="toggleSidebar()">☰</button>
+                    <div class="sidebar-content">
+                        <button class="icon-btn" title="回主選單" onclick="showExitConfirm()">🏠</button>
+                        <button class="icon-btn" title="存檔" onclick="openSaveLoadModal('save')">💾</button>
+                        <button class="icon-btn" title="讀檔" onclick="openSaveLoadModal('load')">📂</button>
+                        <button class="icon-btn" title="設定" onclick="openSettingsModal()">⚙️</button>
+                    </div>
+                </div>
+
+                <!-- 上部: 劇情與立繪 (3/4) -->
+                <div class="top-area">
+                    <div class="character-display">
+                        <!-- 將被 JS 動態替換為當前攻略對象的卡片，保有放大鏡功能 -->
+                        <div id="game-character-card" class="character-card static">
+                            <div class="char-image-placeholder">
+                                <span style="font-size: 4rem;">?</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="story-history-wrapper">
+                        <div class="story-history-panel glass-panel" id="dialogue-history">
+                            <div class="history-content">
+                                <p class="system-text">歡迎進入《愛與選擇之書》，接下來的故事將由此展開...</p>
+                                <p class="dialogue-line"><span class="speaker">神秘聲音</span>這將是你與對方的故事開端。</p>
+                                <!-- 預設塞入測試對話，產生捲動軸以測試功能 -->
+                                <p class="dialogue-line system"><span class="speaker">系統</span><span class="action-text">(測試長對話)</span> 如果對話超過版面，可以往下滑動。</p>
+                                <p class="dialogue-line player"><span class="speaker">你</span><span class="action-text">(點了點頭)</span> 測試紀錄1...</p>
+                                <p class="dialogue-line npc"><span class="speaker">對方</span><span class="action-text">(微微一笑)</span> 測試紀錄2...</p>
+                                <p class="dialogue-line player"><span class="speaker">你</span>測試紀錄3...</p>
+                                <p class="dialogue-line npc"><span class="speaker">對方</span>這裡是最底部！</p>
+                            </div>
+                        </div>
+                        <button class="scroll-bottom-btn" id="scroll-bottom-btn" onclick="scrollToBottom()" title="一鍵到底部">⬇</button>
+                    </div>
+                </div>
+
+                <!-- 下部: 玩家選項區 (1/4) -->
+                <div class="bottom-area">
+                    <div class="choices-container glass-panel">
+                        <h3 class="choices-title">你的回應...</h3>
+                        <div class="choices-list horizontal">
+                            <button class="choice-btn" onclick="alert('點擊了選項一')">溫和地向對方打招呼</button>
+                            <button class="choice-btn" onclick="alert('點擊了選項二')">保持沉默，觀察對方</button>
+                            <button class="choice-btn" onclick="alert('點擊了選項三')">試圖轉移話題</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 存檔/讀檔彈窗 -->
+        <div id="saveload-modal" class="modal-overlay" onclick="closeSaveLoadModal(event)">
+            <div class="modal-content glass-panel" onclick="event.stopPropagation()">
+                <h2 class="modal-title" id="saveload-title">選擇存檔欄位</h2>
+                <div class="saveload-slots" id="saveload-slots-container" style="display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0; max-height: 300px; overflow-y: auto;">
+                    <!-- JS 動態生成槽位 -->
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeSaveLoadModal(event)">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 設定彈窗 -->
+        <div id="settings-modal" class="modal-overlay" onclick="closeSettingsModal(event)">
+            <div class="modal-content glass-panel" onclick="event.stopPropagation()">
+                <h2 class="modal-title">對話框顏色設定</h2>
+                
+                <div class="settings-group" style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0;">
+                    <label style="font-size: 1.2rem;">對方對話框：</label>
+                    <input type="color" id="npc-color-picker" value="#d6336c" style="width: 60px; height: 35px; cursor: pointer; border: none; background: transparent;">
+                </div>
+                
+                <div class="settings-group" style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0;">
+                    <label style="font-size: 1.2rem;">玩家對話框：</label>
+                    <input type="color" id="player-color-picker" value="#4facfe" style="width: 60px; height: 35px; cursor: pointer; border: none; background: transparent;">
+                </div>
+                
+                <hr style="border: 1px solid rgba(255,255,255,0.1); margin: 1.5rem 0;">
+                
+                <div class="settings-group" style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0;">
+                    <label style="font-size: 1.2rem;">一般文字顏色：</label>
+                    <input type="color" id="text-color-picker" value="#ffffff" style="width: 60px; height: 35px; cursor: pointer; border: none; background: transparent;">
+                </div>
+                
+                <div class="settings-group" style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0;">
+                    <label style="font-size: 1.2rem;">動作文字顏色 (括號)：</label>
+                    <input type="color" id="action-color-picker" value="#b0b0b0" style="width: 60px; height: 35px; cursor: pointer; border: none; background: transparent;">
+                </div>
+                
+                <p id="settings-error" class="error-msg" style="color: #ff4d4f; font-size: 1rem; display: none; text-align: center; margin-bottom: 1rem;">防呆提示：雙方顏色不得完全相同！</p>
+                
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeSettingsModal(event)">取消</button>
+                    <button class="modal-btn confirm" onclick="saveSettings()">儲存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 確認返回主頁面彈窗 -->
+        <div id="confirm-modal" class="modal-overlay" onclick="closeModal(event)">
+            <div class="modal-content glass-panel" onclick="event.stopPropagation()">
+                <h2 class="modal-title">是否返回主頁面？</h2>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeModal(event)">取消</button>
+                    <button class="modal-btn confirm" onclick="returnToMainMenu()">返回</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js?v=2"></script>
+</body>
+</html>

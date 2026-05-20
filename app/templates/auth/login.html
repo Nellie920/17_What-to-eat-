@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-container glass-panel mt-5">
+    <h2 class="text-center mb-4 page-title" style="font-size: 2.5rem;">登入 Login</h2>
+    <form action="{{ url_for('auth.login') }}" method="POST">
+        <div class="mb-4">
+            <label for="username" class="form-label"><i class="fa-solid fa-user"></i> 帳號 Username</label>
+            <input type="text" class="form-control form-control-lg" id="username" name="username" required>
+        </div>
+        <div class="mb-5">
+            <label for="password" class="form-label"><i class="fa-solid fa-lock"></i> 密碼 Password</label>
+            <input type="password" class="form-control form-control-lg" id="password" name="password" required>
+        </div>
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-gold btn-lg">登入系統</button>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-glass btn-lg mt-2">註冊新帳號</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

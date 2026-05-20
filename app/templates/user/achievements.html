@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-container glass-panel mt-5">
+    <h2 class="text-center mb-5 page-title">畫廊與成就<br><small class="page-subtitle fs-4">Gallery & Achievements</small></h2>
+    
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% if achievements %}
+            {% for ach in achievements %}
+            <div class="col">
+                <div class="card h-100 glass-panel" style="background: rgba(212,175,55,0.1); border-color: var(--primary-gold);">
+                    <div class="card-body text-center">
+                        <i class="fa-solid fa-medal fa-3x mb-3" style="color: var(--primary-gold);"></i>
+                        <h5 class="card-title" style="color: var(--primary-gold);">{{ ach.achievement_id }}</h5>
+                        <p class="card-text text-light">解鎖時間：{{ ach.unlocked_at }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="fa-solid fa-lock fa-3x mb-3 text-muted"></i>
+                <h4 class="text-muted">尚未解鎖任何成就。</h4>
+                <p class="text-muted">在故事中做出不同的選擇來觸發隱藏結局吧！</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
