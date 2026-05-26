@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>等一下要吃什麼？ | 互動式戀愛故事網站</title>
+    <!-- 導入優雅的現代 Google 字體: Outfit & Noto Sans TC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome 圖標庫 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入全域視覺設計系統樣式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body class="theme-default-pink">
+
+    <!-- 全螢幕特殊特效疊加層 (F-06: 閃爍與震動效果) -->
+    <div id="flash-overlay"></div>
+
+    <!-- 🌸 1. 遊戲解鎖/登入首頁大廳 (Autoplay & AudioContext 解鎖防線) 🌸 -->
+    <div id="lobby-screen" class="screen-overlay active">
+        <div class="lobby-card glassmorphism animate-fade-in">
+            <div class="heart-pulse-logo">
+                <i class="fa-solid fa-heart"></i>
+            </div>
+            <h1 class="logo-title">等一下要吃什麼？</h1>
+            <p class="logo-subtitle">互動式戀愛冒險故事網站</p>
+            
+            <div class="lobby-action-group">
+                <button id="btn-start-game" class="btn-primary-glowing">
+                    <i class="fa-solid fa-play"></i> 點擊開啟沉浸式旅程
+                </button>
+                <div class="lobby-footer-note">
+                    <i class="fa-solid fa-volume-high"></i> 本網站包含豐富的背景音樂與互動音效，點擊將開啟音訊體驗。
+                </div>
+            </div>
+            
+            <div class="auth-quick-link">
+                <span id="lobby-user-status">訪客模式</span> | 
+                <a href="#" id="link-show-auth"><i class="fa-solid fa-user-lock"></i> 登入/註冊帳號</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎮 2. 遊戲主視圖與故事渲染容器 (Main Viewport) 🎮 -->
+    <div id="game-container" class="game-viewport">
+        <!-- 故事場景背景圖層 (F-06: 支援 Cross-fade 轉場) -->
+        <div id="scene-bg" class="scene-background" style="background-image: url('/static/images/bg/lobby.jpg');"></div>
+        <div class="scene-background-dim"></div>
+
+        <!-- 頂部導航 HUD 控制列 (全功能整合區) -->
+        <header class="hud-header glassmorphism">
+            <div class="hud-left">
+                <div class="player-badge">
+                    <i class="fa-solid fa-user-tag text-pink"></i>
+                    <span id="hud-player-name">主角</span>
+                </div>
+                <div class="theme-indicator">
+                    <span class="theme-dot pink"></span>
+                    <span id="hud-theme-text">微甜粉紅</span>
+                </div>
+            </div>
+
+            <!-- F-06: 全域音訊控制器 -->
+            <div class="audio-control-panel">
+                <button id="btn-mute" class="hud-icon-btn" title="切換靜音">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+                <div class="volume-slider-wrapper">
+                    <i class="fa-solid fa-music slider-icon"></i>
+                    <input type="range" id="slider-bgm" class="hud-slider" min="0" max="1" step="0.05" value="0.5" title="調整背景音樂音量">
+                </div>
+                <div class="volume-slider-wrapper">
+                    <i class="fa-solid fa-wand-magic-sparkles slider-icon"></i>
+                    <input type="range" id="slider-sfx" class="hud-slider" min="0" max="1" step="0.05" value="0.8" title="調整情境音效音量">
+                </div>
+            </div>
+
+            <!-- 右側功能抽屜按鈕 (存檔 F-03 / 成就 F-05 / 帳號 F-01) -->
+            <div class="hud-right">
+                <button id="btn-show-saves" class="hud-text-btn" title="存讀檔選單">
+                    <i class="fa-solid fa-floppy-disk"></i> 存讀檔
+                </button>
+                <button id="btn-show-achievements" class="hud-text-btn animate-pulse" title="成就牆">
+                    <i class="fa-solid fa-trophy"></i> 成就
+                </button>
+                <button id="btn-hud-user" class="hud-icon-btn" title="帳號選單">
+                    <i class="fa-solid fa-user-circle"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- 中央對話與分支選擇主介面 -->
+        <main class="story-main-area">
+            <!-- 選擇肢渲染容器 (F-02 & F-06Choices) -->
+            <div id="choices-container" class="choices-wrapper">
+                <!-- 範例選擇肢卡片 (JS 動態填入) -->
+                <!-- <button class="choice-button">前往櫻花大廳</button> -->
+            </div>
+
+            <!-- 故事對話框容器 (F-06: 逐字打字機與 Skip 防護) -->
+            <div id="dialogue-box" class="dialogue-container glassmorphism" title="點擊任意處可快速跳過文字動畫">
+                <div class="speaker-tag-wrapper">
+                    <span id="speaker-label" class="speaker-tag">神秘旁白</span>
+                </div>
+                <div class="dialogue-body">
+                    <p id="dialogue-text" class="dialogue-content">載入中，請點擊「點擊開啟沉浸式旅程」解鎖多媒體內容...</p>
+                </div>
+                <!-- 點擊 Skip 動畫指示器 -->
+                <div class="skip-indicator">
+                    <span class="skip-pulse-dot"></span>
+                    <span>CLICK TO SKIP</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 💾 3. 存讀檔抽屜式選單 (F-03: 存讀檔系統) 💾 -->
+    <div id="saves-drawer" class="drawer-overlay">
+        <div class="drawer-content glassmorphism">
+            <div class="drawer-header">
+                <h2><i class="fa-solid fa-floppy-disk text-pink"></i> 記憶存檔點</h2>
+                <button id="btn-close-saves" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <!-- 快速新增存檔 -->
+            <div class="quick-save-box">
+                <input type="text" id="input-save-name" placeholder="輸入存檔備註名稱..." maxlength="30">
+                <button id="btn-trigger-save" class="btn-action"><i class="fa-solid fa-plus"></i> 新增記憶點</button>
+            </div>
+
+            <!-- 存檔清單滾動區 -->
+            <div class="drawer-list-area">
+                <div id="saves-list" class="saves-grid">
+                    <!-- 存檔卡片由 JS 動態生成 -->
+                    <div class="empty-state">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <p>尚無任何記憶存檔點</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🏆 4. 成就解鎖抽屜式選單 (F-05: 成就解鎖系統) 🏆 -->
+    <div id="achievements-drawer" class="drawer-overlay">
+        <div class="drawer-content glassmorphism">
+            <div class="drawer-header">
+                <h2><i class="fa-solid fa-trophy text-gold"></i> 心動成就牆</h2>
+                <button id="btn-close-achievements" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="achievement-summary-hud">
+                <span>累計成就積分: <strong id="txt-total-points" class="text-gold">0</strong> 分</span>
+            </div>
+
+            <div class="drawer-list-area">
+                <div id="achievements-list" class="achievements-grid">
+                    <!-- 成就卡片由 JS 動態生成 -->
+                    <div class="empty-state">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        <p>載入成就清單中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔐 5. 用戶註冊與登入彈出視窗 (F-01: 用戶認證) 🔐 -->
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-card glassmorphism">
+            <div class="modal-header">
+                <h2 id="auth-title">登入戀愛故事帳號</h2>
+                <button id="btn-close-auth" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <!-- 登入表單 -->
+            <form id="form-login" class="auth-form active">
+                <div class="form-group">
+                    <label for="login-username"><i class="fa-solid fa-user"></i> 帳號名稱</label>
+                    <input type="text" id="login-username" required placeholder="請輸入帳號...">
+                </div>
+                <div class="form-group">
+                    <label for="login-password"><i class="fa-solid fa-key"></i> 登入密碼</label>
+                    <input type="password" id="login-password" required placeholder="請輸入密碼...">
+                </div>
+                <button type="submit" class="btn-primary-glowing w-100">立即登入</button>
+                <div class="form-footer">
+                    還沒有帳號嗎？ <a href="#" id="link-go-register">立即免費註冊</a>
+                </div>
+            </form>
+
+            <!-- 註冊表單 -->
+            <form id="form-register" class="auth-form">
+                <div class="form-group">
+                    <label for="register-username"><i class="fa-solid fa-user-plus"></i> 註冊帳號</label>
+                    <input type="text" id="register-username" required placeholder="請設定帳號名稱...">
+                </div>
+                <div class="form-group">
+                    <label for="register-password"><i class="fa-solid fa-key"></i> 設定密碼</label>
+                    <input type="password" id="register-password" required placeholder="請輸入安全密碼...">
+                </div>
+                <button type="submit" class="btn-primary-glowing w-100">註冊並登入</button>
+                <div class="form-footer">
+                    已經有帳號了嗎？ <a href="#" id="link-go-login">返回登入畫面</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 🎨 6. 個人化外觀配色與角色自訂彈窗 (F-04: 外觀設置) 🎨 -->
+    <div id="profile-modal" class="modal-overlay">
+        <div class="modal-card glassmorphism">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-user-gear text-pink"></i> 主角個人化設定</h2>
+                <button id="btn-close-profile" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="profile-settings-body">
+                <div class="form-group">
+                    <label for="input-custom-name"><i class="fa-solid fa-pen-nib"></i> 自訂主角暱稱</label>
+                    <input type="text" id="input-custom-name" placeholder="請輸入您在故事中的稱呼..." value="主角" maxlength="10">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-palette"></i> 介面主題配色</label>
+                    <div class="theme-palette-grid">
+                        <button class="theme-palette-btn pink active" data-theme="default-pink">
+                            <span class="color-preview" style="background-color: #ff69b4;"></span>
+                            微甜粉紅
+                        </button>
+                        <button class="theme-palette-btn blue" data-theme="ocean-blue">
+                            <span class="color-preview" style="background-color: #4682b4;"></span>
+                            深海湛藍
+                        </button>
+                        <button class="theme-palette-btn violet" data-theme="royal-violet">
+                            <span class="color-preview" style="background-color: #8a2be2;"></span>
+                            夢幻紫羅
+                        </button>
+                        <button class="theme-palette-btn dark" data-theme="midnight-dark">
+                            <span class="color-preview" style="background-color: #2f4f4f;"></span>
+                            極致深夜
+                        </button>
+                    </div>
+                </div>
+
+                <button id="btn-save-profile" class="btn-primary-glowing w-100"><i class="fa-solid fa-circle-check"></i> 保存外觀設定</button>
+            </div>
+
+            <!-- 用戶資訊 / 登出區 -->
+            <div class="modal-footer-logout">
+                <span id="txt-user-greeting">您好，訪客！</span>
+                <button id="btn-logout" class="btn-logout-danger"><i class="fa-solid fa-sign-out-alt"></i> 安全登出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         JavaScript 核心模組載入 (ES6 Modules)
+         ========================================== -->
+    <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
