@@ -124,7 +124,7 @@ def play_story(node_id):
         speaker = "系統廣播"
         bg_image = "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1200"
         bgm = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-    elif node_id in ['select_target_m', 'select_target_f', 'node_hl_gender']:
+    elif node_id in ['select_target_m', 'select_target_f', 'node_hl_gender', 'confirm_selection']:
         speaker = "命運指引者"
         bg_image = "https://images.unsplash.com/photo-1453614512568-c4024d13c247?q=80&w=1200" # 咖啡館
         bgm = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
@@ -176,9 +176,37 @@ def make_choice(node_id, choice_id):
         
     choice = node['choices'][choice_id]
     
+    # 偵測選擇流程路線與主角性別
+    if node_id == 'start':
+        if choice_id == 0:
+            state['relationType'] = 'BL'
+            state['playerGender'] = 'male'
+        elif choice_id == 1:
+            state['relationType'] = 'GL'
+            state['playerGender'] = 'female'
+        elif choice_id == 2:
+            state['relationType'] = 'HL'
+    elif node_id == 'node_hl_gender':
+        if choice_id == 0:
+            state['playerGender'] = 'male'
+        elif choice_id == 1:
+            state['playerGender'] = 'female'
+            
     # 角色選擇
     if 'targetKey' in choice:
         state['targetKey'] = choice['targetKey']
+        # 確保 BL/GL 路線有設定對應的主角性別
+        if 'playerGender' not in state or not state['playerGender']:
+            if node_id == 'select_target_m':
+                state['playerGender'] = 'male'
+            else:
+                state['playerGender'] = 'female'
+        
+        # 儲存下一個劇情節點並跳轉到確認畫面
+        state['next_story_node'] = choice.get('next')
+        next_node = 'confirm_selection'
+    else:
+        next_node = choice.get('next')
         
     # 數值變更
     if 'statChange' in choice:
@@ -189,9 +217,13 @@ def make_choice(node_id, choice_id):
                 state[k] = state.get(k, 0) + v
                 
     # 隨機性別處理
-    next_node = choice.get('next')
     if next_node == 'random_gender':
-        next_node = 'select_target_m' if random.random() > 0.5 else 'select_target_f'
+        if random.random() > 0.5:
+            next_node = 'select_target_m'
+            state['playerGender'] = 'female'
+        else:
+            next_node = 'select_target_f'
+            state['playerGender'] = 'male'
         
     # 更新 session
     session.modified = True
@@ -199,6 +231,18 @@ def make_choice(node_id, choice_id):
     if next_node:
         return redirect(url_for('story.play_story', node_id=next_node))
     return redirect(url_for('story.home'))
+
+@story_bp.route('/story/confirm_start', methods=['POST'])
+def confirm_start():
+    if 'user_id' not in session or 'game_state' not in session:
+        return redirect(url_for('auth.login'))
+        
+    state = session['game_state']
+    next_node = state.get('next_story_node')
+    if not next_node:
+        next_node = 'intro_m1' # Default fallback
+        
+    return redirect(url_for('story.play_story', node_id=next_node))
 
 @story_bp.route('/story/ending', methods=['GET'])
 def show_ending():

@@ -210,6 +210,74 @@
 </div>
 
 <!-- 🌸 ========================================== 🌸 -->
+<!-- 🌸 第四階段：確認選擇結果畫面 (node_id == 'confirm_selection') 🌸 -->
+<!-- 🌸 ========================================== 🌸 -->
+{% elif story.node_id == 'confirm_selection' %}
+<div class="d-flex align-items-center justify-content-center h-100 w-100" style="min-height: 80vh;">
+    <div class="glass-panel text-center px-5 py-5" style="border-radius: 24px; max-width: 750px; background: rgba(20,15,30,0.4); border: 1px solid rgba(255,255,255,0.15);">
+        <h1 class="title mb-3" style="font-size: 2.8rem; font-weight: 700; background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 50%, #fecfef 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px;">命運已定</h1>
+        <p class="subtitle mb-5 text-light opacity-75" style="font-size: 1.15rem; letter-spacing: 1px;">這將是你與對方的故事開端</p>
+        
+        <div class="confirmation-content d-flex justify-content-center align-items-center gap-5 mb-5">
+            <!-- 攻略對象 -->
+            <div class="result-box d-flex flex-column align-items-center gap-2">
+                <p class="result-label text-light opacity-75" style="font-size: 1.1rem; letter-spacing: 2px;">攻略對象</p>
+                <div class="character-card static" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; width: 180px; display: flex; flex-direction: column; align-items: center; padding: 15px; position: relative; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);">
+                    <div class="char-image-placeholder" style="width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; font-size: 4rem;">
+                        {% if state.targetKey == 'm1' %}🛹
+                        {% elif state.targetKey == 'm2' %}💻
+                        {% elif state.targetKey == 'm3' %}📖
+                        {% elif state.targetKey == 'f1' %}🌸
+                        {% elif state.targetKey == 'f2' %}🎻
+                        {% elif state.targetKey == 'f3' %}🍭
+                        {% else %}❓
+                        {% endif %}
+                    </div>
+                    <div class="char-name-banner" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 0.6rem 0; text-align: center; font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; color: #fff; border-radius: 0 0 16px 16px;">
+                        {% if state.targetKey == 'm1' %}洛頁彥
+                        {% elif state.targetKey == 'm2' %}齊勻楠
+                        {% elif state.targetKey == 'm3' %}秦陌寂
+                        {% elif state.targetKey == 'f1' %}田媛寧
+                        {% elif state.targetKey == 'f2' %}張栖鈴
+                        {% elif state.targetKey == 'f3' %}顧音棉
+                        {% else %}未知角色
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 愛心 -->
+            <div class="heart-divider" style="font-size: 2.5rem; color: #d6336c; animation: heartbeat 2s infinite; text-shadow: 0 0 20px rgba(214, 51, 108, 0.4);">♥️</div>
+            
+            <!-- 你的化身 -->
+            <div class="result-box d-flex flex-column align-items-center gap-2">
+                <p class="result-label text-light opacity-75" style="font-size: 1.1rem; letter-spacing: 2px;">你的化身</p>
+                <div class="character-card static" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; width: 180px; display: flex; flex-direction: column; align-items: center; padding: 15px; position: relative; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);">
+                    <div class="char-image-placeholder" style="width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; font-size: 4rem;">
+                        {% if state.playerGender == 'male' %}👦
+                        {% elif state.playerGender == 'female' %}👧
+                        {% else %}👤
+                        {% endif %}
+                    </div>
+                    <div class="char-name-banner" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 0.6rem 0; text-align: center; font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; color: #fff; border-radius: 0 0 16px 16px;">
+                        {% if state.playerGender == 'male' %}扮演男生
+                        {% elif state.playerGender == 'female' %}扮演女生
+                        {% else %}冒險者
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <form action="{{ url_for('story.confirm_start') }}" method="POST">
+            <button type="submit" class="choice-btn primary" style="background: #d6336c; border-color: #d6336c; flex-direction: row; padding: 1.2rem 3.5rem; font-size: 1.3rem; box-shadow: 0 5px 20px rgba(214, 51, 108, 0.4); margin: 0 auto; color: #fff; border-radius: 20px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
+                確認並開始遊玩
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- 🌸 ========================================== 🌸 -->
 <!-- 🌸 第四階段：經典雙欄電影遊玩畫面 (其他所有節點) 🌸 -->
 <!-- 🌸 ========================================== 🌸 -->
 {% else %}

@@ -50,6 +50,10 @@ def build_story_nodes():
                 {'text': "張栖鈴 (機靈艷麗，黑色長髮)", 'targetKey': "f2", 'next': "intro_f2"},
                 {'text': "顧音棉 (張揚自信，粉髮雙馬尾)", 'targetKey': "f3", 'next': "intro_f3"}
             ]
+        },
+        'confirm_selection': {
+            'text': "確認你的選擇，開啟命運之旅",
+            'choices': []
         }
     }
     
