@@ -37,15 +37,39 @@ def update_settings():
 @user_bp.route('/achievements', methods=['GET'])
 def achievements():
     """
-    GET: 撈取玩家在資料庫中的解鎖紀錄，並顯示已解鎖與未解鎖的成就清單。
+    GET: 撈取玩家在資料庫中的解鎖紀錄，並以 D1425333 的功能（僅顯示已解鎖成就）呈現。
     """
     if 'user_id' not in session:
         return redirect(url_for('auth.login'))
         
     user = User.get_by_id(session['user_id'])
-    user_achievements = Achievement.get_all_by_user(session['user_id'])
     
-    return render_template('user/achievements.html', user=user, achievements=user_achievements)
+    try:
+        with get_db_connection() as conn:
+            unlocked = conn.execute("""
+                SELECT a.id, a.title, a.description, a.badge_url, a.points, ua.unlocked_at 
+                FROM achievements a
+                INNER JOIN user_achievements ua ON a.id = ua.achievement_id
+                WHERE ua.user_id = ?
+                ORDER BY ua.unlocked_at DESC
+            """, (session['user_id'],)).fetchall()
+            
+            achievements_data = []
+            for row in unlocked:
+                achievements_data.append({
+                    'id': row['id'],
+                    'title': row['title'],
+                    'description': row['description'],
+                    'badge_url': row['badge_url'],
+                    'points': row['points'],
+                    'unlocked': True,
+                    'unlocked_at': row['unlocked_at']
+                })
+    except Exception as e:
+        print(f"Error fetching achievements: {e}")
+        achievements_data = []
+        
+    return render_template('user/achievements.html', user=user, achievements=achievements_data)
 
 
 # ========================================================
