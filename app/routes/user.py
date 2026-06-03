@@ -43,32 +43,10 @@ def achievements():
         return redirect(url_for('auth.login'))
         
     user = User.get_by_id(session['user_id'])
+    user_achievements = Achievement.get_all_by_user(session['user_id'])
     
-    try:
-        with get_db_connection() as conn:
-            all_ac = conn.execute("SELECT * FROM achievements").fetchall()
-            unlocked = conn.execute("SELECT * FROM user_achievements WHERE user_id = ?", (session['user_id'],)).fetchall()
-            
-            unlocked_dict = {ua['achievement_id']: ua['unlocked_at'] for ua in unlocked}
-            
-            achievements_data = []
-            for ac in all_ac:
-                ac_id = ac['id']
-                is_unlocked = ac_id in unlocked_dict
-                achievements_data.append({
-                    'id': ac_id,
-                    'title': ac['title'],
-                    'description': ac['description'],
-                    'badge_url': ac['badge_url'],
-                    'points': ac['points'],
-                    'unlocked': is_unlocked,
-                    'unlocked_at': unlocked_dict.get(ac_id) if is_unlocked else None
-                })
-    except Exception as e:
-        print(f"Error fetching achievements for page: {e}")
-        achievements_data = []
+    return render_template('user/achievements.html', user=user, achievements=user_achievements)
 
-    return render_template('user/achievements.html', user=user, achievements=achievements_data)
 
 # ========================================================
 # JSON API 路由 (供沉浸式 SPA 模式使用)
