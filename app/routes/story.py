@@ -259,7 +259,7 @@ def show_ending():
         end_key = 'end_bad'
     elif state.get('trust', 0) >= 5 and state.get('affection', 0) >= 5 and state.get('recovered_memory'):
         end_key = 'end_true'
-    elif state.get('affection', 0) >= 4 and state.get('trust', 0) >= 3:
+    elif state.get('affection', 0) >= 5 or (state.get('affection', 0) >= 4 and state.get('trust', 0) >= 3):
         end_key = 'end_good'
         
     target_key = state.get('targetKey', 'm1') # 預設 fallback
@@ -283,9 +283,6 @@ def show_ending():
         try:
             Achievement.create(user['id'], '3') # 遺憾的美好
         except: pass
-    
-    # 清除遊戲進度
-    session.pop('game_state', None)
     
     return render_template('story/ending.html', user=user, ending=ending_data)
 
