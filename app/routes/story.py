@@ -1,4 +1,6 @@
-from flask import Blueprint, request, render_template, redirect, url_for, session, flash
+import os
+import json
+from flask import Blueprint, request, render_template, redirect, url_for, session, flash, current_app
 from app.models.user import User
 from app.models.achievement import Achievement
 from app.data.story_data import INITIAL_STATE, STORY_NODES, ENDINGS, parse_text
