@@ -53,16 +53,7 @@ def index():
     except Exception as e:
         print(f"Dashboard stats fetching failed: {e}")
 
-    # 獲取當前登入者資訊
-    current_user = None
-    if 'user_id' in session:
-        current_user = User.get_by_id(session['user_id'])
-
-    return render_template(
-        'dashboard.html',
-        stats=stats,
-        user=current_user
-    )
+    return jsonify(stats)
 
 @dashboard_bp.route('/api/health', methods=['GET'])
 def health_check():
