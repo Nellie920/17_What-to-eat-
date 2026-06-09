@@ -402,6 +402,7 @@
 <!-- 🔌 ES6 Module: 側邊欄收折與全域音量控制對接 🔌 -->
 <script type="module">
     import AudioManager from "{{ url_for('static', filename='js/audio_manager.js') }}";
+    import InteractionEffects from "{{ url_for('static', filename='js/effects.js') }}";
     const audio = AudioManager.getInstance();
 
     // 展開/收起側邊欄
@@ -431,6 +432,41 @@
             sfxTxt.textContent = Math.round(audio.sfxVolume * 100) + '%';
         }
         updateMuteIcon();
+
+        // 嘗試播放背景音樂
+        {% if bgm %}
+        const tryPlayBGM = () => {
+            audio.playBGM("{{ bgm }}");
+        };
+        tryPlayBGM();
+
+        // Autoplay 防線：若被瀏覽器阻擋，在使用者首次點擊或按鍵後啟動
+        const unlockAndPlay = () => {
+            audio.unlockAudio();
+            tryPlayBGM();
+            document.removeEventListener('click', unlockAndPlay);
+            document.removeEventListener('keydown', unlockAndPlay);
+        };
+        document.addEventListener('click', unlockAndPlay);
+        document.addEventListener('keydown', unlockAndPlay);
+        {% endif %}
+
+        // 執行場景特效與音效
+        const effects = {{ effects_json | safe if effects_json else '[]' }};
+        if (effects && effects.length > 0) {
+            effects.forEach(eff => {
+                setTimeout(() => {
+                    if (eff.type === 'shake') {
+                        const target = document.querySelector(eff.target) || document.body;
+                        InteractionEffects.triggerShake(target);
+                    } else if (eff.type === 'flash') {
+                        InteractionEffects.triggerFlash(eff.color);
+                    } else if (eff.type === 'sfx') {
+                        audio.playSFX(eff.src);
+                    }
+                }, eff.delay || 0);
+            });
+        }
 
         // 靜音按鈕事件
         btnMute?.addEventListener('click', () => {
