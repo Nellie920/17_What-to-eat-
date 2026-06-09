@@ -1,5 +1,19 @@
-// --- 資料結構 ---
+// Game State
 let gameState = {
+    currentStep: 'targetGender', 
+    targetGender: null,
+    targetCharacter: null,
+    playerGender: null,
+    resolvedTargetGender: null,
+    resolvedTargetCharacter: null,
+    resolvedPlayerGender: null,
+    preferences: {
+        npcColor: '#d6336c',
+        playerColor: '#4facfe',
+        textColor: '#ffffff',
+        actionColor: '#b0b0b0'
+    },
+    // 故事引擎狀態
     currentNode: 'start',
     targetKey: null,
     stats: {
@@ -11,6 +25,21 @@ let gameState = {
     }
 };
 
+// Character Data (for Selection Screen)
+const charactersData = {
+    male: [
+        { id: 'A1', name: '洛頁彥', icon: '👦' },
+        { id: 'A2', name: '齊勻楠', icon: '🧑' },
+        { id: 'A3', name: '秦陌寂', icon: '👨' }
+    ],
+    female: [
+        { id: 'B1', name: '田媛寧', icon: '👧' },
+        { id: 'B2', name: '張栖鈴', icon: '👩' },
+        { id: 'B3', name: '顧音棉', icon: '👱‍♀️' }
+    ]
+};
+
+// Character Meta Info (for Story Playing)
 const characters = {
     m1: { name: "洛頁彥" },
     m2: { name: "齊勻楠" },
@@ -20,6 +49,7 @@ const characters = {
     f3: { name: "顧音棉" }
 };
 
+// --- 劇本資料庫 ---
 function buildStoryNodes() {
     const nodes = {
         'start': {
@@ -105,7 +135,7 @@ function buildStoryNodes() {
                 ["「你為什麼一直避開舊校舍？」", { 'curiosity': 1, 'fear': 1 }],
                 ["嫌他吃相太難看，自己先走", { 'abandoned_partner': true }]
             ],
-            'aftermath': "經過剛才的混亂，你們在安靜的樓梯間喘氣。\n洛頁彥收起平時嘻笑的模樣，認真地看著你：「你沒受傷吧？我...我真的很怕又失去你。」",
+            'aftermath': "經過剛才的混亂，你們在安靜 the 樓梯間喘氣。\n洛頁彥收起平時嘻笑的模樣，認真地看著你：「你沒受傷吧？我...我真的很怕又失去你。」",
             'aftermath_choices': [
                 ["「我沒事，別擔心。」", { 'affection': 2, 'trust': 1 }],
                 ["「你到底在害怕什麼？」", { 'curiosity': 2 }],
@@ -136,7 +166,7 @@ function buildStoryNodes() {
             'rumor': "他把你帶到電腦教室，駭入了學校舊論壇的隱藏板塊。\n螢幕上顯示著十年前的一篇匿名貼文：「不要去舊校舍找那個東西...會被帶走的。」",
             'rumor_choices': [
                 ["「我們印出來當作線索吧。」", { 'curiosity': 2, 'courage': 1 }],
-                ["「這太毛骨悚然了，關掉！」", { 'fear': 2 }],
+                ["「這太詭異了，把它丟掉。」", { 'fear': 2 }],
                 ["「你為什麼對這件事這麼執著？」", { 'trust': 2, 'curiosity': 1 }]
             ],
             'festival': "校園祭時，他拿出了一張規劃好完美避開人潮的地圖。\n「跟緊我，這裡人多，別走散了。特別是別靠近北棟舊校舍。」",
@@ -151,7 +181,7 @@ function buildStoryNodes() {
                 ["「以前也停電過嗎？」", { 'curiosity': 2 }],
                 ["太黑了，嚇得往外衝", { 'fear': 3, 'abandoned_partner': true }]
             ],
-            'follow': "你溜去舊校舍，發現他正在安裝紅外線感測器。\n他無奈地嘆氣：「你不該來這裡的...萬一記憶被刺激而想起來...」",
+            'follow': "你偷偷庫去舊校舍，發現他正在安裝紅外線感測器。\n他無奈地嘆氣：「你不該來這裡的...萬一記憶被刺激而想起來...」",
             'follow_choices': [
                 ["「把你知道的全部告訴我！」", { 'curiosity': 2, 'courage': 1 }],
                 ["「我只是想跟你在一起。」", { 'trust': 2, 'affection': 2 }],
@@ -331,7 +361,7 @@ function buildStoryNodes() {
                 ["「我不想妳一個人冒險。」", { 'trust': 2, 'affection': 2 }],
                 ["覺得氣氛不妙，趕緊溜走", { 'fear': 3, 'abandoned_partner': true }]
             ],
-            'daily': "她懶洋洋地坐在長椅上，使喚你去買飲料跟食物。\n雖然態度高傲，但你看向她時，她會回以一個動人艷麗的輕笑。",
+            'daily': "她懶洋洋地坐在長椅上，使使喚你去買飲料跟食物。\n雖然態度高傲，但你看向她時，她會回以一個動人艷麗的輕笑。",
             'daily_choices': [
                 ["乖乖買來她愛吃的東西", { 'affection': 3, 'trust': 1 }],
                 ["「妳為什麼要在意舊校舍的事？」", { 'curiosity': 1, 'fear': 1 }],
@@ -482,7 +512,7 @@ const endings = {
         'end_good': { 'title': "【GOOD END】重新計算的戀愛", 'desc': "雖然記憶沒恢復，但他決定放下過去的執念，微笑著說：「看來我必須重新計算『如何讓你每天都心跳加速』的機率了。」" },
         'end_normal': { 'title': "【NORMAL END】平靜的數據", 'desc': "事件平息，齊勻楠依然每天精準計算著你的卡路里，你們維持著充滿邏輯卻略顯平淡的同學關係。" },
         'end_bad': { 'title': "【BAD END】無法計算的深淵", 'desc': "你不聽勸告走入黑暗，他爲了救你而被吞噬。幾天後，你收到了一份他生前寄出的、未完成的『舊校舍生存機率報告』。" },
-        'end_comedy': { 'title': "【COMEDY END】完美計畫大崩壞", 'desc': "因為你的無厘頭舉動，他的紅外線感測器引發了全校防盜警報！你們被當成竊賊在操場被警衛狂追，他完美的形象徹底掃地。" }
+        'end_comedy': { 'title': "【COMEDY END】完美計畫大崩壞", 'desc': "因為你的無厘頭舉動， his 紅外線感測器引發了全校防盜警報！你們被當成竊賊在操場被警衛狂追，他完美的形象徹底掃地。" }
     },
     'm3': {
         'end_true': { 'title': "【TRUE END】不再需要的醫藥箱", 'desc': "記憶恢復，秦陌寂摘下眼鏡，溫柔地輕吻你的額頭：「太好了，以後我不需要再為你準備OK繃，只要準備婚戒就好了。」" },
@@ -514,22 +544,563 @@ const endings = {
     }
 };
 
-// --- 遊戲邏輯與 DOM 操作 ---
-function initGame() {
-    gameState = {
-        currentNode: 'start',
-        targetKey: null,
-        stats: { trust: 0, curiosity: 0, fear: 0, affection: 0, courage: 0 },
-        flags: { mystery_route: false, ice_route: false, normal_route: false, followed_target: false, recovered_memory: false, abandoned_partner: false }
-    };
+// --- UI Flow Logic (Static Client Mode) ---
 
-    // 隱藏結局畫面，顯示故事畫面
-    document.getElementById('ending-box').classList.add('hidden');
-    document.getElementById('story-text').classList.remove('hidden');
-    document.getElementById('choices').classList.remove('hidden');
-
-    renderNode('start');
+// Select Target Gender
+function selectTargetGender(gender, event) {
+    gameState.targetGender = gender;
+    console.log("選擇攻略對象性別:", gender);
+    
+    const buttons = document.querySelectorAll('#target-gender-selection .choice-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('selected');
+        btn.style.pointerEvents = 'none';
+    });
+    
+    const clickedBtn = event.currentTarget;
+    clickedBtn.classList.add('selected');
+    
+    setTimeout(() => {
+        if (gender === 'random') {
+            showPlayerGenderSelection();
+        } else {
+            showCharacterSelection(gender);
+        }
+    }, 600);
 }
+
+// Show Target Character Selection Screen
+function showCharacterSelection(gender) {
+    gameState.currentStep = 'targetCharacter';
+    document.getElementById('target-gender-selection').classList.remove('active');
+    
+    const grid = document.getElementById('character-grid');
+    grid.innerHTML = '';
+    
+    const chars = charactersData[gender];
+    chars.forEach(char => {
+        grid.appendChild(createCharacterCard(char));
+    });
+    
+    grid.appendChild(createCharacterCard({ id: 'random_char', name: '隨機', icon: '❓' }));
+    
+    setTimeout(() => {
+        document.getElementById('target-character-selection').classList.add('active');
+    }, 50);
+}
+
+// Create a character card element
+function createCharacterCard(char) {
+    const div = document.createElement('div');
+    div.className = 'character-card';
+    div.onclick = (e) => selectTargetCharacter(char.id, e);
+    
+    let infoHtml = '';
+    if (char.id !== 'random_char') {
+        infoHtml = `<div class="info-icon" onclick="showCharacterInfo('${char.id}', event)">🔍</div>`;
+    }
+    
+    div.innerHTML = `
+        <div class="char-image-placeholder">
+            ${char.icon}
+            ${infoHtml}
+            <div class="char-name-banner">${char.name}</div>
+        </div>
+    `;
+    return div;
+}
+
+// Select a target character
+function selectTargetCharacter(charId, event) {
+    gameState.targetCharacter = charId;
+    
+    const cards = document.querySelectorAll('#target-character-selection .character-card');
+    cards.forEach(card => {
+        card.classList.remove('selected');
+        card.style.pointerEvents = 'none';
+    });
+    
+    event.currentTarget.classList.add('selected');
+    
+    setTimeout(() => {
+        showPlayerGenderSelection();
+    }, 600);
+}
+
+// Show character info
+function showCharacterInfo(charId, event) {
+    event.stopPropagation();
+    alert(`【展示人物介紹】\n這裡將在後續階段實作詳細的 ${charId} 介紹彈窗！`);
+}
+
+// Show Player Gender Selection Screen
+function showPlayerGenderSelection() {
+    gameState.currentStep = 'playerGender';
+    
+    document.getElementById('target-gender-selection').classList.remove('active');
+    document.getElementById('target-character-selection').classList.remove('active');
+    
+    setTimeout(() => {
+        document.getElementById('player-gender-selection').classList.add('active');
+    }, 50);
+}
+
+// Select Player Gender
+function selectPlayerGender(gender, event) {
+    gameState.playerGender = gender;
+    
+    const buttons = document.querySelectorAll('#player-gender-selection .choice-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('selected');
+        btn.style.pointerEvents = 'none';
+    });
+    
+    event.currentTarget.classList.add('selected');
+    
+    setTimeout(() => {
+        resolveRandomSelections();
+        showConfirmationScreen();
+    }, 600);
+}
+
+// Resolve Random Selections
+function resolveRandomSelections() {
+    if (gameState.targetGender === 'random') {
+        const genders = ['male', 'female'];
+        gameState.resolvedTargetGender = genders[Math.floor(Math.random() * genders.length)];
+    } else {
+        gameState.resolvedTargetGender = gameState.targetGender;
+    }
+
+    if (!gameState.targetCharacter || gameState.targetCharacter === 'random_char' || gameState.targetGender === 'random') {
+        const chars = charactersData[gameState.resolvedTargetGender];
+        const randomChar = chars[Math.floor(Math.random() * chars.length)];
+        gameState.resolvedTargetCharacter = randomChar.id;
+    } else {
+        gameState.resolvedTargetCharacter = gameState.targetCharacter;
+    }
+
+    if (gameState.playerGender === 'random') {
+        const genders = ['male', 'female'];
+        gameState.resolvedPlayerGender = genders[Math.floor(Math.random() * genders.length)];
+    } else {
+        gameState.resolvedPlayerGender = gameState.playerGender;
+    }
+}
+
+// Show Confirmation Screen
+function showConfirmationScreen() {
+    gameState.currentStep = 'confirmation';
+    
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    
+    const targetGenderGroup = charactersData[gameState.resolvedTargetGender];
+    const targetCharData = targetGenderGroup.find(c => c.id === gameState.resolvedTargetCharacter);
+    
+    const targetCardHtml = `
+        <div class="char-image-placeholder">
+            ${targetCharData.icon}
+            <div class="info-icon" onclick="showCharacterInfo('${targetCharData.id}', event)">🔍</div>
+            <div class="char-name-banner">${targetCharData.name}</div>
+        </div>
+    `;
+    document.getElementById('confirm-target-card').innerHTML = targetCardHtml;
+    
+    const playerIcon = gameState.resolvedPlayerGender === 'male' ? '👦' : '👧';
+    const playerText = gameState.resolvedPlayerGender === 'male' ? '男性化身' : '女性化身';
+    const playerCardHtml = `
+        <div class="char-image-placeholder">
+            ${playerIcon}
+            <div class="char-name-banner">${playerText}</div>
+        </div>
+    `;
+    document.getElementById('confirm-player-card').innerHTML = playerCardHtml;
+    
+    setTimeout(() => {
+        document.getElementById('confirmation-screen').classList.add('active');
+    }, 50);
+}
+
+// Start Game (proceed to Phase 2)
+function startGame() {
+    gameState.currentStep = 'game';
+    
+    const charPrefsStr = localStorage.getItem(`whispers_prefs_${gameState.resolvedTargetCharacter}`);
+    if (charPrefsStr) {
+        gameState.preferences = JSON.parse(charPrefsStr);
+    } else {
+        gameState.preferences = {
+            npcColor: '#d6336c',
+            playerColor: '#4facfe',
+            textColor: '#ffffff',
+            actionColor: '#b0b0b0'
+        };
+    }
+    
+    const p = gameState.preferences;
+    document.documentElement.style.setProperty('--npc-dialogue-border', p.npcColor);
+    document.documentElement.style.setProperty('--player-dialogue-border', p.playerColor);
+    document.documentElement.style.setProperty('--dialogue-text-color', p.textColor);
+    document.documentElement.style.setProperty('--action-text-color', p.actionColor);
+    document.documentElement.style.setProperty('--npc-dialogue-bg', hexToRgba(p.npcColor, 0.1));
+    document.documentElement.style.setProperty('--player-dialogue-bg', hexToRgba(p.playerColor, 0.1));
+    
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('back-btn').style.display = 'none';
+    
+    const targetCharData = charactersData[gameState.resolvedTargetGender].find(c => c.id === gameState.resolvedTargetCharacter);
+    const charCardHtml = `
+        <div class="char-image-placeholder">
+            ${targetCharData.icon}
+            <div class="info-icon" onclick="showCharacterInfo('${targetCharData.id}', event)">🔍</div>
+            <div class="char-name-banner">${targetCharData.name}</div>
+        </div>
+    `;
+    document.getElementById('game-character-card').innerHTML = charCardHtml;
+    
+    // 初始化故事播放設定與節點
+    const charMap = {
+        'A1': 'm1',
+        'A2': 'm2',
+        'A3': 'm3',
+        'B1': 'f1',
+        'B2': 'f2',
+        'B3': 'f3'
+    };
+    gameState.targetKey = charMap[gameState.resolvedTargetCharacter] || 'm1';
+    
+    const historyContent = document.querySelector('.history-content');
+    if (historyContent) {
+        historyContent.innerHTML = '';
+    }
+
+    setTimeout(() => {
+        document.getElementById('game-screen').classList.add('active');
+        initScrollListener();
+        
+        // 進入角色對應的初始節點
+        renderNode(`intro_${gameState.targetKey}`);
+    }, 50);
+}
+
+// 初始化對話紀錄捲動監聽
+function initScrollListener() {
+    const historyPanel = document.getElementById('dialogue-history');
+    const scrollBtn = document.getElementById('scroll-bottom-btn');
+    if (historyPanel && scrollBtn) {
+        historyPanel.onscroll = () => {
+            if (historyPanel.scrollHeight - historyPanel.scrollTop - historyPanel.clientHeight > 50) {
+                scrollBtn.classList.add('visible');
+            } else {
+                scrollBtn.classList.remove('visible');
+            }
+        };
+    }
+}
+
+// 將對話紀錄捲至最底
+function scrollToBottom() {
+    const historyPanel = document.getElementById('dialogue-history');
+    if (historyPanel) {
+        historyPanel.scrollTo({
+            top: historyPanel.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Show Exit Confirmation in Game Screen
+function showExitConfirm() {
+    const modal = document.getElementById('confirm-modal');
+    modal.classList.add('active');
+}
+
+// Handle Back Button Click
+function handleBack() {
+    if (gameState.currentStep === 'targetGender') {
+        const modal = document.getElementById('confirm-modal');
+        modal.classList.add('active');
+    } else if (gameState.currentStep === 'targetCharacter') {
+        document.getElementById('target-character-selection').classList.remove('active');
+        setTimeout(() => {
+            document.getElementById('target-gender-selection').classList.add('active');
+        }, 300);
+        gameState.currentStep = 'targetGender';
+        
+        const buttons = document.querySelectorAll('#target-gender-selection .choice-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('selected');
+            btn.style.pointerEvents = 'auto';
+        });
+    } else if (gameState.currentStep === 'playerGender') {
+        document.getElementById('player-gender-selection').classList.remove('active');
+        
+        setTimeout(() => {
+            if (gameState.targetGender === 'random') {
+                document.getElementById('target-gender-selection').classList.add('active');
+                gameState.currentStep = 'targetGender';
+                
+                const buttons = document.querySelectorAll('#target-gender-selection .choice-btn');
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected');
+                    btn.style.pointerEvents = 'auto';
+                });
+            } else {
+                document.getElementById('target-character-selection').classList.add('active');
+                gameState.currentStep = 'targetCharacter';
+                
+                const cards = document.querySelectorAll('#target-character-selection .character-card');
+                cards.forEach(card => {
+                    card.classList.remove('selected');
+                    card.style.pointerEvents = 'auto';
+                });
+            }
+        }, 300);
+    } else if (gameState.currentStep === 'confirmation') {
+        document.getElementById('confirmation-screen').classList.remove('active');
+        
+        setTimeout(() => {
+            document.getElementById('player-gender-selection').classList.add('active');
+        }, 300);
+        gameState.currentStep = 'playerGender';
+        
+        const buttons = document.querySelectorAll('#player-gender-selection .choice-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('selected');
+            btn.style.pointerEvents = 'auto';
+        });
+    }
+}
+
+// Close Modal
+function closeModal(event) {
+    const modal = document.getElementById('confirm-modal');
+    modal.classList.remove('active');
+}
+
+// Return to Main Menu
+function returnToMainMenu() {
+    alert('【模擬返回主頁面】\n將在此處切換回遊戲主選單畫面！');
+    closeModal();
+}
+
+// Toggle Sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('game-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    if (sidebar.classList.contains('collapsed')) {
+        sidebar.classList.remove('collapsed');
+        overlay.classList.add('active');
+    } else {
+        sidebar.classList.add('collapsed');
+        overlay.classList.remove('active');
+    }
+}
+
+// Settings Modal Logic
+function getBrightness(hex) {
+    if (!hex.startsWith('#') || hex.length !== 7) return 255;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return 0.299 * r + 0.587 * g + 0.114 * b;
+}
+
+function hexToRgba(hex, alpha) {
+    if (hex.length !== 7) return `rgba(255, 255, 255, ${alpha})`;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function openSettingsModal() {
+    const rootStyles = getComputedStyle(document.documentElement);
+    let npcColor = rootStyles.getPropertyValue('--npc-dialogue-border').trim();
+    let playerColor = rootStyles.getPropertyValue('--player-dialogue-border').trim();
+    let textColor = rootStyles.getPropertyValue('--dialogue-text-color').trim();
+    let actionColor = rootStyles.getPropertyValue('--action-text-color').trim();
+    
+    if (!npcColor.startsWith('#')) npcColor = '#d6336c';
+    if (!playerColor.startsWith('#')) playerColor = '#4facfe';
+    if (!textColor.startsWith('#')) textColor = '#ffffff';
+    if (!actionColor.startsWith('#')) actionColor = '#b0b0b0';
+    
+    document.getElementById('npc-color-picker').value = npcColor;
+    document.getElementById('player-color-picker').value = playerColor;
+    document.getElementById('text-color-picker').value = textColor;
+    document.getElementById('action-color-picker').value = actionColor;
+    document.getElementById('settings-error').style.display = 'none';
+    
+    document.getElementById('settings-modal').classList.add('active');
+}
+
+function closeSettingsModal(event) {
+    if (event) event.stopPropagation();
+    document.getElementById('settings-modal').classList.remove('active');
+}
+
+function saveSettings() {
+    const npcColor = document.getElementById('npc-color-picker').value;
+    const playerColor = document.getElementById('player-color-picker').value;
+    const textColor = document.getElementById('text-color-picker').value;
+    const actionColor = document.getElementById('action-color-picker').value;
+    const errorMsg = document.getElementById('settings-error');
+    
+    if (npcColor.toLowerCase() === playerColor.toLowerCase()) {
+        errorMsg.innerText = '防呆提示：雙方對話框顏色不得完全相同！';
+        errorMsg.style.display = 'block';
+        return; 
+    }
+    
+    if (getBrightness(textColor) <= getBrightness(actionColor)) {
+        errorMsg.innerText = '防呆提示：一般文字顏色必須比動作文字更顯眼(亮度較高)！';
+        errorMsg.style.display = 'block';
+        return;
+    }
+    
+    gameState.preferences = {
+        npcColor: npcColor,
+        playerColor: playerColor,
+        textColor: textColor,
+        actionColor: actionColor
+    };
+    
+    if (gameState.resolvedTargetCharacter) {
+        localStorage.setItem(`whispers_prefs_${gameState.resolvedTargetCharacter}`, JSON.stringify(gameState.preferences));
+    }
+    
+    document.documentElement.style.setProperty('--npc-dialogue-border', npcColor);
+    document.documentElement.style.setProperty('--player-dialogue-border', playerColor);
+    document.documentElement.style.setProperty('--dialogue-text-color', textColor);
+    document.documentElement.style.setProperty('--action-text-color', actionColor);
+    
+    document.documentElement.style.setProperty('--npc-dialogue-bg', hexToRgba(npcColor, 0.1));
+    document.documentElement.style.setProperty('--player-dialogue-bg', hexToRgba(playerColor, 0.1));
+    
+    closeSettingsModal();
+}
+
+// 動態格式化對話文字
+function formatDialogueText(text) {
+    return text.replace(/(\(.*?\)|（.*?）)/g, '<span class="action-text">$1</span>');
+}
+
+// ==================== 存檔與讀檔系統 ====================
+let currentSaveLoadMode = 'save';
+const MAX_SAVE_SLOTS = 3;
+
+function openSaveLoadModal(mode) {
+    currentSaveLoadMode = mode;
+    document.getElementById('saveload-title').innerText = mode === 'save' ? '選擇存檔欄位' : '選擇讀檔欄位';
+    
+    const container = document.getElementById('saveload-slots-container');
+    container.innerHTML = '';
+    
+    for (let i = 1; i <= MAX_SAVE_SLOTS; i++) {
+        const slotData = localStorage.getItem(`whispers_save_${i}`);
+        const slotEl = document.createElement('div');
+        
+        if (slotData) {
+            const data = JSON.parse(slotData);
+            const dateStr = new Date(data.timestamp).toLocaleString();
+            let targetName = '未知';
+            if (data.resolvedTargetGender && data.resolvedTargetCharacter) {
+                const charData = charactersData[data.resolvedTargetGender].find(c => c.id === data.resolvedTargetCharacter);
+                if (charData) targetName = charData.name;
+            }
+            
+            slotEl.className = 'save-slot';
+            slotEl.innerHTML = `
+                <div class="save-info-row">
+                    <strong>Slot ${i} - 攻略對象: ${targetName}</strong>
+                    <span class="save-date">${dateStr}</span>
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-dim);">
+                    點擊以${mode === 'save' ? '覆蓋存檔' : '讀取進度'}
+                </div>
+            `;
+        } else {
+            slotEl.className = 'save-slot empty';
+            slotEl.innerHTML = `<div>Slot ${i} - 空白欄位</div>`;
+            if (mode === 'load') {
+                slotEl.style.pointerEvents = 'none';
+                slotEl.style.opacity = '0.3';
+            }
+        }
+        
+        slotEl.onclick = () => handleSaveLoadSlot(i);
+        container.appendChild(slotEl);
+    }
+    
+    document.getElementById('saveload-modal').classList.add('active');
+}
+
+function closeSaveLoadModal(event) {
+    if (event) event.stopPropagation();
+    document.getElementById('saveload-modal').classList.remove('active');
+}
+
+function handleSaveLoadSlot(slotId) {
+    if (currentSaveLoadMode === 'save') {
+        const saveData = {
+            ...gameState,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(`whispers_save_${slotId}`, JSON.stringify(saveData));
+        alert(`已成功儲存進度與偏好設定至 Slot ${slotId}`);
+        closeSaveLoadModal();
+    } else {
+        const slotData = localStorage.getItem(`whispers_save_${slotId}`);
+        if (slotData) {
+            const parsedData = JSON.parse(slotData);
+            Object.assign(gameState, parsedData);
+            
+            if (gameState.preferences) {
+                const p = gameState.preferences;
+                document.documentElement.style.setProperty('--npc-dialogue-border', p.npcColor);
+                document.documentElement.style.setProperty('--player-dialogue-border', p.playerColor);
+                document.documentElement.style.setProperty('--dialogue-text-color', p.textColor);
+                document.documentElement.style.setProperty('--action-text-color', p.actionColor);
+                
+                document.documentElement.style.setProperty('--npc-dialogue-bg', hexToRgba(p.npcColor, 0.1));
+                document.documentElement.style.setProperty('--player-dialogue-bg', hexToRgba(p.playerColor, 0.1));
+            }
+            
+            alert(`已讀取 Slot ${slotId} 的進度與設定！`);
+            closeSaveLoadModal();
+            
+            if (gameState.currentStep === 'game') {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.getElementById('game-screen').classList.add('active');
+                
+                const targetCharData = charactersData[gameState.resolvedTargetGender].find(c => c.id === gameState.resolvedTargetCharacter);
+                const charCardHtml = `
+                    <div class="char-image-placeholder">
+                        ${targetCharData.icon}
+                        <div class="info-icon" onclick="showCharacterInfo('${targetCharData.id}', event)">🔍</div>
+                        <div class="char-name-banner">${targetCharData.name}</div>
+                    </div>
+                `;
+                document.getElementById('game-character-card').innerHTML = charCardHtml;
+                
+                // 還原當前故事節點
+                if (gameState.currentNode) {
+                    const historyContent = document.querySelector('.history-content');
+                    if (historyContent) {
+                        historyContent.innerHTML = '';
+                    }
+                    renderNode(gameState.currentNode);
+                } else {
+                    scrollToBottom();
+                }
+            }
+        }
+    }
+}
+
+// --- Story Engine Logic ---
 
 function renderNode(nodeId) {
     // 處理章節邏輯跳轉
@@ -542,7 +1113,7 @@ function renderNode(nodeId) {
             nodeId = `memory_alt_${tKey}`;
         }
     }
-
+    
     // 處理結局跳轉
     if (nodeId === 'eval_ending') {
         showEnding();
@@ -551,33 +1122,57 @@ function renderNode(nodeId) {
 
     gameState.currentNode = nodeId;
     const node = storyNodes[nodeId];
-
+    
     if (!node) {
-        document.getElementById('story-text').innerText = "劇情載入錯誤！找不到節點: " + nodeId;
+        console.error("劇情載入錯誤！找不到節點: " + nodeId);
         return;
     }
 
-    // 渲染文字
-    document.getElementById('story-text').innerText = node.text;
+    // 渲染對話到對話紀錄面板
+    const historyContent = document.querySelector('.history-content');
+    if (historyContent) {
+        const dialogLine = document.createElement('p');
+        let speakerName = "對方";
+        if (gameState.targetKey && characters[gameState.targetKey]) {
+            speakerName = characters[gameState.targetKey].name;
+        }
+        
+        dialogLine.className = 'dialogue-line npc';
+        const formattedText = formatDialogueText(node.text);
+        dialogLine.innerHTML = `<span class="speaker">${speakerName}</span>${formattedText}`;
+        historyContent.appendChild(dialogLine);
+        scrollToBottom();
+    }
 
-    // 渲染選項
-    const choicesContainer = document.getElementById('choices');
-    choicesContainer.innerHTML = '';
-
-    node.choices.forEach(choice => {
-        const btn = document.createElement('button');
-        btn.className = 'choice-btn';
-        btn.innerText = choice.text;
-        btn.onclick = () => makeChoice(choice);
-        choicesContainer.appendChild(btn);
-    });
+    // 渲染選項到 choices-list
+    const choicesList = document.querySelector('.choices-list');
+    if (choicesList) {
+        choicesList.innerHTML = '';
+        node.choices.forEach(choice => {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerText = choice.text;
+            btn.onclick = () => {
+                const historyContent = document.querySelector('.history-content');
+                if (historyContent) {
+                    const pLine = document.createElement('p');
+                    pLine.className = 'dialogue-line player';
+                    pLine.innerHTML = `<span class="speaker">你</span>${choice.text}`;
+                    historyContent.appendChild(pLine);
+                    scrollToBottom();
+                }
+                makeChoice(choice);
+            };
+            choicesList.appendChild(btn);
+        });
+    }
 }
 
 function makeChoice(choice) {
     if (choice.targetKey) {
         gameState.targetKey = choice.targetKey;
     }
-
+    
     if (choice.statChange) {
         for (let key in choice.statChange) {
             if (typeof choice.statChange[key] === 'boolean') {
@@ -588,7 +1183,7 @@ function makeChoice(choice) {
             }
         }
     }
-
+    
     renderNode(choice.next);
 }
 
@@ -609,64 +1204,39 @@ function showEnding() {
     } else if (stats.affection >= 2 && stats.trust >= 1) {
         endKey = 'end_good';
     }
-
+    
     const targetKey = gameState.targetKey || 'm1';
     let ending = endings[targetKey][endKey];
     if (!ending) ending = endings['m1']['end_normal']; // 預設防呆
+    
+    // 將結局資訊作為特殊的對話方塊追加到對話紀錄面板中
+    const historyContent = document.querySelector('.history-content');
+    if (historyContent) {
+        const titleLine = document.createElement('p');
+        titleLine.className = 'dialogue-line system';
+        titleLine.innerHTML = `<span class="speaker" style="color: #fcd34d; font-size: 1.4rem; display: block; margin-bottom: 0.5rem;">🎉 達成結局：${ending.title}</span>`;
+        historyContent.appendChild(titleLine);
 
-    // 切換畫面
-    const storyTextEl = document.getElementById('story-text');
-    const choicesEl = document.getElementById('choices');
-    const endingBoxEl = document.getElementById('ending-box');
-    const endingTitleEl = document.getElementById('ending-title');
-    const endingDescEl = document.getElementById('ending-desc');
+        const descLine = document.createElement('p');
+        descLine.className = 'dialogue-line';
+        descLine.style.borderLeftColor = '#fcd34d';
+        descLine.innerText = ending.desc;
+        historyContent.appendChild(descLine);
+        
+        scrollToBottom();
+    }
 
-    if (storyTextEl && choicesEl && endingBoxEl && endingTitleEl && endingDescEl) {
-        storyTextEl.classList.add('hidden');
-        choicesEl.classList.add('hidden');
-        endingBoxEl.classList.remove('hidden');
-        endingTitleEl.innerText = ending.title;
-        endingDescEl.innerText = ending.desc;
-    } else {
-        // 針對無對應 DOM 元素的 index.html 版本進行相容處理
-        // 將結局資訊作為特殊的對話方塊追加到對話紀錄面板中
-        const historyContent = document.querySelector('.history-content');
-        if (historyContent) {
-            const titleLine = document.createElement('p');
-            titleLine.className = 'dialogue-line system';
-            titleLine.innerHTML = `<span class="speaker" style="color: #fcd34d; font-size: 1.4rem; display: block; margin-bottom: 0.5rem;">🎉 達成結局：${ending.title}</span>`;
-            historyContent.appendChild(titleLine);
-
-            const descLine = document.createElement('p');
-            descLine.className = 'dialogue-line';
-            descLine.style.borderLeftColor = '#fcd34d';
-            descLine.innerText = ending.desc;
-            historyContent.appendChild(descLine);
-
-            const historyPanel = document.getElementById('dialogue-history');
-            if (historyPanel) {
-                historyPanel.scrollTop = historyPanel.scrollHeight;
-            }
-        }
-
-        // 在選項區塊渲染一個「重新開始故事」的按鈕
-        const choicesList = document.querySelector('.choices-list');
-        if (choicesList) {
-            choicesList.innerHTML = '';
-            const restartBtn = document.createElement('button');
-            restartBtn.className = 'choice-btn primary';
-            restartBtn.innerText = '重新開始故事';
-            restartBtn.style.width = '100%';
-            restartBtn.onclick = () => {
-                location.reload();
-            };
-            choicesList.appendChild(restartBtn);
-        }
+    // 在選項區塊渲染一個「重新開始故事」的按鈕
+    const choicesList = document.querySelector('.choices-list');
+    if (choicesList) {
+        choicesList.innerHTML = '';
+        const restartBtn = document.createElement('button');
+        restartBtn.className = 'choice-btn primary';
+        restartBtn.innerText = '重新開始故事';
+        restartBtn.style.width = '100%';
+        restartBtn.onclick = () => {
+            location.reload();
+        };
+        choicesList.appendChild(restartBtn);
     }
 }
-
-// 綁定事件並啟動遊戲
-window.onload = () => {
-    document.getElementById('restart-btn').onclick = initGame;
-    initGame();
-};

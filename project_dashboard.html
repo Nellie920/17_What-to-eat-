@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《愛與選擇之書》專案開發成果與狀態儀表板</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Mermaid.js for drawing diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'loose',
+            themeVariables: {
+                background: '#150f20',
+                primaryColor: '#ff758c',
+                primaryTextColor: '#fff',
+                lineColor: '#00d2ff',
+                secondaryColor: '#8a2be2'
+            }
+        });
+    </script>
+    <style>
+        :root {
+            --bg-dark: #09060e;
+            --bg-space: #0f0a18;
+            --primary-love: #ff758c;
+            --primary-fate: #00d2ff;
+            --glow-pink: rgba(255, 117, 140, 0.4);
+            --glow-blue: rgba(0, 210, 255, 0.4);
+            --glass-bg: rgba(20, 15, 30, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-light: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent-gold: #ffd700;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', 'Noto Serif TC', serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 117, 140, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 210, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(138, 43, 226, 0.05) 0%, transparent 60%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 10px;
+            border: 2px solid var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-love);
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .sidebar-logo i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary-love), var(--primary-fate));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse-glow 2.5s infinite;
+        }
+
+        .sidebar-logo h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 18px;
+            color: var(--text-dim);
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 117, 140, 0.2);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(255, 117, 140, 0.15), rgba(0, 210, 255, 0.05));
+            border-color: rgba(255, 117, 140, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 117, 140, 0.08);
+        }
+
+        .nav-item i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item:hover i, .nav-item.active i {
+            color: var(--primary-love);
+        }
+
+        .sidebar-footer {
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            text-align: center;
+        }
+
+        .sidebar-footer a {
+            color: var(--primary-fate);
+            text-decoration: none;
+        }
+
+        /* Main Content Container */
+        .main-content {
+            margin-left: 280px;
+            flex-grow: 1;
+            padding: 3rem;
+            min-height: 100vh;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Section Header */
+        .section-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 55%, var(--primary-love) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+        }
+
+        /* Glass Panel / Cards */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+        }
+
+        /* Grid Layouts */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Project Info Card */
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 1.2rem;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            color: var(--primary-love);
+        }
+
+        .info-detail h4 {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-detail p {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* Progress Circle Widget */
+        .progress-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .progress-circle-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .progress-circle-svg {
+            transform: rotate(-90deg);
+            width: 120px;
+            height: 120px;
+        }
+
+        .progress-circle-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.05);
+            stroke-width: 10px;
+        }
+
+        .progress-circle-bar {
+            fill: none;
+            stroke: url(#gradient-pink-blue);
+            stroke-width: 10px;
+            stroke-linecap: round;
+            stroke-dasharray: 314;
+            stroke-dashoffset: 31.4; /* 90% completion */
+            animation: progress-anim 1.5s ease-out forwards;
+        }
+
+        .progress-percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Modules Table */
+        .module-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .module-table th, .module-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .module-table th {
+            color: var(--text-dim);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .module-table td {
+            font-size: 0.95rem;
+        }
+
+        .module-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge.info {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .badge.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* Timeline Styles */
+        .timeline {
+            position: relative;
+            padding: 1rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary-love), var(--primary-fate), transparent);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2.5rem;
+            padding-left: 60px;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--bg-dark);
+            border: 4px solid var(--primary-love);
+            position: absolute;
+            left: 11px;
+            top: 5px;
+            z-index: 2;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px var(--glow-pink);
+        }
+
+        .timeline-item.active .timeline-dot {
+            border-color: var(--primary-fate);
+            box-shadow: 0 0 10px var(--glow-blue);
+        }
+
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-content:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 117, 140, 0.3);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .timeline-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .timeline-date {
+            font-size: 0.85rem;
+            color: var(--primary-fate);
+            font-weight: 600;
+        }
+
+        .timeline-body p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Database Schema Styles */
+        .db-cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .db-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .db-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--primary-fate);
+            box-shadow: 0 8px 25px rgba(0, 210, 255, 0.1);
+        }
+
+        .db-card-header {
+            background: linear-gradient(135deg, rgba(255, 117, 140, 0.1), rgba(0, 210, 255, 0.1));
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .db-card-header h3 {
+            font-size: 1.15rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .db-card-header i {
+            color: var(--primary-love);
+        }
+
+        .db-columns-list {
+            padding: 15px 20px;
+        }
+
+        .db-column-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+
+        .db-column-item:last-child {
+            border-bottom: none;
+        }
+
+        .col-name {
+            font-weight: 500;
+            color: #e2e8f0;
+        }
+
+        .col-type {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            font-family: monospace;
+        }
+
+        .col-key {
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+            margin-left: 5px;
+        }
+
+        /* API Manual & Simulator Styles */
+        .api-tester-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 992px) {
+            .api-tester-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .api-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .api-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .api-item:hover, .api-item.selected {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--primary-love);
+        }
+
+        .api-item.selected {
+            box-shadow: inset 4px 0 0 var(--primary-love);
+        }
+
+        .api-method-route {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .api-method {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .api-method.post {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .api-method.get {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .api-route {
+            font-family: monospace;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .api-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
+
+        /* Console styling */
+        .console-panel {
+            background: #09060e;
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .console-header {
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .console-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .console-title i {
+            color: #10b981;
+        }
+
+        .console-actions button {
+            background: var(--primary-love);
+            color: #fff;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px var(--glow-pink);
+        }
+
+        .console-actions button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px var(--glow-pink);
+        }
+
+        .console-actions button:active {
+            transform: translateY(0);
+        }
+
+        .console-body {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .console-block {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .console-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .console-code {
+            background: #110c1a;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--primary-fate);
+            white-space: pre-wrap;
+            word-break: break-all;
+            overflow-y: auto;
+            max-height: 220px;
+        }
+
+        .console-code.response {
+            color: #cbd5e1;
+            min-height: 120px;
+        }
+
+        /* Source Code Viewer Styles */
+        .code-viewer-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 1.5rem;
+            min-height: 500px;
+        }
+
+        .code-files-list {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .code-file-item {
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .code-file-item:hover, .code-file-item.selected {
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+        }
+
+        .code-file-item.selected {
+            box-shadow: inset 3px 0 0 var(--primary-fate);
+            background: rgba(0, 210, 255, 0.05);
+        }
+
+        .code-display-panel {
+            background: #09060e;
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-display-header {
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-filename {
+            font-size: 0.95rem;
+            font-family: monospace;
+            font-weight: 600;
+        }
+
+        .code-pre {
+            padding: 20px;
+            overflow: auto;
+            flex-grow: 1;
+            max-height: 500px;
+        }
+
+        .code-block-content {
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #cbd5e1;
+            white-space: pre;
+        }
+
+        /* Animations */
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 2px var(--glow-pink)); }
+            50% { filter: drop-shadow(0 0 10px var(--glow-pink)); }
+        }
+
+        @keyframes progress-anim {
+            from { stroke-dashoffset: 314; }
+            to { stroke-dashoffset: 31.4; }
+        }
+    </style>
+</head>
+<body>
+    <!-- SVG Gradient Definitions -->
+    <svg style="width:0;height:0;position:absolute;">
+        <defs>
+            <linearGradient id="gradient-pink-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ff758c" />
+                <stop offset="100%" stop-color="#00d2ff" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <i class="fa-solid fa-heart-pulse"></i>
+            <h2>Whispers of Fate</h2>
+        </div>
+        
+        <div class="nav-menu">
+            <div class="nav-item active" onclick="switchTab('overview', this)">
+                <i class="fa-solid fa-chart-line"></i> 專案總覽
+            </div>
+            <div class="nav-item" onclick="switchTab('timeline', this)">
+                <i class="fa-solid fa-timeline"></i> SDLC 歷程
+            </div>
+            <div class="nav-item" onclick="switchTab('database', this)">
+                <i class="fa-solid fa-database"></i> 資料庫設計
+            </div>
+            <div class="nav-item" onclick="switchTab('api-manual', this)">
+                <i class="fa-solid fa-book-bookmark"></i> API 規劃與測試
+            </div>
+            <div class="nav-item" onclick="switchTab('code-viewer', this)">
+                <i class="fa-solid fa-code"></i> 實作代碼速覽
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <p>小組：等一下要吃什麼? / 17</p>
+            <p>成員合作成果成果發表</p>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        
+        <!-- SECTION: OVERVIEW -->
+        <div id="overview" class="content-section active">
+            <div class="section-header">
+                <h1>專案期末成果總覽 (Project Overview)</h1>
+                <p>《愛與選擇之書 Whispers of Fate》專案實作進度、模組劃分與小組分工詳情。</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Info Card -->
+                <div class="glass-card">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem; font-weight: 700;">基本資訊</h3>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <div class="info-detail">
+                            <h4>課程專題</h4>
+                            <p>期末專題主題報告 × 軟體生命週期</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fa-solid fa-people-group"></i></div>
+                        <div class="info-detail">
+                            <h4>組別與組號</h4>
+                            <p>等一下要吃什麼? / 17</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fa-solid fa-user-group"></i></div>
+                        <div class="info-detail">
+                            <h4>全體組員</h4>
+                            <p style="font-size: 0.95rem; font-weight: 500;">侯欣妮、林永涵、陳姵羽、廖奕臻、邱柏傑、吳禎晏</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Widget -->
+                <div class="glass-card progress-card">
+                    <div>
+                        <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; font-weight: 700;">系統整合進度</h3>
+                        <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.5rem;">6大核心模組全數實作完畢</p>
+                        <span class="badge success" style="font-size: 0.85rem;"><i class="fa-solid fa-circle-check"></i> 功能已全數交付</span>
+                    </div>
+                    <div class="progress-circle-container">
+                        <svg class="progress-circle-svg">
+                            <circle class="progress-circle-bg" cx="60" cy="60" r="50"></circle>
+                            <circle class="progress-circle-bar" cx="60" cy="60" r="50"></circle>
+                        </svg>
+                        <div class="progress-percentage">90%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modules List Table -->
+            <div class="glass-card">
+                <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem; font-weight: 700;">模組開發成果與對照表</h3>
+                <table class="module-table">
+                    <thead>
+                        <tr>
+                            <th>編號</th>
+                            <th>功能模組</th>
+                            <th>負責人</th>
+                            <th>實作描述</th>
+                            <th>後端路由與程式碼路徑</th>
+                            <th>狀態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 700; color: var(--primary-love);">F-01</td>
+                            <td style="font-weight: 600;">用戶登入與註冊</td>
+                            <td>侯欣妮</td>
+                            <td>提供帳號密碼登入與雜湊加密，儲存並同步個人故事進度</td>
+                            <td><code>/login</code>, <code>/register</code><br><span style="font-size: 0.8rem; color: var(--text-dim);">app/routes/auth.py</span></td>
+                            <td><span class="badge success">已完成</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 700; color: var(--primary-love);">F-02</td>
+                            <td style="font-weight: 600;">多分支互動故事系統</td>
+                            <td>林永涵</td>
+                            <td>核心抉擇故事引擎，動態解析劇情節點與好感度屬性變化</td>
+                            <td><code>/story/&lt;node_id&gt;</code><br><span style="font-size: 0.8rem; color: var(--text-dim);">app/routes/story.py</span></td>
+                            <td><span class="badge success">已完成</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 700; color: var(--primary-love);">F-03</td>
+                            <td style="font-weight: 600;">任意存檔/讀檔功能</td>
+                            <td>陳姵羽</td>
+                            <td>多槽位 SQLite 存取進度，記錄當前 Node ID 與變數 JSON</td>
+                            <td><code>/saves</code>, <code>/saves/&lt;id&gt;/load</code><br><span style="font-size: 0.8rem; color: var(--text-dim);">app/routes/save.py</span></td>
+                            <td><span class="badge success">已完成</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 700; color: var(--primary-love);">F-04</td>
+                            <td style="font-weight: 600;">個人化外觀設置</td>
+                            <td>廖奕臻</td>
+                            <td>更換網頁背景配色與主題，自訂男女主角顯示名稱</td>
+                            <td><code>/settings</code>, <code>/settings/update</code><br><span style="font-size: 0.8rem; color: var(--text-dim);">app/routes/user.py</span></td>
+                            <td><span class="badge success">已完成</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 700; color: var(--primary-love);">F-05</td>
+                            <td style="font-weight: 600;">成就解鎖系統</td>
+                            <td>邱柏傑</td>
+                            <td>追蹤玩家行為、達成結局、自訂與調整音樂時發放精美成就獎勵</td>
+                            <td><code>/achievements</code>, <code>/api/achievements/unlock</code><br><span style="font-size: 0.8rem; color: var(--text-dim);">app/routes/user.py</span></td>
+                            <td><span class="badge success">已完成</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 700; color: var(--primary-love);">F-06</td>
+                            <td style="font-weight: 600;">多媒體互動與音效控制</td>
+                            <td>吳禎晏</td>
+                            <td>全域 AudioManager，配合故事氛圍切換背景音樂與按鈕音效</td>
+                            <td>靜態全域模組<br><span style="font-size: 0.8rem; color: var(--text-dim);">app/static/js/audio_manager.js</span></td>
+                            <td><span class="badge success">已完成</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION: TIMELINE -->
+        <div id="timeline" class="content-section">
+            <div class="section-header">
+                <h1>SDLC 開發時程與系統流程圖</h1>
+                <p>遵循課堂統一軟體工程規範，從規劃、設計到整合測試的完整時間軸。</p>
+            </div>
+
+            <div class="api-tester-container">
+                <!-- Left: Timeline -->
+                <div class="glass-card">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem; font-weight: 700;">專案時間軸</h3>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <h3>階段一：規劃與需求分析 (Planning & PRD)</h3>
+                                    <span class="timeline-date">5/12 完成</span>
+                                </div>
+                                <div class="timeline-body">
+                                    <p>• 確定開發主題為《愛與選擇之書 Whispers of Fate》戀愛視覺小說平台。</p>
+                                    <p>• 分析核心痛點（缺乏雙向互動、結局單一等）並撰寫產品需求文件 (PRD.md)。</p>
+                                    <p>• 明確劃分 6 大功能編號與小組職責分工。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <h3>階段二：系統架構與資料庫設計 (Design)</h3>
+                                    <span class="timeline-date">5/19 完成</span>
+                                </div>
+                                <div class="timeline-body">
+                                    <p>• 完成 MVC 系統架構規劃 (ARCHITECTURE.md)，選用 Python Flask + SQLite。</p>
+                                    <p>• 設計 SQLite 資料表 Schema（使用者、存檔、成就及解鎖紀錄）。</p>
+                                    <p>• 規劃使用者操作流程圖 (FLOWCHART.md) 與 API 路由規劃表。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-item active">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <h3>階段三：各功能獨立開發與整合 (Implementation)</h3>
+                                    <span class="timeline-date">5/26 進行中/已完成</span>
+                                </div>
+                                <div class="timeline-body">
+                                    <p>• 獨立完成 F-01 到 F-06 的程式碼撰寫與本機測試。</p>
+                                    <p>• 進行系統大整合，合併至 Flask 骨架中並註冊藍圖。</p>
+                                    <p>• 實作本專案成果與狀態儀表板，全面呈現完整狀態。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <h3>階段四：功能整合測試與 Bug 修正 (Testing)</h3>
+                                    <span class="timeline-date">6/09、6/16 預計</span>
+                                </div>
+                                <div class="timeline-body">
+                                    <p>• 撰寫單元測試與端到端模擬登入、遊戲存檔與解鎖成就測試。</p>
+                                    <p>• 優化前端多媒體音量控制與 CSS 轉場動畫的防呆處理。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <h3>階段五：專題 Demo 與部署 (Demo)</h3>
+                                    <span class="timeline-date">6/23 預計</span>
+                                </div>
+                                <div class="timeline-body">
+                                    <p>• 系統雲端部署與最後測試，製作期末演示投影片與成果發佈。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Sequence / Flowchart Diagram -->
+                <div class="glass-card">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem; font-weight: 700;">系統序列圖 (Sequence Diagram)</h3>
+                    <div class="mermaid" style="background: #110c1a; padding: 15px; border-radius:12px; border:1px solid var(--glass-border);">
+                        sequenceDiagram
+                        actor 使用者
+                        participant 瀏覽器 (前端)
+                        participant Flask 路由 (story.py)
+                        participant 存檔模型 (save.py)
+                        participant SQLite 資料庫
+                        
+                        使用者->>瀏覽器 (前端): 點擊「存檔」按鈕
+                        瀏覽器 (前端)->>Flask 路由 (story.py): POST /saves/create (含 node_id)
+                        Flask 路由 (story.py)->>存檔模型 (save.py): Save.create(user_id, node_id)
+                        存檔模型 (save.py)->>SQLite 資料庫: INSERT/UPDATE 存檔槽位
+                        SQLite 資料庫-->>存檔模型 (save.py): 寫入成功
+                        存檔模型 (save.py)-->>Flask 路由 (story.py): 傳回存檔對象
+                        Flask 路由 (story.py)-->>瀏覽器 (前端): 重導向並顯示 Flash 成功訊息
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: DATABASE -->
+        <div id="database" class="content-section">
+            <div class="section-header">
+                <h1>資料庫結構設計 (SQLite Schema)</h1>
+                <p>為實現會員登入、多槽位故事存檔以及解鎖成就功能所設計的資料庫實體關聯表格。</p>
+            </div>
+
+            <div class="glass-card">
+                <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem; font-weight: 700;">資料表結構圖鑑</h3>
+                <div class="db-cards-container">
+                    
+                    <!-- Table: users -->
+                    <div class="db-card">
+                        <div class="db-card-header">
+                            <h3><i class="fa-solid fa-user"></i> users (會員帳號)</h3>
+                            <span class="badge info">表1</span>
+                        </div>
+                        <div class="db-columns-list">
+                            <div class="db-column-item">
+                                <span class="col-name">id</span>
+                                <span class="col-type">INTEGER <span class="col-key">PK AUTO</span></span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">username</span>
+                                <span class="col-type">TEXT <span class="col-key">UNIQUE</span></span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">password_hash</span>
+                                <span class="col-type">TEXT (密碼雜湊)</span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">display_name</span>
+                                <span class="col-type">TEXT (暱稱)</span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">theme</span>
+                                <span class="col-type">TEXT DEFAULT 'light'</span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">created_at</span>
+                                <span class="col-type">DATETIME</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table: saves -->
+                    <div class="db-card">
+                        <div class="db-card-header">
+                            <h3><i class="fa-solid fa-floppy-disk"></i> saves (玩家存檔)</h3>
+                            <span class="badge info">表2</span>
+                        </div>
+                        <div class="db-columns-list">
+                            <div class="db-column-item">
+                                <span class="col-name">id</span>
+                                <span class="col-type">INTEGER <span class="col-key">PK AUTO</span></span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">user_id</span>
+                                <span class="col-type">INTEGER <span class="col-key">FK</span></span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">node_id</span>
+                                <span class="col-type">TEXT (故事節點)</span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">chapter</span>
+                                <span class="col-type">INTEGER DEFAULT 1</span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">saved_state</span>
+                                <span class="col-type">TEXT (JSON 字串)</span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">saved_at</span>
+                                <span class="col-type">DATETIME</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table: achievements -->
+                    <div class="db-card">
+                        <div class="db-card-header">
+                            <h3><i class="fa-solid fa-trophy"></i> achievements (成就定義)</h3>
+                            <span class="badge info">表3</span>
+                        </div>
+                        <div class="db-columns-list">
+                            <div class="db-column-item">
+                                <span class="col-name">id</span>
+                                <span class="col-type">INTEGER <span class="col-key">PK AUTO</span></span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">title</span>
+                                <span class="col-type">TEXT <span class="col-key">UNIQUE</span></span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">description</span>
+                                <span class="col-type">TEXT (成就描述)</span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">badge_url</span>
+                                <span class="col-type">TEXT (勳章路徑)</span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">points</span>
+                                <span class="col-type">INTEGER DEFAULT 10</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table: user_achievements -->
+                    <div class="db-card">
+                        <div class="db-card-header">
+                            <h3><i class="fa-solid fa-certificate"></i> user_achievements</h3>
+                            <span class="badge info">表4</span>
+                        </div>
+                        <div class="db-columns-list">
+                            <div class="db-column-item">
+                                <span class="col-name">id</span>
+                                <span class="col-type">INTEGER <span class="col-key">PK AUTO</span></span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">user_id</span>
+                                <span class="col-type">INTEGER <span class="col-key">FK</span></span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">achievement_id</span>
+                                <span class="col-type">INTEGER <span class="col-key">FK</span></span>
+                            </div>
+                            <div class="db-column-item">
+                                <span class="col-name">unlocked_at</span>
+                                <span class="col-type">DATETIME</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: API MANUAL & SIMULATOR -->
+        <div id="api-manual" class="content-section">
+            <div class="section-header">
+                <h1>API 規劃手冊與動態模擬測試器</h1>
+                <p>專案中前後端串接的 API 端點手冊，您可使用右側的 Console 直接模擬 API 的 JSON 請求與回應！</p>
+            </div>
+
+            <div class="api-tester-container">
+                <!-- Left: API List -->
+                <div class="glass-card">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem; font-weight: 700;">API 端點列表</h3>
+                    <div class="api-list">
+                        
+                        <div class="api-item selected" onclick="selectAPI('/login', 'POST', '驗證登入並建立 Session 狀態。', '{\n  \"username\": \"testuser\",\n  \"password\": \"password123\"\n}', '{\n  \"status\": \"success\",\n  \"message\": \"登入成功！歡迎回到愛與選擇之書。\",\n  \"user\": {\n    \"id\": 1,\n    \"username\": \"testuser\",\n    \"display_name\": \"命運拓荒者\"\n  }\n}', this)">
+                            <div class="api-method-route">
+                                <span class="api-method post">POST</span>
+                                <div>
+                                    <span class="api-route">/login</span>
+                                    <p class="api-desc">會員登入驗證</p>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-dim"></i>
+                        </div>
+
+                        <div class="api-item" onclick="selectAPI('/register', 'POST', '建立全新使用者帳號，密碼會雜湊加密儲存。', '{\n  \"username\": \"newplayer\",\n  \"password\": \"securepwd\",\n  \"display_name\": \"新手主角\"\n}', '{\n  \"status\": \"success\",\n  \"message\": \"註冊成功！請使用新帳號進行登入。\"\n}', this)">
+                            <div class="api-method-route">
+                                <span class="api-method post">POST</span>
+                                <div>
+                                    <span class="api-route">/register</span>
+                                    <p class="api-desc">註冊新會員</p>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-dim"></i>
+                        </div>
+
+                        <div class="api-item" onclick="selectAPI('/api/save', 'POST', '儲存目前劇本進度與好感度狀態 JSON。', '{\n  \"node_id\": \"ch2_library_m3\",\n  \"chapter\": 2,\n  \"saved_state\": {\n    \"targetKey\": \"m3\",\n    \"affection\": 3,\n    \"trust\": 4\n  }\n}', '{\n  \"status\": \"success\",\n  \"message\": \"進度已成功儲存至槽位！\"\n}', this)">
+                            <div class="api-method-route">
+                                <span class="api-method post">POST</span>
+                                <div>
+                                    <span class="api-route">/api/save</span>
+                                    <p class="api-desc">建立/更新進度存檔</p>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-dim"></i>
+                        </div>
+
+                        <div class="api-item" onclick="selectAPI('/api/achievements/unlock', 'POST', '玩家觸發特定結局或隱藏彩蛋時解鎖成就。', '{\n  \"achievement_id\": 2\n}', '{\n  \"status\": \"success\",\n  \"message\": \"恭喜解鎖成就：【戀愛大師】！\",\n  \"already_unlocked\": false,\n  \"achievement\": {\n    \"id\": 2,\n    \"title\": \"戀愛大師\",\n    \"points\": 30\n  }\n}', this)">
+                            <div class="api-method-route">
+                                <span class="api-method post">POST</span>
+                                <div>
+                                    <span class="api-route">/api/achievements/unlock</span>
+                                    <p class="api-desc">動態解鎖成就</p>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-dim"></i>
+                        </div>
+
+                        <div class="api-item" onclick="selectAPI('/api/achievements', 'GET', '取得目前登入使用者所有已解鎖與未解鎖的成就清單。', '', '{\n  \"status\": \"success\",\n  \"achievements\": [\n    { \"id\": 1, \"title\": \"踏出第一步\", \"unlocked\": true, \"unlocked_at\": \"2026-05-26 14:02:11\" },\n    { \"id\": 2, \"title\": \"戀愛大師\", \"unlocked\": false, \"unlocked_at\": null },\n    { \"id\": 3, \"title\": \"遺憾的美好\", \"unlocked\": true, \"unlocked_at\": \"2026-05-26 20:30:15\" }\n  ]\n}', this)">
+                            <div class="api-method-route">
+                                <span class="api-method get">GET</span>
+                                <div>
+                                    <span class="api-route">/api/achievements</span>
+                                    <p class="api-desc">獲取成就狀態清單</p>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-dim"></i>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right: Simulator Console -->
+                <div class="console-panel">
+                    <div class="console-header">
+                        <div class="console-title">
+                            <i class="fa-solid fa-circle"></i>
+                            <span>互動式 API 終端模擬器</span>
+                        </div>
+                        <div class="console-actions">
+                            <button onclick="simulateAPICall()"><i class="fa-solid fa-paper-plane"></i> 發送模擬請求</button>
+                        </div>
+                    </div>
+                    <div class="console-body">
+                        <div class="console-block">
+                            <span class="console-label">請求資訊 (Request)</span>
+                            <div id="req-info" class="console-code" style="color: var(--accent-gold); max-height:40px; padding: 10px 15px;">POST /login</div>
+                        </div>
+                        <div class="console-block" id="req-body-container">
+                            <span class="console-label">JSON 參數 (Payload)</span>
+                            <div id="req-body" class="console-code" style="max-height: 120px;">{ "username": "testuser" }</div>
+                        </div>
+                        <div class="console-block" style="flex-grow: 1;">
+                            <span class="console-label">伺服器回應 (Response JSON)</span>
+                            <div id="res-body" class="console-code response">點擊「發送模擬請求」查看回應...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: CODE VIEWER -->
+        <div id="code-viewer" class="content-section">
+            <div class="section-header">
+                <h1>實作代碼核心速覽 (Code Viewer)</h1>
+                <p>在此直接查閱專案中 6 大功能模組的核心實作代碼與背後的設計邏輯。</p>
+            </div>
+
+            <div class="code-viewer-container">
+                <!-- Left: Files -->
+                <div class="code-files-list">
+                    <div class="code-file-item selected" onclick="showCode('auth_py', this)">
+                        <i class="fa-brands fa-python" style="color: #4584b6;"></i> auth.py (F-01)
+                    </div>
+                    <div class="code-file-item" onclick="showCode('story_py', this)">
+                        <i class="fa-brands fa-python" style="color: #4584b6;"></i> story.py (F-02)
+                    </div>
+                    <div class="code-file-item" onclick="showCode('save_py', this)">
+                        <i class="fa-brands fa-python" style="color: #4584b6;"></i> save.py (F-03)
+                    </div>
+                    <div class="code-file-item" onclick="showCode('user_py', this)">
+                        <i class="fa-brands fa-python" style="color: #4584b6;"></i> user.py (F-04, 05)
+                    </div>
+                    <div class="code-file-item" onclick="showCode('audio_js', this)">
+                        <i class="fa-brands fa-js" style="color: #f7df1e;"></i> audio_manager.js (F-06)
+                    </div>
+                </div>
+
+                <!-- Right: Code Display -->
+                <div class="code-display-panel">
+                    <div class="code-display-header">
+                        <span class="code-filename" id="code-panel-filename">app/routes/auth.py</span>
+                        <span class="badge info" id="code-panel-module">F-01 用戶登入模組</span>
+                    </div>
+                    <div class="code-pre">
+                        <pre class="code-block-content" id="code-block-element"># 載入代碼中...</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JS Logic for Tabs and Simulator -->
+    <script>
+        // Tab switching logic
+        function switchTab(sectionId, element) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            // Show active section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Toggle active class in nav
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+
+            // Force Mermaid to re-render if switching to timeline
+            if (sectionId === 'timeline') {
+                setTimeout(() => {
+                    mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+                }, 100);
+            }
+        }
+
+        // API Simulator variables and function
+        let currentAPI = {
+            route: '/login',
+            method: 'POST',
+            desc: '驗證登入並建立 Session 狀態。',
+            req: '{\n  "username": "testuser",\n  "password": "password123"\n}',
+            res: '{\n  "status": "success",\n  "message": "登入成功！歡迎回到愛與選擇之書。",\n  "user": {\n    "id": 1,\n    "username": "testuser",\n    "display_name": "命運拓荒者"\n  }\n}'
+        };
+
+        function selectAPI(route, method, desc, req, res, el) {
+            // Highlighting
+            document.querySelectorAll('.api-item').forEach(item => item.classList.remove('selected'));
+            el.classList.add('selected');
+
+            currentAPI = { route, method, desc, req, res };
+
+            // Update simulator panels
+            document.getElementById('req-info').textContent = `${method} ${route}`;
+            
+            if (method === 'GET') {
+                document.getElementById('req-body-container').style.display = 'none';
+            } else {
+                document.getElementById('req-body-container').style.display = 'flex';
+                document.getElementById('req-body').textContent = req;
+            }
+
+            document.getElementById('res-body').textContent = '點擊「發送模擬請求」查看回應...';
+        }
+
+        function simulateAPICall() {
+            const resPanel = document.getElementById('res-body');
+            resPanel.textContent = '⏱ 正在建立與 Flask 模擬環境的通訊...';
+            
+            setTimeout(() => {
+                resPanel.textContent = '📡 正在解析請求 Payload 並呼叫 SQLite 模型方法...';
+                setTimeout(() => {
+                    resPanel.textContent = currentAPI.res;
+                }, 400);
+            }, 300);
+        }
+
+        // Code Viewer definitions
+        const codeDatabase = {
+            auth_py: {
+                filename: 'app/routes/auth.py',
+                module: 'F-01 用戶註冊與登入控制',
+                code: `from flask import Blueprint, request, render_template, redirect, url_for, session, flash
+from app.models.user import User
+
+auth_bp = Blueprint('auth', __name__)
+
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # 呼叫 User Model 進行密碼雜湊檢查與登入驗證
+        user = User.authenticate(username, password)
+        if user:
+            session['user_id'] = user['id']
+            session['username'] = user['username']
+            flash('登入成功，歡迎光臨！', 'success')
+            return redirect(url_for('story.home'))
+        
+        flash('帳號或密碼輸入錯誤，請重試。', 'danger')
+    return render_template('auth/login.html')`
+            },
+            story_py: {
+                filename: 'app/routes/story.py',
+                module: 'F-02 抉擇故事引擎核心',
+                code: `@story_bp.route('/story/<node_id>', methods=['GET'])
+def play_story(node_id):
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+        
+    user = User.get_by_id(session['user_id'])
+    state = session.get('game_state', INITIAL_STATE.copy())
+    
+    # 根據 node_id 撈取劇本節點與屬性變更
+    node = STORY_NODES.get(node_id)
+    story_data = {
+        'node_id': node_id,
+        'text': parse_text(node['text'], state.get('targetKey')),
+        'choices': [{'id': i, 'text': parse_text(c['text'], state.get('targetKey'))} for i, c in enumerate(node['choices'])]
+    }
+    
+    # 動態指派 F-06 音量與高級 Unsplash 特效
+    effects = []
+    if 'memory' in node_id:
+        effects.append({ "type": "flash", "color": "rgba(255, 182, 193, 0.4)", "delay": 200 })
+        
+    # 動態觸發 F-05 成就解鎖
+    if node_id == 'start':
+        Achievement.create(user['id'], '1') # 踏出第一步
+        
+    return render_template('story/play.html', user=user, story=story_data, effects_json=json.dumps(effects))`
+            },
+            save_py: {
+                filename: 'app/routes/save.py',
+                module: 'F-03 SQLite 多槽位讀寫機制',
+                code: `from flask import Blueprint, request, session, jsonify, redirect, url_for, flash
+from app.models.save import Save
+
+save_bp = Blueprint('save', __name__)
+
+@save_bp.route('/saves/create', methods=['POST'])
+def create_save():
+    if 'user_id' not in session:
+        return jsonify({'status': 'error', 'message': '請先登入'}), 401
+        
+    user_id = session['user_id']
+    node_id = request.form.get('node_id')
+    saved_state = request.form.get('state_json')  # 儲存好感度、屬性等變數
+    
+    # 調用 SQLite 模型層儲存
+    if Save.create(user_id=user_id, node_id=node_id, saved_state=saved_state):
+        flash('遊戲進度已成功存檔！', 'success')
+    else:
+        flash('存檔失敗，請確認資料庫狀態。', 'danger')
+        
+    return redirect(url_for('story.play_story', node_id=node_id))`
+            },
+            user_py: {
+                filename: 'app/routes/user.py',
+                module: 'F-04 & F-05 個人化與成就解鎖系統',
+                code: `@user_bp.route('/settings/update', methods=['POST'])
+def update_settings():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+        
+    display_name = request.form.get('display_name')
+    theme = request.form.get('theme')
+    
+    # 實現 F-04：更新自訂顯示名稱與背景佈景主題顏色
+    if User.update(session['user_id'], display_name=display_name, theme=theme):
+        flash('個人設定更新成功！', 'success')
+    return redirect(url_for('user.settings'))
+
+@user_bp.route('/achievements')
+def achievements():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+        
+    # 實現 F-05：撈取全體成就與該使用者的解鎖紀錄對照
+    user = User.get_by_id(session['user_id'])
+    achievements_data = Achievement.get_all_with_status(user['id'])
+    return render_template('user/achievements.html', user=user, achievements=achievements_data)`
+            },
+            audio_js: {
+                filename: 'app/static/js/audio_manager.js',
+                module: 'F-06 全域沉浸式音訊管理核心',
+                code: `// F-06: 封裝 Singleton 設計模式的全域音效控制器
+export default class AudioManager {
+    static instance = null;
+
+    static getInstance() {
+        if (!AudioManager.instance) {
+            AudioManager.instance = new AudioManager();
+        }
+        return AudioManager.instance;
+    }
+
+    constructor() {
+        this.bgm = new Audio();
+        this.bgm.loop = true;
+        this.bgmVolume = parseFloat(localStorage.getItem('bgm_volume') || '0.5');
+        this.sfxVolume = parseFloat(localStorage.getItem('sfx_volume') || '0.8');
+        this.isMuted = localStorage.getItem('is_muted') === 'true';
+    }
+
+    playBGM(url) {
+        if (this.bgm.src === url) return;
+        this.bgm.src = url;
+        if (!this.isMuted) {
+            this.bgm.play().catch(err => console.log("音訊播放受瀏覽器安全限制: ", err));
+        }
+    }
+
+    setBGMVolume(val) {
+        this.bgmVolume = val;
+        this.bgm.volume = this.isMuted ? 0 : val;
+        localStorage.setItem('bgm_volume', val.toString());
+    }
+}`
+            }
+        };
+
+        function showCode(fileKey, el) {
+            document.querySelectorAll('.code-file-item').forEach(item => item.classList.remove('selected'));
+            el.classList.add('selected');
+
+            const fileData = codeDatabase[fileKey];
+            document.getElementById('code-panel-filename').textContent = fileData.filename;
+            document.getElementById('code-panel-module').textContent = fileData.module;
+            document.getElementById('code-block-element').textContent = fileData.code;
+        }
+
+        // Initialize code panel
+        showCode('auth_py', document.querySelector('.code-file-item'));
+    </script>
+</body>
+</html>
