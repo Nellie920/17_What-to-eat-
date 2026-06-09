@@ -1,3 +1,9 @@
+// 角色資料（補救用）
+const charactersData = window.charactersData || {
+    male: [],
+    female: [],
+    other: []
+};
 // Game State
 let gameState = {
     currentStep: 'targetGender', 
