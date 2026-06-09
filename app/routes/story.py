@@ -240,8 +240,8 @@ def show_ending():
             Achievement.create(user['id'], '3') # 遺憾的美好
         except: pass
     
-    # 清除遊戲進度
-    session.pop('game_state', None)
+    # 這裡不清除遊戲進度，以防用戶重新整理頁面或瀏覽器預載/重發請求時因 session 中無 game_state 而被自動重導向到登入頁面
+    # session.pop('game_state', None)
     
     return render_template('story/ending.html', user=user, ending=ending_data)
 
