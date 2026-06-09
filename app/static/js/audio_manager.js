@@ -25,6 +25,22 @@ class AudioManager {
     this.audioUnlocked = false;      // 瀏覽器安全解鎖狀態
     this.bgmDucked = false;          // 音訊避讓中狀態
 
+    // 初始化音效物件池，並強制瀏覽器預載入常見音效以達到零延遲播放
+    this.sfxPools = new Map();
+    const commonSFXs = [
+      '/static/audio/sfx/bubble_hover.wav',
+      '/static/audio/sfx/select_confirm.wav',
+      '/static/audio/sfx/happy_trumpet.wav',
+      '/static/audio/sfx/sad_chord.wav',
+      '/static/audio/sfx/wind_bell.wav'
+    ];
+    commonSFXs.forEach(src => {
+      const audioObj = new Audio(src);
+      audioObj.preload = 'auto';
+      audioObj.load();
+      this.sfxPools.set(src, [audioObj]);
+    });
+
     AudioManager.instance = this;
   }
 
@@ -106,9 +122,25 @@ class AudioManager {
     if (!src) return null;
     if (!this.audioUnlocked) this.unlockAudio();
 
-    const sfx = new Audio(src);
+    // 從物件池中尋找已載入且閒置的音訊物件，避免每次播放都建立 new Audio 導致延遲
+    if (!this.sfxPools) {
+      this.sfxPools = new Map();
+    }
+    if (!this.sfxPools.has(src)) {
+      this.sfxPools.set(src, []);
+    }
+    const pool = this.sfxPools.get(src);
+    let sfx = pool.find(audio => audio.paused || audio.ended);
+    if (!sfx) {
+      sfx = new Audio(src);
+      sfx.preload = 'auto';
+      sfx.load();
+      pool.push(sfx);
+    }
+
     sfx.loop = loop;
     sfx.volume = this.isMuted ? 0 : this.sfxVolume;
+    sfx.currentTime = 0; // 重設播放起點
 
     // 觸發音訊避讓 (Ducking)：非循環、響亮的情境音效才避讓
     if (!loop && !this.isMuted && this.currentBGM) {
