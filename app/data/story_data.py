@@ -24,15 +24,14 @@ def build_story_nodes():
             'choices': [
                 {'text': "男男戀 (BL)", 'next': "select_target_m"},
                 {'text': "女女戀 (GL)", 'next': "select_target_f"},
-                {'text': "男女戀 (BG)", 'next': "select_target_f"}
+                {'text': "交給命運決定 (隨機)", 'next': "select_target_f"}
             ]
         },
         'node_hl_gender': {
             'text': "請選擇你想扮演的性別：",
             'choices': [
                 {'text': "扮演男生 (對象為女性)", 'next': "select_target_f"},
-                {'text': "扮演女生 (對象為男性)", 'next': "select_target_m"},
-                {'text': "交給命運決定 (隨機)", 'next': "random_gender"}
+                {'text': "扮演女生 (對象為男性)", 'next': "select_target_m"}
             ]
         },
         'select_target_m': {
