@@ -555,6 +555,7 @@ const endings = {
 // Select Target Gender
 function selectTargetGender(gender, event) {
     gameState.targetGender = gender;
+    gameState.resolvedTargetGender = gender;
     gameState.targetCharacter = null; // Clear previous character choice when gender changes
     console.log("選擇攻略對象性別:", gender);
     
