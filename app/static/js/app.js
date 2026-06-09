@@ -23,20 +23,20 @@ const offlineScript = {
     "background_image": "/static/images/bg/lobby.jpg",
     "speaker": "系統廣播",
     "dialogue": "歡迎來到《等一下要吃什麼？》互動故事網站！櫻花正在盛開，微風吹過髮梢，你正站在抉擇的十字路口...等一下，你想要和誰見面呢？",
-    "bgm": "/static/audio/bgm/sweet_intro.mp3",
+    "bgm": "/static/audio/bgm/sweet_intro.wav",
     "effects": [],
     "choices": [
       {
         "text": "🌸 前往櫻花大道的學長 (心跳加速)",
         "next_node": "scene_cherry_01",
-        "sfx_on_hover": "/static/audio/sfx/bubble_hover.mp3",
-        "sfx_on_click": "/static/audio/sfx/select_confirm.mp3"
+        "sfx_on_hover": "/static/audio/sfx/bubble_hover.wav",
+        "sfx_on_click": "/static/audio/sfx/select_confirm.wav"
       },
       {
         "text": "☕ 去街角咖啡廳的青梅竹馬 (溫柔午後)",
         "next_node": "scene_cafe_01",
-        "sfx_on_hover": "/static/audio/sfx/bubble_hover.mp3",
-        "sfx_on_click": "/static/audio/sfx/select_confirm.mp3"
+        "sfx_on_hover": "/static/audio/sfx/bubble_hover.wav",
+        "sfx_on_click": "/static/audio/sfx/select_confirm.wav"
       }
     ]
   },
@@ -45,23 +45,23 @@ const offlineScript = {
     "background_image": "/static/images/bg/park.jpg",
     "speaker": "帥氣學長",
     "dialogue": "（突然轉過身）啊！是你呀...我正好也在想你。那個...等一下要不要一起去吃晚餐？我訂了你最愛吃的那家日式料理。",
-    "bgm": "/static/audio/bgm/romantic_piano.mp3",
+    "bgm": "/static/audio/bgm/romantic_piano.wav",
     "effects": [
       { "type": "flash", "color": "rgba(255,182,193,0.35)", "delay": 200 },
-      { "type": "sfx", "src": "/static/audio/sfx/wind_bell.mp3", "delay": 300 }
+      { "type": "sfx", "src": "/static/audio/sfx/wind_bell.wav", "delay": 300 }
     ],
     "choices": [
       {
         "text": "好啊！我剛好也肚子超餓！(Happy End 線)",
         "next_node": "scene_happy_end",
-        "sfx_on_hover": "/static/audio/sfx/bubble_hover.mp3",
-        "sfx_on_click": "/static/audio/sfx/select_confirm.mp3"
+        "sfx_on_hover": "/static/audio/sfx/bubble_hover.wav",
+        "sfx_on_click": "/static/audio/sfx/select_confirm.wav"
       },
       {
         "text": "對不起，我今天晚上要減肥... (虐心 Sad End 線)",
         "next_node": "scene_sad_end",
-        "sfx_on_hover": "/static/audio/sfx/bubble_hover.mp3",
-        "sfx_on_click": "/static/audio/sfx/sad_chord.mp3"
+        "sfx_on_hover": "/static/audio/sfx/bubble_hover.wav",
+        "sfx_on_click": "/static/audio/sfx/sad_chord.wav"
       }
     ]
   },
@@ -70,16 +70,16 @@ const offlineScript = {
     "background_image": "/static/images/bg/cafe.jpg",
     "speaker": "青梅竹馬",
     "dialogue": "笨蛋！你遲到了啦！我都幫你點好最愛的焦糖瑪奇朵了。喂，等一下吃完甜點，要不要陪我去河濱步道走走？",
-    "bgm": "/static/audio/bgm/sweet_intro.mp3",
+    "bgm": "/static/audio/bgm/sweet_intro.wav",
     "effects": [
-      { "type": "sfx", "src": "/static/audio/sfx/bubble_hover.mp3", "delay": 200 }
+      { "type": "sfx", "src": "/static/audio/sfx/bubble_hover.wav", "delay": 200 }
     ],
     "choices": [
       {
         "text": "好啦，看在咖啡的份上就陪你吧！",
         "next_node": "scene_happy_end",
-        "sfx_on_hover": "/static/audio/sfx/bubble_hover.mp3",
-        "sfx_on_click": "/static/audio/sfx/select_confirm.mp3"
+        "sfx_on_hover": "/static/audio/sfx/bubble_hover.wav",
+        "sfx_on_click": "/static/audio/sfx/select_confirm.wav"
       }
     ]
   },
@@ -88,17 +88,17 @@ const offlineScript = {
     "background_image": "/static/images/bg/dinner.jpg",
     "speaker": "故事結局",
     "dialogue": "你們並肩走在霓虹閃爍的街頭，笑聲延續在溫暖的空氣中。這就是心動的味道吧！【解鎖成就：戀愛大師】",
-    "bgm": "/static/audio/bgm/sweet_intro.mp3",
+    "bgm": "/static/audio/bgm/sweet_intro.wav",
     "effects": [
       { "type": "flash", "color": "rgba(241,196,15,0.3)", "delay": 200 },
-      { "type": "sfx", "src": "/static/audio/sfx/happy_trumpet.mp3", "delay": 300 }
+      { "type": "sfx", "src": "/static/audio/sfx/happy_trumpet.wav", "delay": 300 }
     ],
     "choices": [
       {
         "text": "🌸 重新開始心動旅程",
         "next_node": "start",
-        "sfx_on_hover": "/static/audio/sfx/bubble_hover.mp3",
-        "sfx_on_click": "/static/audio/sfx/select_confirm.mp3"
+        "sfx_on_hover": "/static/audio/sfx/bubble_hover.wav",
+        "sfx_on_click": "/static/audio/sfx/select_confirm.wav"
       }
     ],
     "auto_unlock_achievement_id": 2 // 戀愛大師
@@ -108,17 +108,17 @@ const offlineScript = {
     "background_image": "/static/images/bg/rain.jpg",
     "speaker": "故事結局",
     "dialogue": "冷風吹過，學長失落的背影漸漸消失在街角。天空中突然下起了細雨，你的心中泛起淡淡的懊悔...【解鎖成就：遺憾的美好】",
-    "bgm": "/static/audio/bgm/tension_loop.mp3",
+    "bgm": "/static/audio/bgm/tension_loop.wav",
     "effects": [
       { "type": "shake", "target": "#game-container", "delay": 100 },
-      { "type": "sfx", "src": "/static/audio/sfx/sad_chord.mp3", "delay": 200 }
+      { "type": "sfx", "src": "/static/audio/sfx/sad_chord.wav", "delay": 200 }
     ],
     "choices": [
       {
         "text": "💔 重新開始重寫遺憾",
         "next_node": "start",
-        "sfx_on_hover": "/static/audio/sfx/bubble_hover.mp3",
-        "sfx_on_click": "/static/audio/sfx/select_confirm.mp3"
+        "sfx_on_hover": "/static/audio/sfx/bubble_hover.wav",
+        "sfx_on_click": "/static/audio/sfx/select_confirm.wav"
       }
     ],
     "auto_unlock_achievement_id": 3 // 遺憾的美好
@@ -352,7 +352,7 @@ function setupAuthEvents() {
         currentUser = data.user;
         updateUserUI();
         authModal.classList.remove('active');
-        audio.playSFX('/static/audio/sfx/select_confirm.mp3');
+        audio.playSFX('/static/audio/sfx/select_confirm.wav');
       } else {
         alert("登入失敗：" + data.message);
       }
@@ -565,7 +565,7 @@ function loadGameSaveApi(saveId) {
 
         // 關閉抽屜
         document.getElementById('saves-drawer').classList.remove('active');
-        audio.playSFX('/static/audio/sfx/select_confirm.mp3');
+        audio.playSFX('/static/audio/sfx/select_confirm.wav');
       }
     });
 }
@@ -660,7 +660,7 @@ function unlockAchievementApi(achievementId) {
     if (data.status === 'success' && !data.already_unlocked) {
       // 觸發畫面上發光金色閃爍特效，並播放特殊成就音效
       InteractionEffects.triggerFlash('rgba(241, 196, 15, 0.45)');
-      audio.playSFX('/static/audio/sfx/happy_trumpet.mp3');
+      audio.playSFX('/static/audio/sfx/happy_trumpet.wav');
       alert(`🎉 恭喜達成成就：【${data.achievement.title}】！已獲得 ${data.achievement.points} 積分！`);
     }
   });
@@ -718,7 +718,7 @@ function setupProfileEvents() {
     document.body.className = `theme-${currentTheme}`;
     profileModal.classList.remove('active');
     
-    audio.playSFX('/static/audio/sfx/select_confirm.mp3');
+    audio.playSFX('/static/audio/sfx/select_confirm.wav');
     alert("主角個人化設定保存成功！");
     
     // 觸發百變主角成就
