@@ -33,6 +33,7 @@ const charactersData = {
 function selectTargetGender(gender, event) {
     // 1. Update state
     gameState.targetGender = gender;
+    gameState.targetCharacter = null; // Clear previous character choice when gender changes
     console.log("選擇攻略對象性別:", gender);
     
     // 2. Visual feedback
@@ -218,6 +219,23 @@ function showConfirmationScreen() {
         </div>
     `;
     document.getElementById('confirm-player-card').innerHTML = playerCardHtml;
+
+    // Populate Detailed Infos and Random Extraction Results
+    const targetGenderText = gameState.resolvedTargetGender === 'male' ? '男性' : '女性';
+    let targetInfoHtml = `<div class="result-gender-line">性別：${targetGenderText}</div>`;
+    if (gameState.targetGender === 'random') {
+        targetInfoHtml += `<div class="random-result-badge">✨ 隨機抽取結果</div>`;
+    } else if (gameState.targetCharacter === 'random_char') {
+        targetInfoHtml += `<div class="random-result-badge">✨ 隨機角色結果</div>`;
+    }
+    document.getElementById('confirm-target-info').innerHTML = targetInfoHtml;
+
+    const playerGenderText = gameState.resolvedPlayerGender === 'male' ? '男性' : '女性';
+    let playerInfoHtml = `<div class="result-gender-line">性別：${playerGenderText}</div>`;
+    if (gameState.playerGender === 'random') {
+        playerInfoHtml += `<div class="random-result-badge">✨ 隨機抽取結果</div>`;
+    }
+    document.getElementById('confirm-player-info').innerHTML = playerInfoHtml;
     
     // Show Screen
     setTimeout(() => {
