@@ -697,6 +697,11 @@ function resolveRandomSelections() {
 
 // Show Confirmation Screen
 function showConfirmationScreen() {
+
+    if (!gameState.resolvedTargetGender) {
+        gameState.resolvedTargetGender = gameState.targetGender;
+    }
+    
     gameState.currentStep = 'confirmation';
     
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
