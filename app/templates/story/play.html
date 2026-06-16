@@ -158,9 +158,12 @@
                             <img src="{{ url_for('static', filename='images/characters/m2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
                         {% elif '秦陌寂' in choice.text or 'm3' in choice.text or choice.id == 2 and story.node_id == 'select_target_m' %}
                             <img src="{{ url_for('static', filename='images/characters/m3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
-                        {% elif '田媛寧' in choice.text or 'f1' in choice.text or choice.id == 0 and story.node_id == 'select_target_f' %}🌸
-                        {% elif '張栖鈴' in choice.text or 'f2' in choice.text or choice.id == 1 and story.node_id == 'select_target_f' %}🎻
-                        {% elif '顧音棉' in choice.text or 'f3' in choice.text or choice.id == 2 and story.node_id == 'select_target_f' %}🍭
+                        {% elif '田媛寧' in choice.text or 'f1' in choice.text or choice.id == 0 and story.node_id == 'select_target_f' %}
+                            <img src="{{ url_for('static', filename='images/characters/f1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
+                        {% elif '張栖鈴' in choice.text or 'f2' in choice.text or choice.id == 1 and story.node_id == 'select_target_f' %}
+                            <img src="{{ url_for('static', filename='images/characters/f2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
+                        {% elif '顧音棉' in choice.text or 'f3' in choice.text or choice.id == 2 and story.node_id == 'select_target_f' %}
+                            <img src="{{ url_for('static', filename='images/characters/f3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
                         {% else %}❓
                         {% endif %}
                     </div>
@@ -233,9 +236,12 @@
                             <img src="{{ url_for('static', filename='images/characters/m2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
                         {% elif state.targetKey == 'm3' %}
                             <img src="{{ url_for('static', filename='images/characters/m3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
-                        {% elif state.targetKey == 'f1' %}🌸
-                        {% elif state.targetKey == 'f2' %}🎻
-                        {% elif state.targetKey == 'f3' %}🍭
+                        {% elif state.targetKey == 'f1' %}
+                            <img src="{{ url_for('static', filename='images/characters/f1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
+                        {% elif state.targetKey == 'f2' %}
+                            <img src="{{ url_for('static', filename='images/characters/f2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
+                        {% elif state.targetKey == 'f3' %}
+                            <img src="{{ url_for('static', filename='images/characters/f3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
                         {% else %}❓
                         {% endif %}
                     </div>
@@ -360,9 +366,12 @@
                         <img src="{{ url_for('static', filename='images/characters/m2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
                     {% elif state.targetKey == 'm3' %}
                         <img src="{{ url_for('static', filename='images/characters/m3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
-                    {% elif state.targetKey == 'f1' %}🌸
-                    {% elif state.targetKey == 'f2' %}🎻
-                    {% elif state.targetKey == 'f3' %}🍭
+                    {% elif state.targetKey == 'f1' %}
+                        <img src="{{ url_for('static', filename='images/characters/f1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
+                    {% elif state.targetKey == 'f2' %}
+                        <img src="{{ url_for('static', filename='images/characters/f2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
+                    {% elif state.targetKey == 'f3' %}
+                        <img src="{{ url_for('static', filename='images/characters/f3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
                     {% else %}👤
                     {% endif %}
                 </div>

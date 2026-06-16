@@ -6,9 +6,9 @@ const charactersData = window.charactersData || {
         { id: 'A3', name: '秦陌寂', icon: '<img src="app/static/images/characters/m3.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">' }
     ],
     female: [
-        { id: 'B1', name: '田媛寧', icon: '👧' },
-        { id: 'B2', name: '張栖鈴', icon: '👩' },
-        { id: 'B3', name: '顧音棉', icon: '👱‍♀️' }
+        { id: 'B1', name: '田媛寧', icon: '<img src="app/static/images/characters/f1.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">' },
+        { id: 'B2', name: '張栖鈴', icon: '<img src="app/static/images/characters/f2.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">' },
+        { id: 'B3', name: '顧音棉', icon: '<img src="app/static/images/characters/f3.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">' }
     ]
 };
 
