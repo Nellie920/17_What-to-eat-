@@ -274,7 +274,11 @@ def show_ending():
         'desc': ending['desc']
     }
     
-    # 自動判定結局成就解鎖 (Happy End / Sad End)
+    # 自動判定結局成就解鎖 (Happy End / Sad End / 達成初次結局)
+    try:
+        Achievement.create(user['id'], '6') # 達成初次結局
+    except: pass
+
     if end_key == 'end_true' or end_key == 'end_good':
         try:
             Achievement.create(user['id'], '2') # 戀愛大師
