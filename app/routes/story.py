@@ -187,26 +187,25 @@ def make_choice(node_id, choice_id):
     
     # ========================================================
     # 第一步：選擇攻略對象性別 (start)
-    # ⚠️ 此步驟只決定「攻略對象性別」，不設定玩家自己的 playerGender
-    # playerGender 留待第三步 node_hl_gender 才決定
+    # ⚠️ 此步驟只決定「攻略對象性別」
+    # relationType 留待第三步玩家選完自己性別後才推算
     # ========================================================
     if node_id == 'start':
         if choice_id == 0:  # 攻略男性
-            state['relationType'] = 'BL'
             state['target_gender'] = 'm'
             state['original_target_gender'] = 'm'
         elif choice_id == 1:  # 攻略女性
-            state['relationType'] = 'GL'
             state['target_gender'] = 'f'
             state['original_target_gender'] = 'f'
         elif choice_id == 2:  # 隨機
-            state['relationType'] = 'HL'
             state['original_target_gender'] = 'random'
             t_gender = 'm' if random.random() > 0.5 else 'f'
             state['target_gender'] = t_gender
 
     # ========================================================
     # 第三步：選擇玩家自己的性別 (node_hl_gender)
+    # 根據「攻略對象性別 + 玩家性別」推算 relationType
+    # 男攻男 → BL | 女攻女 → GL | 男女互攻 → HL
     # ========================================================
     elif node_id == 'node_hl_gender':
         if choice_id == 0:
@@ -222,6 +221,16 @@ def make_choice(node_id, choice_id):
             else:
                 state['playerGender'] = 'female'
                 state['player_gender'] = 'f'
+        
+        # 推算關係類型（在玩家選完自己性別後才決定）
+        t_g = state.get('target_gender', 'm')
+        p_g = state.get('player_gender', 'm')
+        if t_g == 'm' and p_g == 'm':
+            state['relationType'] = 'BL'
+        elif t_g == 'f' and p_g == 'f':
+            state['relationType'] = 'GL'
+        else:
+            state['relationType'] = 'HL'
         
         # 解析隨機角色（若第二步選了隨機角色，在此時才確定）
         if state.get('targetKey') == 'random':
