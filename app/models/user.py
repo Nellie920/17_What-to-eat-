@@ -6,9 +6,11 @@ def get_db_connection():
     建立並回傳與 instance/database.db 的 SQLite 資料庫連線。
     設定 row_factory 讓回傳結果可用欄位名稱取值。
     """
-    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'instance', 'database.db')
+    # 確保為絕對路徑，避免因執行時工作目錄不同而找不到檔案
+    base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    db_path = os.path.join(base_dir, 'instance', 'database.db')
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30.0)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -133,4 +135,26 @@ class User:
                 return cursor.rowcount > 0
         except Exception as e:
             print(f"User.delete Error: {e}")
+            return False
+
+    @staticmethod
+    def update_last_ending(user_id, last_ending):
+        """
+        更新使用者的最後結局資料。
+        參數:
+            user_id (int): 使用者 ID
+            last_ending (str): JSON 字串形式的結局資料
+        回傳:
+            bool: 成功回傳 True，否則 False
+        """
+        try:
+            with get_db_connection() as conn:
+                conn.execute(
+                    "UPDATE users SET last_ending = ? WHERE id = ?",
+                    (last_ending, user_id)
+                )
+                conn.commit()
+                return True
+        except Exception as e:
+            print(f"User.update_last_ending Error: {e}")
             return False

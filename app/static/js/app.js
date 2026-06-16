@@ -129,6 +129,7 @@ const offlineScript = {
 // 1. DOM 節點初始化與事件監聽
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
+  setupGlobalAudioInteractions();
   setupAudioHUD();
   setupLobbyAndCoreEvents();
   setupAuthEvents();
@@ -139,6 +140,50 @@ document.addEventListener('DOMContentLoaded', () => {
   // 檢測當前 Session 登入狀態
   checkUserSession();
 });
+
+/**
+ * 全域互動解鎖 BGM 與按鈕懸停/點擊音效代理
+ */
+function setupGlobalAudioInteractions() {
+  // 1. 一次性互動解鎖並播放/還原背景音樂
+  const startBGMOnInteraction = () => {
+    audio.unlockAudio();
+    // 優先使用 localStorage 中記錄的 BGM，若無則播放預設甜美大廳主題
+    const savedBgm = localStorage.getItem('currentBgmSrc') || '/static/audio/bgm/sweet_intro.wav';
+    audio.playBGM(savedBgm);
+    
+    // 移出事件以防重複解鎖
+    document.removeEventListener('click', startBGMOnInteraction);
+    document.removeEventListener('keydown', startBGMOnInteraction);
+  };
+  
+  document.addEventListener('click', startBGMOnInteraction);
+  document.addEventListener('keydown', startBGMOnInteraction);
+
+  // 2. 按鈕/連結懸停與點擊音效事件代理
+  const clickableSelectors = 'button, a, .choice-button, .btn, .nav-item, .theme-palette-btn, .hud-text-btn, .hud-icon-btn, .btn-glass, .option-btn, [role="button"]';
+  
+  document.addEventListener('mouseover', (e) => {
+    const target = e.target.closest(clickableSelectors);
+    if (target) {
+      // 若該按鈕已有自訂 hover 音效（例如故事分支按鈕），則由局部代碼處理，全域直接跳過
+      if (target.classList.contains('choice-button')) return;
+      
+      // 防止游標在按鈕內部子節點移動時重複觸發
+      if (e.relatedTarget && target.contains(e.relatedTarget)) return;
+      
+      audio.playSFX('/static/audio/sfx/bubble_hover.wav');
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest(clickableSelectors);
+    if (target) {
+      // 由於分支選項選擇按鈕 .choice-button 有呼叫 e.stopPropagation()，此處全域 Click 不會重複觸發
+      audio.playSFX('/static/audio/sfx/select_confirm.wav');
+    }
+  });
+}
 
 // ==========================================
 // 2. 音訊 HUD 控制器初始化 (F-06)
@@ -237,6 +282,16 @@ function loadScriptNode(nodeId) {
     });
 
   function renderNode(node) {
+    // 結局處理：隱藏 HUD 導航列，避免玩家點擊存讀檔、成就或帳號選單導致結局畫面消失
+    const hudHeader = document.querySelector('.hud-header');
+    if (hudHeader) {
+      if (node.node_id === 'eval_ending' || node.node_id === 'scene_happy_end' || node.node_id === 'scene_sad_end') {
+        hudHeader.style.display = 'none';
+      } else {
+        hudHeader.style.display = 'flex';
+      }
+    }
+
     // 1. 視覺背景 Cross-fade
     InteractionEffects.applyCrossFade(sceneBg, node.background_image);
 
@@ -662,6 +717,11 @@ function unlockAchievementApi(achievementId) {
       InteractionEffects.triggerFlash('rgba(241, 196, 15, 0.45)');
       audio.playSFX('/static/audio/sfx/happy_trumpet.wav');
       alert(`🎉 恭喜達成成就：【${data.achievement.title}】！已獲得 ${data.achievement.points} 積分！`);
+    }
+    
+    // 如果解鎖的是戀愛大師(2)或遺憾的美好(3)，自動也解鎖達成初次結局(6)
+    if ((achievementId === 2 || achievementId === 3) && data.status === 'success') {
+      unlockAchievementApi(6);
     }
   });
 }
