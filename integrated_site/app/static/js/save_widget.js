@@ -126,7 +126,16 @@ class SaveSystemWidget {
 
         this.bodyEl.innerHTML = '';
         saves.forEach(save => {
-            const dateStr = new Date(save.last_played_at + 'Z').toLocaleString('zh-TW'); // SQLite saves in UTC usually
+            let dateStr = save.last_played_at;
+            try {
+                // SQLite dates are returned in UTC format "YYYY-MM-DD HH:MM:SS" or standard ISO
+                // Replace space with T to make it robust across all JS date parsers
+                const cleanDate = save.last_played_at.replace(' ', 'T');
+                dateStr = new Date(cleanDate + 'Z').toLocaleString('zh-TW');
+            } catch(err) {
+                console.error(err);
+            }
+            
             const itemHTML = document.createElement('div');
             itemHTML.className = 'save-widget-item';
             itemHTML.innerHTML = `

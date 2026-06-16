@@ -11,9 +11,11 @@
         </p>
         
         <div class="d-flex flex-column gap-3 mt-5">
-            <a href="{{ url_for('story.play_story', node_id='prologue') }}" class="btn btn-gold btn-lg py-3 fs-4">
-                <i class="fa-solid fa-play me-2"></i> 開始全新章節
-            </a>
+            <form action="{{ url_for('story.start_story') }}" method="POST" class="d-grid">
+                <button type="submit" class="btn btn-gold btn-lg py-3 fs-4">
+                    <i class="fa-solid fa-play me-2"></i> 開始全新章節
+                </button>
+            </form>
             <a href="{{ url_for('save.list_saves') }}" class="btn btn-glass btn-lg py-3 fs-4">
                 <i class="fa-solid fa-book-bookmark me-2"></i> 繼續上次故事
             </a>
