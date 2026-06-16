@@ -191,6 +191,18 @@
                     <label style="font-size: 1.2rem;">動作文字顏色 (括號)：</label>
                     <input type="color" id="action-color-picker" value="#b0b0b0" style="width: 60px; height: 35px; cursor: pointer; border: none; background: transparent;">
                 </div>
+
+                <hr style="border: 1px solid rgba(255,255,255,0.1); margin: 1.5rem 0;">
+
+                <div class="settings-group" style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0;">
+                    <label style="font-size: 1.2rem;">背景音樂音量：</label>
+                    <input type="range" id="static-slider-bgm" min="0" max="1" step="0.05" value="0.5" style="width: 150px; accent-color: #d6336c;">
+                </div>
+
+                <div class="settings-group" style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0;">
+                    <label style="font-size: 1.2rem;">情境音效音量：</label>
+                    <input type="range" id="static-slider-sfx" min="0" max="1" step="0.05" value="0.8" style="width: 150px; accent-color: #d6336c;">
+                </div>
                 
                 <p id="settings-error" class="error-msg" style="color: #ff4d4f; font-size: 1rem; display: none; text-align: center; margin-bottom: 1rem;">防呆提示：雙方顏色不得完全相同，請調整設定！</p>
                 
