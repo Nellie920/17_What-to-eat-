@@ -213,6 +213,20 @@
             </div>
         </div>
 
+        <!-- 結局畫面 -->
+        <div id="ending-box" class="screen">
+            <div class="glass-panel">
+                <h1 class="title" id="ending-title" style="background: linear-gradient(135deg, #ffd1d7 0%, #ff9ebb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">結局</h1>
+                <p class="subtitle" id="ending-desc" style="white-space: pre-wrap; margin-bottom: 3rem; font-size: 1.15rem; line-height: 1.8; max-width: 600px;"></p>
+                <div class="options-container">
+                    <button class="choice-btn primary" id="restart-btn" onclick="initGame()">
+                        <span class="icon">🔄</span>
+                        <span class="text">再玩一次</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- 確認返回主頁面彈窗 -->
         <div id="confirm-modal" class="modal-overlay" onclick="closeModal(event)">
             <div class="modal-content glass-panel" onclick="event.stopPropagation()">

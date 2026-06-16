@@ -1267,14 +1267,22 @@ function showEnding() {
     }
 
     // 切換畫面
-    document.getElementById('story-text').classList.add('hidden');
-    document.getElementById('choices').classList.add('hidden');
+    const storyText = document.getElementById('story-text');
+    if (storyText) storyText.classList.add('hidden');
+    const choices = document.getElementById('choices');
+    if (choices) choices.classList.add('hidden');
 
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     const endingBox = document.getElementById('ending-box');
-    endingBox.classList.remove('hidden');
+    if (endingBox) {
+        endingBox.classList.add('active');
+        endingBox.classList.remove('hidden');
+    }
 
-    document.getElementById('ending-title').innerText = ending.title;
-    document.getElementById('ending-desc').innerText = ending.desc;
+    const endingTitle = document.getElementById('ending-title');
+    if (endingTitle) endingTitle.innerText = ending.title;
+    const endingDesc = document.getElementById('ending-desc');
+    if (endingDesc) endingDesc.innerText = ending.desc;
 }
 
 // --- 靜態離線版音訊系統 ---
