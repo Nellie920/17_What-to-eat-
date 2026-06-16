@@ -284,7 +284,7 @@ def show_ending():
         
     user = User.get_by_id(session['user_id'])
     
-    # 優先從當前 game_state 取得結局資訊並暫存至 session 與資料庫，以防 game_state 後續被清除或重設時結局畫面消失
+    # 首次到達結局：從 game_state 計算結局並儲存至 session 與 DB
     if 'reached_ending' in session and 'game_state' in session:
         state = session['game_state']
         end_key = 'end_normal'
@@ -338,27 +338,30 @@ def show_ending():
         # 清除結局觸發狀態（不清除 game_state 以防止結局頁面被重新導向）
         session.pop('reached_ending', None)
         session.modified = True
+        
+        # ending_data 已計算完成，直接渲染，無需再查詢
+        return render_template('story/ending.html', user=user, ending=ending_data)
     
-    # 自動判定結局成就解鎖 (Happy End / Sad End / 達成初次結局)
-    try:
-        Achievement.create(user['id'], '6') # 達成初次結局
-    except: pass
-
-    if end_key == 'end_true' or end_key == 'end_good':
-        try:
-            Achievement.create(user['id'], '2') # 戀愛大師
-        except: pass
-    elif end_key == 'end_bad':
-        try:
-            ending_data = json.loads(user['last_ending'])
-        except Exception as e:
-            print(f"Failed to parse last_ending from DB: {e}")
-            
-    if not ending_data and 'last_ending' in session:
+    # 重新整理或二次進入結局頁：依序從 session / DB 讀取上次結局
+    ending_data = None
+    
+    if 'last_ending' in session:
         ending_data = session['last_ending']
+    
+    if not ending_data and user:
+        # 重新從 DB 取得（user 物件是 request 開頭取的舊資料，last_ending 可能尚未寫入）
+        fresh_user = User.get_by_id(user['id'])
+        if fresh_user and fresh_user.get('last_ending'):
+            try:
+                ending_data = json.loads(fresh_user['last_ending'])
+            except Exception as e:
+                print(f"Failed to parse last_ending from DB: {e}")
         
     if not ending_data:
-        # 若無當前遊戲進度也無上次結局快取，導回首頁
-        return redirect(url_for('story.home'))
+        # 若無當前遊戲進度也無上次結局快取，提供預設結局 Fallback，避免頁面跳轉至首頁
+        ending_data = {
+            'title': "【NORMAL END】個別故事的終章",
+            'desc': "你與攻略對象的故事在安穩中迎來了終章。雖然沒有波瀾壯闊的發展，但也過著平靜而溫馨的生活。"
+        }
         
     return render_template('story/ending.html', user=user, ending=ending_data)
