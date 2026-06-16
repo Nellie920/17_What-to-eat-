@@ -1147,6 +1147,12 @@ function makeChoice(choice) {
 }
 
 function showEnding() {
+    // 隱藏返回按鈕與側邊欄，防止結局畫面消失或被導向走
+    const backBtn = document.getElementById('back-btn');
+    if (backBtn) backBtn.style.display = 'none';
+    const gameSidebar = document.getElementById('game-sidebar');
+    if (gameSidebar) gameSidebar.style.display = 'none';
+
     let endKey = 'end_normal';
     const stats = gameState.stats;
     const flags = gameState.flags;
