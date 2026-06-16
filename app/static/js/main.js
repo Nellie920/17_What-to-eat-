@@ -65,17 +65,34 @@ function setupGlobalAudioInteractions() {
     updateIcon(audio.isMuted);
   }
 
+  const bgmTxt = document.getElementById('bgm-volume-txt');
+  const sfxTxt = document.getElementById('sfx-volume-txt');
+
   if (sliderBGM) {
     sliderBGM.value = audio.bgmVolume;
+    if (bgmTxt) {
+      bgmTxt.textContent = Math.round(audio.bgmVolume * 100);
+    }
     sliderBGM.addEventListener('input', (e) => {
-      audio.setBGMVolume(parseFloat(e.target.value));
+      const val = parseFloat(e.target.value);
+      audio.setBGMVolume(val);
+      if (bgmTxt) {
+        bgmTxt.textContent = Math.round(val * 100);
+      }
     });
   }
 
   if (sliderSFX) {
     sliderSFX.value = audio.sfxVolume;
+    if (sfxTxt) {
+      sfxTxt.textContent = Math.round(audio.sfxVolume * 100);
+    }
     sliderSFX.addEventListener('input', (e) => {
-      audio.setSFXVolume(parseFloat(e.target.value));
+      const val = parseFloat(e.target.value);
+      audio.setSFXVolume(val);
+      if (sfxTxt) {
+        sfxTxt.textContent = Math.round(val * 100);
+      }
     });
   }
 }
