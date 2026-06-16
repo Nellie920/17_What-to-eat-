@@ -63,8 +63,7 @@ const storyNodes = {
         text: "歡迎來到《舊校舍的約定》。\n請選擇你想要體驗的戀愛故事類型：",
         choices: [
             { text: "男男戀 (BL)", next: "select_target_m" },
-            { text: "女女戀 (GL)", next: "select_target_f" },
-            { text: "男女戀 (HL)", next: "node_hl_gender" }
+            { text: "女女戀 (GL)", next: "select_target_f" }
         ]
     },
     node_hl_gender: {

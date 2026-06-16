@@ -89,17 +89,25 @@ body {
 /* Sidebar */
 .sidebar {
     width: 250px;
+    min-width: 250px;
+    flex-shrink: 0;
     height: calc(100vh - 40px);
     margin: 20px;
-    padding: 20px 0;
+    padding: 15px 0;
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
 }
 
 .sidebar .nav-item {
-    padding: 15px 30px;
-    margin: 5px 15px;
+    padding: 10px 20px;
+    margin: 4px 15px;
     color: var(--text-light);
     text-decoration: none;
     font-size: 1.1rem;
@@ -108,7 +116,10 @@ body {
     display: flex;
     align-items: center;
     gap: 15px;
+    white-space: nowrap;
 }
+
+
 
 .sidebar .nav-item i {
     width: 20px;

@@ -70,6 +70,7 @@ def achievements():
 
     return render_template('user/achievements.html', user=user, achievements=achievements_data)
 
+
 # ========================================================
 # JSON API 路由 (供沉浸式 SPA 模式使用)
 # ========================================================
