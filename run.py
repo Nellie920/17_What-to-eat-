@@ -13,6 +13,14 @@ def init_db(app):
         with sqlite3.connect(db_path, timeout=30.0) as conn:
             with open(schema_path, 'r', encoding='utf-8') as f:
                 conn.executescript(f.read())
+            
+            # 確保 users 資料表有 last_ending 欄位 (SQLite 結構移轉)
+            try:
+                conn.execute("ALTER TABLE users ADD COLUMN last_ending TEXT")
+            except sqlite3.OperationalError:
+                # 欄位已存在，忽略此錯誤
+                pass
+            
             conn.commit()
 
 def create_app():
@@ -39,4 +47,3 @@ app = create_app()
 
 if __name__ == '__main__':
     app.run(debug=True)
-

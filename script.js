@@ -644,48 +644,15 @@ function showConfirmationScreen() {
         gameState.resolvedTargetGender = gameState.targetGender;
     }
     
-    gameState.currentStep = 'confirmation';
-
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-
-    const targetGenderGroup = charactersData[gameState.resolvedTargetGender];
-    const targetCharData = targetGenderGroup.find(c => c.id === gameState.resolvedTargetCharacter);
-
-    const targetCardHtml = `
-        <div class="char-image-placeholder">
-            ${targetCharData.icon}
-            <div class="info-icon" onclick="showCharacterInfo('${targetCharData.id}', event)">🔍</div>
-            <div class="char-name-banner">${targetCharData.name}</div>
-        </div>
-    `;
-    document.getElementById('confirm-target-card').innerHTML = targetCardHtml;
-
-    const playerIcon = gameState.resolvedPlayerGender === 'male' ? '👦' : '👧';
-    const playerText = gameState.resolvedPlayerGender === 'male' ? '男性化身' : '女性化身';
-    const playerCardHtml = `
-        <div class="char-image-placeholder">
-            ${playerIcon}
-            <div class="char-name-banner">${playerText}</div>
-        </div>
-    `;
-    document.getElementById('confirm-player-card').innerHTML = playerCardHtml;
-
-    // Populate Detailed Infos and Random Extraction Results
-    const targetGenderText = gameState.resolvedTargetGender === 'male' ? '男性' : '女性';
-    let targetInfoHtml = `<div class="result-gender-line">性別：${targetGenderText}</div>`;
-    if (gameState.targetGender === 'random') {
-        targetInfoHtml += `<div class="random-result-badge">✨ 隨機抽取結果</div>`;
-    } else if (gameState.targetCharacter === 'random_char') {
-        targetInfoHtml += `<div class="random-result-badge">✨ 隨機角色結果</div>`;
+    // 播放/還原背景音樂
+    if (typeof playStaticBGM === 'function') {
+        playStaticBGM('app/static/audio/bgm/sweet_intro.wav');
     }
-    document.getElementById('confirm-target-info').innerHTML = targetInfoHtml;
-
-    const playerGenderText = gameState.resolvedPlayerGender === 'male' ? '男性' : '女性';
-    let playerInfoHtml = `<div class="result-gender-line">性別：${playerGenderText}</div>`;
-    if (gameState.playerGender === 'random') {
-        playerInfoHtml += `<div class="random-result-badge">✨ 隨機抽取結果</div>`;
-    }
-    document.getElementById('confirm-player-info').innerHTML = playerInfoHtml;
+    
+    // 隱藏結局畫面，顯示故事畫面
+    document.getElementById('ending-box').classList.add('hidden');
+    document.getElementById('story-text').classList.remove('hidden');
+    document.getElementById('choices').classList.remove('hidden');
     
     setTimeout(() => {
         document.getElementById('confirmation-screen').classList.add('active');
@@ -1173,35 +1140,109 @@ function showEnding() {
     const targetKey = gameState.targetKey || 'm1';
     let ending = endings[targetKey][endKey];
     if (!ending) ending = endings['m1']['end_normal']; // 預設防呆
-
-    // 將結局資訊作為特殊的對話方塊追加到對話紀錄面板中
-    const historyContent = document.querySelector('.history-content');
-    if (historyContent) {
-        const titleLine = document.createElement('p');
-        titleLine.className = 'dialogue-line system';
-        titleLine.innerHTML = `<span class="speaker" style="color: #fcd34d; font-size: 1.4rem; display: block; margin-bottom: 0.5rem;">🎉 達成結局：${ending.title}</span>`;
-        historyContent.appendChild(titleLine);
-
-        const descLine = document.createElement('p');
-        descLine.className = 'dialogue-line';
-        descLine.style.borderLeftColor = '#fcd34d';
-        descLine.innerText = ending.desc;
-        historyContent.appendChild(descLine);
-
-        scrollToBottom();
+    
+    // 切換結局背景音樂
+    let endingBgm = 'app/static/audio/bgm/sweet_intro.wav';
+    if (endKey === 'end_true' || endKey === 'end_good') {
+        endingBgm = 'app/static/audio/bgm/romantic_piano.wav';
+    } else if (endKey === 'end_bad') {
+        endingBgm = 'app/static/audio/bgm/tension_loop.wav';
+    }
+    if (typeof playStaticBGM === 'function') {
+        playStaticBGM(endingBgm);
     }
 
-    // 在選項區塊渲染一個「重新開始故事」的按鈕
-    const choicesList = document.querySelector('.choices-list');
-    if (choicesList) {
-        choicesList.innerHTML = '';
-        const restartBtn = document.createElement('button');
-        restartBtn.className = 'choice-btn primary';
-        restartBtn.innerText = '重新開始故事';
-        restartBtn.style.width = '100%';
-        restartBtn.onclick = () => {
-            location.reload();
-        };
-        choicesList.appendChild(restartBtn);
+    // 切換畫面
+    document.getElementById('story-text').classList.add('hidden');
+    document.getElementById('choices').classList.add('hidden');
+    
+    const endingBox = document.getElementById('ending-box');
+    endingBox.classList.remove('hidden');
+    
+    document.getElementById('ending-title').innerText = ending.title;
+    document.getElementById('ending-desc').innerText = ending.desc;
+}
+
+// --- 靜態離線版音訊系統 ---
+let staticBGM = null;
+let audioUnlocked = false;
+
+function playStaticBGM(src) {
+    if (!src) return;
+    
+    // 如果已經在播放同一首，不要重新播放
+    if (staticBGM && staticBGM.src.endsWith(src)) {
+        if (staticBGM.paused && audioUnlocked) {
+            staticBGM.play().catch(err => console.log("BGM play error:", err));
+        }
+        return;
+    }
+    
+    if (staticBGM) {
+        staticBGM.pause();
+    }
+    
+    staticBGM = new Audio(src);
+    staticBGM.loop = true;
+    staticBGM.volume = 0.5;
+    
+    if (audioUnlocked) {
+        staticBGM.play().catch(err => console.log("BGM play error:", err));
     }
 }
+
+function playStaticSFX(src) {
+    if (!src) return;
+    const sfx = new Audio(src);
+    sfx.volume = 0.8;
+    if (audioUnlocked) {
+        sfx.play().catch(err => console.log("SFX play error:", err));
+    }
+}
+
+function unlockStaticAudio() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    
+    if (staticBGM && staticBGM.paused) {
+        staticBGM.play().catch(err => console.log("BGM play error:", err));
+    }
+}
+
+function setupStaticAudio() {
+    const handleInteraction = () => {
+        unlockStaticAudio();
+        if (!staticBGM) {
+            playStaticBGM('app/static/audio/bgm/sweet_intro.wav');
+        }
+        document.removeEventListener('click', handleInteraction);
+        document.removeEventListener('keydown', handleInteraction);
+    };
+    document.addEventListener('click', handleInteraction);
+    document.addEventListener('keydown', handleInteraction);
+    
+    // 全域懸停與點擊音效事件代理
+    const clickableSelectors = 'button, a, .choice-btn, .back-btn, .icon-btn, .modal-btn, [role="button"]';
+    
+    document.addEventListener('mouseover', (e) => {
+        const target = e.target.closest(clickableSelectors);
+        if (target) {
+            if (e.relatedTarget && target.contains(e.relatedTarget)) return;
+            playStaticSFX('app/static/audio/sfx/bubble_hover.wav');
+        }
+    });
+    
+    document.addEventListener('click', (e) => {
+        const target = e.target.closest(clickableSelectors);
+        if (target) {
+            playStaticSFX('app/static/audio/sfx/select_confirm.wav');
+        }
+    });
+}
+
+// 綁定事件並啟動遊戲
+window.onload = () => {
+    setupStaticAudio();
+    document.getElementById('restart-btn').onclick = initGame;
+    initGame();
+};
