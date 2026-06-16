@@ -480,10 +480,17 @@ const endings = {
 
 // --- UI Flow Logic (Static Client Mode) ---
 
-// Select Romance Type
-function selectRomanceType(relationType, event) {
+// Select Target Gender / Romance Type
+function selectTargetGender(gender, event) {
+    let relationType = 'HL';
+    if (gender === 'male') {
+        relationType = 'BL';
+    } else if (gender === 'female') {
+        relationType = 'GL';
+    }
+    
     gameState.relationType = relationType;
-    console.log("選擇戀愛故事類型:", relationType);
+    console.log("選擇攻略對象性別:", gender, "對應故事類型:", relationType);
 
     const buttons = document.querySelectorAll('#target-gender-selection .choice-btn');
     buttons.forEach(btn => {
