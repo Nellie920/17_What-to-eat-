@@ -123,7 +123,7 @@ def get_story_node(node_id):
             "background_image": "/static/images/bg/lobby.jpg",
             "speaker": "系統旁白",
             "dialogue": "歡迎來到互動戀愛故事！等一下，要吃什麼呢？點擊前方開啟偶遇吧……",
-            "bgm": "/static/audio/bgm/sweet_intro.mp3",
+            "bgm": "/static/audio/bgm/sweet_intro.wav",
             "effects": [],
             "choices": [
                 {"text": "前往櫻花公園", "next_node": "scene_cherry_01"}

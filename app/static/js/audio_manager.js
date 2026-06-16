@@ -25,21 +25,12 @@ class AudioManager {
     this.audioUnlocked = false;      // 瀏覽器安全解鎖狀態
     this.bgmDucked = false;          // 音訊避讓中狀態
 
-    // 初始化音效物件池，並強制瀏覽器預載入常見音效以達到零延遲播放
-    this.sfxPools = new Map();
-    const commonSFXs = [
-      '/static/audio/sfx/bubble_hover.wav',
-      '/static/audio/sfx/select_confirm.wav',
-      '/static/audio/sfx/happy_trumpet.wav',
-      '/static/audio/sfx/sad_chord.wav',
-      '/static/audio/sfx/wind_bell.wav'
-    ];
-    commonSFXs.forEach(src => {
-      const audioObj = new Audio(src);
-      audioObj.preload = 'auto';
-      audioObj.load();
-      this.sfxPools.set(src, [audioObj]);
-    });
+    // 定期將播放中的 BGM 進度儲存至 localStorage，以便頁面載入/跳轉時復原
+    setInterval(() => {
+      if (this.currentBGM && !this.currentBGM.paused) {
+        localStorage.setItem('currentBgmTime', this.currentBGM.currentTime.toString());
+      }
+    }, 1000);
 
     AudioManager.instance = this;
   }
@@ -97,6 +88,20 @@ class AudioManager {
     const newBGM = new Audio(src);
     newBGM.loop = true;
     newBGM.volume = 0; // 從靜音開始淡入
+
+    // 嘗試還原播放進度
+    const savedSrc = localStorage.getItem('currentBgmSrc');
+    const savedTime = localStorage.getItem('currentBgmTime');
+    if (savedSrc && savedSrc.endsWith(src) && savedTime) {
+      const time = parseFloat(savedTime);
+      if (!isNaN(time) && time > 0) {
+        newBGM.currentTime = time;
+      }
+    }
+
+    // 儲存當前播放的 BGM 路徑與進度
+    localStorage.setItem('currentBgmSrc', src);
+    localStorage.setItem('currentBgmTime', '0');
 
     if (this.currentBGM) {
       // 觸發舊音樂淡出，新音樂淡入過渡
