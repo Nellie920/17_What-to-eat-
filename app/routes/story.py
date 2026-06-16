@@ -322,7 +322,11 @@ def show_ending():
             except Exception as e:
                 print(f"Failed to save ending to DB: {e}")
         
-        # 自動判定結局成就解鎖 (Happy End / Sad End)
+        # 自動判定結局成就解鎖 (Happy End / Sad End / 達成初次結局)
+        try:
+            Achievement.create(user['id'], '6') # 達成初次結局
+        except: pass
+
         if end_key == 'end_true' or end_key == 'end_good':
             try:
                 Achievement.create(user['id'], '2') # 戀愛大師
@@ -332,8 +336,7 @@ def show_ending():
                 Achievement.create(user['id'], '3') # 遺憾的美好
             except: pass
             
-        # 清除目前遊戲進度與結局觸發狀態
-        session.pop('game_state', None)
+        # 清除結局觸發狀態（不清除 game_state 以防止結局頁面被重新導向）
         session.pop('reached_ending', None)
         session.modified = True
     
