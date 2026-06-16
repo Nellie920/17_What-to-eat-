@@ -1,3 +1,9 @@
+// 角色資料（補救用）
+const charactersData = window.charactersData || {
+    male: [],
+    female: [],
+    other: []
+};
 // Game State
 let gameState = {
     currentStep: 'targetGender',
@@ -483,6 +489,8 @@ const endings = {
 // Select Target Gender
 function selectTargetGender(gender, event) {
     gameState.targetGender = gender;
+    gameState.resolvedTargetGender = gender;
+    gameState.targetCharacter = null; // Clear previous character choice when gender changes
     console.log("選擇攻略對象性別:", gender);
 
     const buttons = document.querySelectorAll('#target-gender-selection .choice-btn');
@@ -496,10 +504,12 @@ function selectTargetGender(gender, event) {
 
     setTimeout(() => {
         if (gender === 'random') {
-            showPlayerGenderSelection();
+            const genders = ['male', 'female'];
+            gameState.resolvedTargetGender = genders[Math.floor(Math.random() * genders.length)];
         } else {
-            showCharacterSelection(gender);
+            gameState.resolvedTargetGender = gender;
         }
+        showCharacterSelection(gameState.resolvedTargetGender);
     }, 600);
 }
 
@@ -606,14 +616,18 @@ function selectPlayerGender(gender, event) {
 
 // Resolve Random Selections
 function resolveRandomSelections() {
-    if (gameState.targetGender === 'random') {
-        const genders = ['male', 'female'];
-        gameState.resolvedTargetGender = genders[Math.floor(Math.random() * genders.length)];
-    } else {
-        gameState.resolvedTargetGender = gameState.targetGender;
+    // 1. Resolve Target Gender
+    if (!gameState.resolvedTargetGender) {
+        if (gameState.targetGender === 'random') {
+            const genders = ['male', 'female'];
+            gameState.resolvedTargetGender = genders[Math.floor(Math.random() * genders.length)];
+        } else {
+            gameState.resolvedTargetGender = gameState.targetGender;
+        }
     }
 
-    if (!gameState.targetCharacter || gameState.targetCharacter === 'random_char' || gameState.targetGender === 'random') {
+    // 2. Resolve Target Character
+    if (!gameState.targetCharacter || gameState.targetCharacter === 'random_char') {
         const chars = charactersData[gameState.resolvedTargetGender];
         const randomChar = chars[Math.floor(Math.random() * chars.length)];
         gameState.resolvedTargetCharacter = randomChar.id;
@@ -631,6 +645,11 @@ function resolveRandomSelections() {
 
 // Show Confirmation Screen
 function showConfirmationScreen() {
+
+    if (!gameState.resolvedTargetGender) {
+        gameState.resolvedTargetGender = gameState.targetGender;
+    }
+    
     gameState.currentStep = 'confirmation';
 
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -657,6 +676,23 @@ function showConfirmationScreen() {
     `;
     document.getElementById('confirm-player-card').innerHTML = playerCardHtml;
 
+    // Populate Detailed Infos and Random Extraction Results
+    const targetGenderText = gameState.resolvedTargetGender === 'male' ? '男性' : '女性';
+    let targetInfoHtml = `<div class="result-gender-line">性別：${targetGenderText}</div>`;
+    if (gameState.targetGender === 'random') {
+        targetInfoHtml += `<div class="random-result-badge">✨ 隨機抽取結果</div>`;
+    } else if (gameState.targetCharacter === 'random_char') {
+        targetInfoHtml += `<div class="random-result-badge">✨ 隨機角色結果</div>`;
+    }
+    document.getElementById('confirm-target-info').innerHTML = targetInfoHtml;
+
+    const playerGenderText = gameState.resolvedPlayerGender === 'male' ? '男性' : '女性';
+    let playerInfoHtml = `<div class="result-gender-line">性別：${playerGenderText}</div>`;
+    if (gameState.playerGender === 'random') {
+        playerInfoHtml += `<div class="random-result-badge">✨ 隨機抽取結果</div>`;
+    }
+    document.getElementById('confirm-player-info').innerHTML = playerInfoHtml;
+    
     setTimeout(() => {
         document.getElementById('confirmation-screen').classList.add('active');
     }, 50);
@@ -774,32 +810,20 @@ function handleBack() {
             btn.style.pointerEvents = 'auto';
         });
     } else if (gameState.currentStep === 'playerGender') {
-        document.getElementById('player-gender-selection').classList.remove('active');
-
+        // 從玩家性別選擇返回角色選擇
         setTimeout(() => {
-            if (gameState.targetGender === 'random') {
-                document.getElementById('target-gender-selection').classList.add('active');
-                gameState.currentStep = 'targetGender';
-
-                const buttons = document.querySelectorAll('#target-gender-selection .choice-btn');
-                buttons.forEach(btn => {
-                    btn.classList.remove('selected');
-                    btn.style.pointerEvents = 'auto';
-                });
-            } else {
-                document.getElementById('target-character-selection').classList.add('active');
-                gameState.currentStep = 'targetCharacter';
-
-                const cards = document.querySelectorAll('#target-character-selection .character-card');
-                cards.forEach(card => {
-                    card.classList.remove('selected');
-                    card.style.pointerEvents = 'auto';
-                });
-            }
+            document.getElementById('target-character-selection').classList.add('active');
         }, 300);
+        gameState.currentStep = 'targetCharacter';
+        
+        // 復原角色選擇的卡片狀態
+        const cards = document.querySelectorAll('#target-character-selection .character-card');
+        cards.forEach(card => {
+            card.classList.remove('selected');
+            card.style.pointerEvents = 'auto';
+        });
     } else if (gameState.currentStep === 'confirmation') {
         document.getElementById('confirmation-screen').classList.remove('active');
-
         setTimeout(() => {
             document.getElementById('player-gender-selection').classList.add('active');
         }, 300);
