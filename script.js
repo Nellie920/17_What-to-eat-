@@ -649,10 +649,13 @@ function showConfirmationScreen() {
         playStaticBGM('app/static/audio/bgm/sweet_intro.wav');
     }
     
-    // 隱藏結局畫面，顯示故事畫面
-    document.getElementById('ending-box').classList.add('hidden');
-    document.getElementById('story-text').classList.remove('hidden');
-    document.getElementById('choices').classList.remove('hidden');
+    // 隱藏結局畫面，顯示故事畫面 (加入 DOM 安全檢查)
+    const endingBoxEl = document.getElementById('ending-box');
+    const storyTextEl = document.getElementById('story-text');
+    const choicesEl = document.getElementById('choices');
+    if (endingBoxEl) endingBoxEl.classList.add('hidden');
+    if (storyTextEl) storyTextEl.classList.remove('hidden');
+    if (choicesEl) choicesEl.classList.remove('hidden');
     
     setTimeout(() => {
         document.getElementById('confirmation-screen').classList.add('active');
@@ -1174,14 +1177,54 @@ function showEnding() {
     }
 
     // 切換畫面
-    document.getElementById('story-text').classList.add('hidden');
-    document.getElementById('choices').classList.add('hidden');
-    
-    const endingBox = document.getElementById('ending-box');
-    endingBox.classList.remove('hidden');
-    
-    document.getElementById('ending-title').innerText = ending.title;
-    document.getElementById('ending-desc').innerText = ending.desc;
+    const storyTextEl = document.getElementById('story-text');
+    const choicesEl = document.getElementById('choices');
+    const endingBoxEl = document.getElementById('ending-box');
+    const endingTitleEl = document.getElementById('ending-title');
+    const endingDescEl = document.getElementById('ending-desc');
+
+    if (storyTextEl && choicesEl && endingBoxEl && endingTitleEl && endingDescEl) {
+        storyTextEl.classList.add('hidden');
+        choicesEl.classList.add('hidden');
+        endingBoxEl.classList.remove('hidden');
+        endingTitleEl.innerText = ending.title;
+        endingDescEl.innerText = ending.desc;
+    } else {
+        // 針對無對應 DOM 元素的 index.html 版本進行相容處理
+        // 將結局資訊作為特殊的對話方塊追加到對話紀錄面板中
+        const historyContent = document.querySelector('.history-content');
+        if (historyContent) {
+            const titleLine = document.createElement('p');
+            titleLine.className = 'dialogue-line system';
+            titleLine.innerHTML = `<span class="speaker" style="color: #fcd34d; font-size: 1.4rem; display: block; margin-bottom: 0.5rem;">🎉 達成結局：${ending.title}</span>`;
+            historyContent.appendChild(titleLine);
+
+            const descLine = document.createElement('p');
+            descLine.className = 'dialogue-line';
+            descLine.style.borderLeftColor = '#fcd34d';
+            descLine.innerText = ending.desc;
+            historyContent.appendChild(descLine);
+
+            const historyPanel = document.getElementById('dialogue-history');
+            if (historyPanel) {
+                historyPanel.scrollTop = historyPanel.scrollHeight;
+            }
+        }
+
+        // 在選項區塊渲染一個「重新開始故事」的按鈕
+        const choicesList = document.querySelector('.choices-list');
+        if (choicesList) {
+            choicesList.innerHTML = '';
+            const restartBtn = document.createElement('button');
+            restartBtn.className = 'choice-btn primary';
+            restartBtn.innerText = '重新開始故事';
+            restartBtn.style.width = '100%';
+            restartBtn.onclick = () => {
+                location.reload();
+            };
+            choicesList.appendChild(restartBtn);
+        }
+    }
 }
 
 // --- 靜態離線版音訊系統 ---
@@ -1272,9 +1315,55 @@ function setupStaticAudio() {
     });
 }
 
+// 初始化/重置遊戲與選擇狀態
+function initGame() {
+    gameState = {
+        currentStep: 'targetGender',
+        targetGender: null,
+        targetCharacter: null,
+        playerGender: null,
+        resolvedTargetGender: null,
+        resolvedTargetCharacter: null,
+        resolvedPlayerGender: null,
+        preferences: {
+            npcColor: '#d6336c',
+            playerColor: '#4facfe',
+            textColor: '#ffffff',
+            actionColor: '#b0b0b0'
+        },
+        currentNode: 'start',
+        targetKey: null,
+        stats: {
+            trust: 0, curiosity: 0, fear: 0, affection: 0, courage: 0
+        },
+        flags: {
+            mystery_route: false, ice_route: false, normal_route: false,
+            followed_target: false, recovered_memory: false, abandoned_partner: false
+        }
+    };
+
+    // 隱藏所有遊玩/確認畫面，回到攻略對象性別選擇首頁
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const targetGenderSelection = document.getElementById('target-gender-selection');
+    if (targetGenderSelection) targetGenderSelection.classList.add('active');
+
+    // 顯示返回上一頁按鈕
+    const backBtn = document.getElementById('back-btn');
+    if (backBtn) backBtn.style.display = 'block';
+
+    // 移除性別選擇按鈕之選中狀態
+    const buttons = document.querySelectorAll('#target-gender-selection .choice-btn');
+    buttons.forEach(btn => btn.classList.remove('selected'));
+
+    // 清空角色卡片網格
+    const grid = document.getElementById('character-grid');
+    if (grid) grid.innerHTML = '';
+}
+
 // 綁定事件並啟動遊戲
 window.onload = () => {
     setupStaticAudio();
-    document.getElementById('restart-btn').onclick = initGame;
+    const restartBtn = document.getElementById('restart-btn');
+    if (restartBtn) restartBtn.onclick = initGame;
     initGame();
 };
