@@ -64,6 +64,14 @@ def play_story(node_id):
     }
     
     for idx, choice in enumerate(node['choices']):
+        # Filter choices: remove random choices if the target gender was selected explicitly (i.e. BL/GL candidate pathways)
+        if node_id in ['select_target_m', 'select_target_f']:
+            if state.get('original_target_gender') in ['m', 'f'] and (choice.get('targetKey') == 'random' or '隨機' in choice.get('text', '')):
+                continue
+        elif node_id == 'node_hl_gender':
+            if state.get('original_target_gender') in ['m', 'f'] and (choice.get('next') == 'random_gender' or '隨機' in choice.get('text', '')):
+                continue
+
         story_data['choices'].append({
             'id': idx,
             'text': parse_text(choice['text'], target_key)
@@ -220,6 +228,7 @@ def make_choice(node_id, choice_id):
     if node_id == 'start':
         gender_map = {0: 'm', 1: 'f', 2: 'random'}
         t_gender = gender_map.get(choice_id, 'random')
+        state['original_target_gender'] = t_gender
         if t_gender == 'random':
             t_gender = 'm' if random.random() > 0.5 else 'f'
         state['target_gender'] = t_gender
