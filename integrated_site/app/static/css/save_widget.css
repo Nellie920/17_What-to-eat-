@@ -54,8 +54,8 @@
 
 /* Modal Content (Glassmorphism) */
 .save-widget-modal {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(40, 30, 50, 0.85);
+    border: 1px solid rgba(212, 175, 55, 0.4);
     border-radius: 16px;
     width: 90%;
     max-width: 500px;
@@ -75,7 +75,7 @@
 /* Header */
 .save-widget-header {
     padding: 20px 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -85,7 +85,7 @@
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
-    background: linear-gradient(90deg, #c084fc, #ec4899);
+    background: linear-gradient(90deg, #D4AF37, #FCF6BA);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -117,7 +117,7 @@
 /* Save Item */
 .save-widget-item {
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.2);
     border-radius: 12px;
     padding: 16px;
     display: flex;
@@ -127,7 +127,7 @@
 }
 
 .save-widget-item:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(212, 175, 55, 0.15);
     transform: translateX(5px);
 }
 
@@ -144,9 +144,9 @@
 }
 
 .save-widget-load-btn {
-    background: rgba(123, 44, 191, 0.4);
+    background: rgba(212, 175, 55, 0.2);
     color: #ffffff;
-    border: 1px solid #7b2cbf;
+    border: 1px solid #D4AF37;
     padding: 8px 16px;
     border-radius: 6px;
     cursor: pointer;
@@ -155,7 +155,8 @@
 }
 
 .save-widget-load-btn:hover {
-    background: #7b2cbf;
+    background: #D4AF37;
+    color: #000;
 }
 
 /* Save Toast */
