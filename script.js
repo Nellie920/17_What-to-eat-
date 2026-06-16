@@ -480,12 +480,10 @@ const endings = {
 
 // --- UI Flow Logic (Static Client Mode) ---
 
-// Select Target Gender
-function selectTargetGender(gender, event) {
-    gameState.targetGender = gender;
-    gameState.resolvedTargetGender = gender;
-    gameState.targetCharacter = null; // Clear previous character choice when gender changes
-    console.log("選擇攻略對象性別:", gender);
+// Select Romance Type
+function selectRomanceType(relationType, event) {
+    gameState.relationType = relationType;
+    console.log("選擇戀愛故事類型:", relationType);
 
     const buttons = document.querySelectorAll('#target-gender-selection .choice-btn');
     buttons.forEach(btn => {
@@ -497,13 +495,24 @@ function selectTargetGender(gender, event) {
     clickedBtn.classList.add('selected');
 
     setTimeout(() => {
-        if (gender === 'random') {
-            const genders = ['male', 'female'];
-            gameState.resolvedTargetGender = genders[Math.floor(Math.random() * genders.length)];
-        } else {
-            gameState.resolvedTargetGender = gender;
+        if (relationType === 'BL') {
+            gameState.playerGender = 'male';
+            gameState.targetGender = 'male';
+            gameState.resolvedTargetGender = 'male';
+            gameState.resolvedPlayerGender = 'male';
+            // BL goes straight to male character selection
+            showCharacterSelection('male');
+        } else if (relationType === 'GL') {
+            gameState.playerGender = 'female';
+            gameState.targetGender = 'female';
+            gameState.resolvedTargetGender = 'female';
+            gameState.resolvedPlayerGender = 'female';
+            // GL goes straight to female character selection
+            showCharacterSelection('female');
+        } else if (relationType === 'HL') {
+            // HL goes to player gender selection first
+            showPlayerGenderSelection();
         }
-        showCharacterSelection(gameState.resolvedTargetGender);
     }, 600);
 }
 
@@ -511,6 +520,12 @@ function selectTargetGender(gender, event) {
 function showCharacterSelection(gender) {
     gameState.currentStep = 'targetCharacter';
     document.getElementById('target-gender-selection').classList.remove('active');
+    document.getElementById('player-gender-selection').classList.remove('active');
+
+    const backBtn = document.getElementById('back-btn');
+    if (backBtn) {
+        backBtn.style.display = 'block';
+    }
 
     const grid = document.getElementById('character-grid');
     grid.innerHTML = '';
@@ -559,14 +574,15 @@ function selectTargetCharacter(charId, event) {
     event.currentTarget.classList.add('selected');
 
     setTimeout(() => {
-        showPlayerGenderSelection();
+        resolveRandomSelections();
+        showConfirmationScreen();
     }, 600);
 }
 
 // Show character info
 function showCharacterInfo(charId, event) {
     event.stopPropagation();
-    alert(`【展示人物介紹】\n這裡將在後續階段實作詳細的 ${charId} 介紹彈窗！`);
+    alert(`【展示人物介紹】\n這裡將在後續階段實作詳細 of ${charId} 介紹彈窗！`);
 }
 
 // Show Player Gender Selection Screen
@@ -576,13 +592,14 @@ function showPlayerGenderSelection() {
     document.getElementById('target-gender-selection').classList.remove('active');
     document.getElementById('target-character-selection').classList.remove('active');
 
+    const backBtn = document.getElementById('back-btn');
+    if (backBtn) {
+        backBtn.style.display = 'block';
+    }
+
     const randomBtn = document.getElementById('player-random-btn');
     if (randomBtn) {
-        if (gameState.targetGender === 'random') {
-            randomBtn.style.display = 'block';
-        } else {
-            randomBtn.style.display = 'none';
-        }
+        randomBtn.style.display = 'block';
     }
 
     setTimeout(() => {
@@ -603,8 +620,24 @@ function selectPlayerGender(gender, event) {
     event.currentTarget.classList.add('selected');
 
     setTimeout(() => {
-        resolveRandomSelections();
-        showConfirmationScreen();
+        if (gameState.relationType === 'HL') {
+            let resolvedPlayer;
+            if (gender === 'random') {
+                resolvedPlayer = Math.random() > 0.5 ? 'male' : 'female';
+            } else {
+                resolvedPlayer = gender;
+            }
+            gameState.resolvedPlayerGender = resolvedPlayer;
+            
+            const resolvedTarget = resolvedPlayer === 'male' ? 'female' : 'male';
+            gameState.targetGender = resolvedTarget;
+            gameState.resolvedTargetGender = resolvedTarget;
+
+            showCharacterSelection(resolvedTarget);
+        } else {
+            resolveRandomSelections();
+            showConfirmationScreen();
+        }
     }, 600);
 }
 
@@ -643,7 +676,6 @@ function showConfirmationScreen() {
     if (!gameState.resolvedTargetGender) {
         gameState.resolvedTargetGender = gameState.targetGender;
     }
-
     gameState.currentStep = 'confirmation';
 
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -686,7 +718,16 @@ function showConfirmationScreen() {
         playerInfoHtml += `<div class="random-result-badge">✨ 隨機抽取結果</div>`;
     }
     document.getElementById('confirm-player-info').innerHTML = playerInfoHtml;
-
+    
+    // 播放/還原背景音樂
+    if (typeof playStaticBGM === 'function') {
+        playStaticBGM('app/static/audio/bgm/sweet_intro.wav');
+    }
+    
+    // 隱藏結局畫面，顯示故事畫面
+    document.getElementById('ending-box').classList.add('hidden');
+    document.getElementById('story-text').classList.remove('hidden');
+    document.getElementById('choices').classList.remove('hidden');
     setTimeout(() => {
         document.getElementById('confirmation-screen').classList.add('active');
     }, 50);
@@ -793,6 +834,31 @@ function handleBack() {
         modal.classList.add('active');
     } else if (gameState.currentStep === 'targetCharacter') {
         document.getElementById('target-character-selection').classList.remove('active');
+        if (gameState.relationType === 'HL') {
+            setTimeout(() => {
+                document.getElementById('player-gender-selection').classList.add('active');
+            }, 300);
+            gameState.currentStep = 'playerGender';
+
+            const buttons = document.querySelectorAll('#player-gender-selection .choice-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('selected');
+                btn.style.pointerEvents = 'auto';
+            });
+        } else {
+            setTimeout(() => {
+                document.getElementById('target-gender-selection').classList.add('active');
+            }, 300);
+            gameState.currentStep = 'targetGender';
+
+            const buttons = document.querySelectorAll('#target-gender-selection .choice-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('selected');
+                btn.style.pointerEvents = 'auto';
+            });
+        }
+    } else if (gameState.currentStep === 'playerGender') {
+        document.getElementById('player-gender-selection').classList.remove('active');
         setTimeout(() => {
             document.getElementById('target-gender-selection').classList.add('active');
         }, 300);
@@ -803,30 +869,17 @@ function handleBack() {
             btn.classList.remove('selected');
             btn.style.pointerEvents = 'auto';
         });
-    } else if (gameState.currentStep === 'playerGender') {
-        // 從玩家性別選擇返回角色選擇
+    } else if (gameState.currentStep === 'confirmation') {
+        document.getElementById('confirmation-screen').classList.remove('active');
         setTimeout(() => {
             document.getElementById('target-character-selection').classList.add('active');
         }, 300);
         gameState.currentStep = 'targetCharacter';
 
-        // 復原角色選擇的卡片狀態
         const cards = document.querySelectorAll('#target-character-selection .character-card');
         cards.forEach(card => {
             card.classList.remove('selected');
             card.style.pointerEvents = 'auto';
-        });
-    } else if (gameState.currentStep === 'confirmation') {
-        document.getElementById('confirmation-screen').classList.remove('active');
-        setTimeout(() => {
-            document.getElementById('player-gender-selection').classList.add('active');
-        }, 300);
-        gameState.currentStep = 'playerGender';
-
-        const buttons = document.querySelectorAll('#player-gender-selection .choice-btn');
-        buttons.forEach(btn => {
-            btn.classList.remove('selected');
-            btn.style.pointerEvents = 'auto';
         });
     }
 }
@@ -1173,35 +1226,175 @@ function showEnding() {
     const targetKey = gameState.targetKey || 'm1';
     let ending = endings[targetKey][endKey];
     if (!ending) ending = endings['m1']['end_normal']; // 預設防呆
-
-    // 將結局資訊作為特殊的對話方塊追加到對話紀錄面板中
-    const historyContent = document.querySelector('.history-content');
-    if (historyContent) {
-        const titleLine = document.createElement('p');
-        titleLine.className = 'dialogue-line system';
-        titleLine.innerHTML = `<span class="speaker" style="color: #fcd34d; font-size: 1.4rem; display: block; margin-bottom: 0.5rem;">🎉 達成結局：${ending.title}</span>`;
-        historyContent.appendChild(titleLine);
-
-        const descLine = document.createElement('p');
-        descLine.className = 'dialogue-line';
-        descLine.style.borderLeftColor = '#fcd34d';
-        descLine.innerText = ending.desc;
-        historyContent.appendChild(descLine);
-
-        scrollToBottom();
+    
+    // 切換結局背景音樂
+    let endingBgm = 'app/static/audio/bgm/sweet_intro.wav';
+    if (endKey === 'end_true' || endKey === 'end_good') {
+        endingBgm = 'app/static/audio/bgm/romantic_piano.wav';
+    } else if (endKey === 'end_bad') {
+        endingBgm = 'app/static/audio/bgm/tension_loop.wav';
+    }
+    if (typeof playStaticBGM === 'function') {
+        playStaticBGM(endingBgm);
     }
 
-    // 在選項區塊渲染一個「重新開始故事」的按鈕
-    const choicesList = document.querySelector('.choices-list');
-    if (choicesList) {
-        choicesList.innerHTML = '';
-        const restartBtn = document.createElement('button');
-        restartBtn.className = 'choice-btn primary';
-        restartBtn.innerText = '重新開始故事';
-        restartBtn.style.width = '100%';
-        restartBtn.onclick = () => {
-            location.reload();
-        };
-        choicesList.appendChild(restartBtn);
+    // 切換畫面
+    document.getElementById('story-text').classList.add('hidden');
+    document.getElementById('choices').classList.add('hidden');
+    
+    const endingBox = document.getElementById('ending-box');
+    endingBox.classList.remove('hidden');
+    
+    document.getElementById('ending-title').innerText = ending.title;
+    document.getElementById('ending-desc').innerText = ending.desc;
+}
+
+// --- 靜態離線版音訊系統 ---
+let staticBGM = null;
+let audioUnlocked = false;
+
+function playStaticBGM(src) {
+    if (!src) return;
+    
+    // 如果已經在播放同一首，不要重新播放
+    if (staticBGM && staticBGM.src.endsWith(src)) {
+        if (staticBGM.paused && audioUnlocked) {
+            staticBGM.play().catch(err => console.log("BGM play error:", err));
+        }
+        return;
+    }
+    
+    if (staticBGM) {
+        staticBGM.pause();
+    }
+    
+    staticBGM = new Audio(src);
+    staticBGM.loop = true;
+    staticBGM.volume = 0.5;
+    
+    if (audioUnlocked) {
+        staticBGM.play().catch(err => console.log("BGM play error:", err));
     }
 }
+
+function playStaticSFX(src) {
+    if (!src) return;
+    const sfx = new Audio(src);
+    sfx.volume = 0.8;
+    if (audioUnlocked) {
+        sfx.play().catch(err => console.log("SFX play error:", err));
+    }
+}
+
+function unlockStaticAudio() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    
+    if (staticBGM && staticBGM.paused) {
+        staticBGM.play().catch(err => console.log("BGM play error:", err));
+    }
+}
+
+function setupStaticAudio() {
+    const handleInteraction = () => {
+        unlockStaticAudio();
+        if (!staticBGM) {
+            playStaticBGM('app/static/audio/bgm/sweet_intro.wav');
+        }
+        document.removeEventListener('click', handleInteraction);
+        document.removeEventListener('keydown', handleInteraction);
+    };
+    document.addEventListener('click', handleInteraction);
+    document.addEventListener('keydown', handleInteraction);
+    
+    // 全域懸停與點擊音效事件代理
+    const clickableSelectors = 'button, a, .choice-btn, .back-btn, .icon-btn, .modal-btn, [role="button"]';
+    
+    document.addEventListener('mouseover', (e) => {
+        const target = e.target.closest(clickableSelectors);
+        if (target) {
+            if (e.relatedTarget && target.contains(e.relatedTarget)) return;
+            playStaticSFX('app/static/audio/sfx/bubble_hover.wav');
+        }
+    });
+    
+    document.addEventListener('click', (e) => {
+        const target = e.target.closest(clickableSelectors);
+        if (target) {
+            playStaticSFX('app/static/audio/sfx/select_confirm.wav');
+        }
+    });
+}
+
+// 初始化/重置遊戲狀態與UI
+function initGame() {
+    gameState = {
+        currentStep: 'targetGender',
+        targetGender: null,
+        targetCharacter: null,
+        playerGender: null,
+        resolvedTargetGender: null,
+        resolvedTargetCharacter: null,
+        resolvedPlayerGender: null,
+        preferences: {
+            npcColor: '#d6336c',
+            playerColor: '#4facfe',
+            textColor: '#ffffff',
+            actionColor: '#b0b0b0'
+        },
+        currentNode: 'start',
+        targetKey: null,
+        stats: {
+            trust: 0, curiosity: 0, fear: 0, affection: 0, courage: 0
+        },
+        flags: {
+            mystery_route: false, ice_route: false, normal_route: false,
+            followed_target: false, recovered_memory: false, abandoned_partner: false
+        }
+    };
+
+    // 隱藏結局畫面與遊戲畫面，還原選擇畫面
+    const endingBox = document.getElementById('ending-box');
+    if (endingBox) endingBox.classList.add('hidden');
+    
+    const storyText = document.getElementById('story-text');
+    if (storyText) storyText.classList.remove('hidden');
+    
+    const choices = document.getElementById('choices');
+    if (choices) choices.classList.remove('hidden');
+
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    
+    const targetGenderSelection = document.getElementById('target-gender-selection');
+    if (targetGenderSelection) targetGenderSelection.classList.add('active');
+
+    const backBtn = document.getElementById('back-btn');
+    if (backBtn) {
+        backBtn.style.display = 'none'; // 初始頁面隱藏返回按鈕
+    }
+
+    const gameSidebar = document.getElementById('game-sidebar');
+    if (gameSidebar) {
+        gameSidebar.style.display = 'block'; // 確保側邊欄回到預設狀態
+        gameSidebar.classList.add('collapsed');
+    }
+
+    const buttons = document.querySelectorAll('.choice-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('selected');
+        btn.style.pointerEvents = 'auto';
+    });
+
+    const cards = document.querySelectorAll('.character-card');
+    cards.forEach(card => {
+        card.classList.remove('selected');
+        card.style.pointerEvents = 'auto';
+    });
+}
+
+// 綁定事件並啟動遊戲
+window.onload = () => {
+    setupStaticAudio();
+    document.getElementById('restart-btn').onclick = initGame;
+    initGame();
+};
