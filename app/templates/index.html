@@ -37,6 +37,17 @@
             </div>
             
             <div class="auth-quick-link">
+            <!-- 🎨 角色圖片展示區 -->
+            <section id="characters-gallery" class="gallery-section glassmorphism animate-fade-in">
+                <h2 class="section-title">角色介紹</h2>
+                <div class="characters-grid">
+                    {% for img in character_images %}
+    <img src="{{ url_for('static', filename='images/characters/' + img) }}" alt="角色 {{ loop.index }}" class="character-img">
+{% endfor %}
+                </div>
+            </section>
+
+
                 <span id="lobby-user-status">訪客模式</span> | 
                 <a href="#" id="link-show-auth"><i class="fa-solid fa-user-lock"></i> 登入/註冊帳號</a>
             </div>
