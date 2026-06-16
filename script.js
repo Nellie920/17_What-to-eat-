@@ -1,9 +1,9 @@
 // Character Data (for Selection Screen)
 const charactersData = window.charactersData || {
     male: [
-        { id: 'A1', name: '洛頁彥', icon: '👦' },
-        { id: 'A2', name: '齊勻楠', icon: '🧑' },
-        { id: 'A3', name: '秦陌寂', icon: '👨' }
+        { id: 'A1', name: '洛頁彥', icon: '<img src="app/static/images/characters/m1.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">' },
+        { id: 'A2', name: '齊勻楠', icon: '<img src="app/static/images/characters/m2.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">' },
+        { id: 'A3', name: '秦陌寂', icon: '<img src="app/static/images/characters/m3.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">' }
     ],
     female: [
         { id: 'B1', name: '田媛寧', icon: '👧' },
