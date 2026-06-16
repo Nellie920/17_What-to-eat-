@@ -516,8 +516,6 @@ function showCharacterSelection(gender) {
         grid.appendChild(createCharacterCard(char));
     });
 
-    grid.appendChild(createCharacterCard({ id: 'random_char', name: '隨機', icon: '❓' }));
-
     setTimeout(() => {
         document.getElementById('target-character-selection').classList.add('active');
     }, 50);
@@ -573,6 +571,15 @@ function showPlayerGenderSelection() {
 
     document.getElementById('target-gender-selection').classList.remove('active');
     document.getElementById('target-character-selection').classList.remove('active');
+
+    const randomBtn = document.getElementById('player-random-btn');
+    if (randomBtn) {
+        if (gameState.targetGender === 'random') {
+            randomBtn.style.display = 'block';
+        } else {
+            randomBtn.style.display = 'none';
+        }
+    }
 
     setTimeout(() => {
         document.getElementById('player-gender-selection').classList.add('active');
