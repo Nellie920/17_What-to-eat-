@@ -24,33 +24,35 @@ def build_story_nodes():
         'start': {
             'text': "歡迎來到《舊校舍的約定》。\n請選擇你想攻略的對象性別：",
             'choices': [
-                {'text': "男性", 'next': "node_hl_gender"},
-                {'text': "女性", 'next': "node_hl_gender"},
-                {'text': "隨機", 'next': "node_hl_gender"}
-            ]
-        },
-        'node_hl_gender': {
-            'text': "請選擇你的性別：",
-            'choices': [
                 {'text': "男性", 'next': "select_target_m"},
-                {'text': "女性", 'next': "select_target_m"},
-                {'text': "隨機", 'next': "select_target_m"}
+                {'text': "女性", 'next': "select_target_f"},
+                {'text': "隨機", 'next': "random_gender"}
             ]
         },
         'select_target_m': {
             'text': "請選擇你想攻略的對象：",
             'choices': [
-                {'text': "洛頁彥 (開朗大膽，艷紅髮色)", 'targetKey': "m1", 'next': "intro_m1"},
-                {'text': "齊勻楠 (沉穩細心，長相俊朗)", 'targetKey': "m2", 'next': "intro_m2"},
-                {'text': "秦陌寂 (溫和斯文，銀框眼鏡)", 'targetKey': "m3", 'next': "intro_m3"}
+                {'text': "洛頁彥 (開朗大膽，艷紅髮色)", 'targetKey': "m1", 'next': "node_hl_gender"},
+                {'text': "齊勻楠 (沉穩細心，長相俊朗)", 'targetKey': "m2", 'next': "node_hl_gender"},
+                {'text': "秦陌寂 (溫和斯文，銀框眼鏡)", 'targetKey': "m3", 'next': "node_hl_gender"},
+                {'text': "隨機決定", 'targetKey': "random", 'next': "node_hl_gender"}
             ]
         },
         'select_target_f': {
             'text': "請選擇你想攻略的對象：",
             'choices': [
-                {'text': "田媛寧 (溫柔內斂，深褐捲髮)", 'targetKey': "f1", 'next': "intro_f1"},
-                {'text': "張栖鈴 (機靈艷麗，黑色長髮)", 'targetKey': "f2", 'next': "intro_f2"},
-                {'text': "顧音棉 (張揚自信，粉髮雙馬尾)", 'targetKey': "f3", 'next': "intro_f3"}
+                {'text': "田媛寧 (溫柔內斂，深褐捲髮)", 'targetKey': "f1", 'next': "node_hl_gender"},
+                {'text': "張栖鈴 (機靈艷麗，黑色長髮)", 'targetKey': "f2", 'next': "node_hl_gender"},
+                {'text': "顧音棉 (張揚自信，粉髮雙馬尾)", 'targetKey': "f3", 'next': "node_hl_gender"},
+                {'text': "隨機決定", 'targetKey': "random", 'next': "node_hl_gender"}
+            ]
+        },
+        'node_hl_gender': {
+            'text': "請選擇你的性別：",
+            'choices': [
+                {'text': "男性", 'next': "intro"},
+                {'text': "女性", 'next': "intro"},
+                {'text': "隨機", 'next': "intro"}
             ]
         },
         'confirm_selection': {
