@@ -211,12 +211,6 @@ def make_choice(node_id, choice_id):
             else:
                 state['playerGender'] = 'female'
         
-        # 儲存下一個劇情節點並跳轉到確認畫面
-        state['next_story_node'] = choice.get('next')
-        next_node = 'confirm_selection'
-    else:
-        next_node = choice.get('next')
-        
     # 數值變更
     if 'statChange' in choice:
         for k, v in choice['statChange'].items():
@@ -244,6 +238,7 @@ def make_choice(node_id, choice_id):
         if p_gender == 'random':
             p_gender = 'm' if random.random() > 0.5 else 'f'
         state['player_gender'] = p_gender
+        state['playerGender'] = 'male' if p_gender == 'm' else 'female'
         
         # 解析隨機角色
         if state.get('targetKey') == 'random':
@@ -253,11 +248,15 @@ def make_choice(node_id, choice_id):
                 state['targetKey'] = random.choice(['f1', 'f2', 'f3'])
 
     # 節點跳轉控制
-    next_node = choice.get('next')
     if node_id == 'start':
         next_node = 'select_target_m' if state.get('target_gender') == 'm' else 'select_target_f'
+    elif node_id in ['select_target_m', 'select_target_f']:
+        next_node = 'node_hl_gender'
     elif node_id == 'node_hl_gender':
-        next_node = f"intro_{state.get('targetKey')}"
+        state['next_story_node'] = f"intro_{state.get('targetKey')}"
+        next_node = 'confirm_selection'
+    else:
+        next_node = choice.get('next')
         
     # 更新 session
     session.modified = True
@@ -359,6 +358,10 @@ def show_ending():
                 print(f"Failed to parse last_ending from DB: {e}")
         
     if not ending_data:
-        return redirect(url_for('story.home'))
+        # 若無當前遊戲進度也無上次結局快取，提供預設結局 Fallback，避免頁面跳轉至首頁
+        ending_data = {
+            'title': "【NORMAL END】個別故事的終章",
+            'desc': "你與攻略對象的故事在安穩中迎來了終章。雖然沒有波瀾壯闊的發展，但也過著平靜而溫馨的生活。"
+        }
         
     return render_template('story/ending.html', user=user, ending=ending_data)
