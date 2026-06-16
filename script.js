@@ -65,7 +65,7 @@ function buildStoryNodes() {
             'choices': [
                 { 'text': "扮演男生 (對象為女性)", 'next': "select_target_f" },
                 { 'text': "扮演女生 (對象為男性)", 'next': "select_target_m" },
-                { 'text': "交給命運決定 (隨機)", 'next': "select_target_f" } // 簡化處理
+                { 'text': "交給命運決定 (隨機)", 'next': "select_target_f" }
             ]
         },
         'select_target_m': {
@@ -628,7 +628,7 @@ function selectPlayerGender(gender, event) {
                 resolvedPlayer = gender;
             }
             gameState.resolvedPlayerGender = resolvedPlayer;
-            
+
             const resolvedTarget = resolvedPlayer === 'male' ? 'female' : 'male';
             gameState.targetGender = resolvedTarget;
             gameState.resolvedTargetGender = resolvedTarget;
@@ -718,12 +718,12 @@ function showConfirmationScreen() {
         playerInfoHtml += `<div class="random-result-badge">✨ 隨機抽取結果</div>`;
     }
     document.getElementById('confirm-player-info').innerHTML = playerInfoHtml;
-    
+
     // 播放/還原背景音樂
     if (typeof playStaticBGM === 'function') {
         playStaticBGM('app/static/audio/bgm/sweet_intro.wav');
     }
-    
+
     // 隱藏結局畫面，顯示故事畫面
     document.getElementById('ending-box').classList.add('hidden');
     document.getElementById('story-text').classList.remove('hidden');
@@ -1226,7 +1226,7 @@ function showEnding() {
     const targetKey = gameState.targetKey || 'm1';
     let ending = endings[targetKey][endKey];
     if (!ending) ending = endings['m1']['end_normal']; // 預設防呆
-    
+
     // 切換結局背景音樂
     let endingBgm = 'app/static/audio/bgm/sweet_intro.wav';
     if (endKey === 'end_true' || endKey === 'end_good') {
@@ -1241,10 +1241,10 @@ function showEnding() {
     // 切換畫面
     document.getElementById('story-text').classList.add('hidden');
     document.getElementById('choices').classList.add('hidden');
-    
+
     const endingBox = document.getElementById('ending-box');
     endingBox.classList.remove('hidden');
-    
+
     document.getElementById('ending-title').innerText = ending.title;
     document.getElementById('ending-desc').innerText = ending.desc;
 }
@@ -1255,7 +1255,7 @@ let audioUnlocked = false;
 
 function playStaticBGM(src) {
     if (!src) return;
-    
+
     // 如果已經在播放同一首，不要重新播放
     if (staticBGM && staticBGM.src.endsWith(src)) {
         if (staticBGM.paused && audioUnlocked) {
@@ -1263,15 +1263,15 @@ function playStaticBGM(src) {
         }
         return;
     }
-    
+
     if (staticBGM) {
         staticBGM.pause();
     }
-    
+
     staticBGM = new Audio(src);
     staticBGM.loop = true;
     staticBGM.volume = 0.5;
-    
+
     if (audioUnlocked) {
         staticBGM.play().catch(err => console.log("BGM play error:", err));
     }
@@ -1289,7 +1289,7 @@ function playStaticSFX(src) {
 function unlockStaticAudio() {
     if (audioUnlocked) return;
     audioUnlocked = true;
-    
+
     if (staticBGM && staticBGM.paused) {
         staticBGM.play().catch(err => console.log("BGM play error:", err));
     }
@@ -1306,10 +1306,10 @@ function setupStaticAudio() {
     };
     document.addEventListener('click', handleInteraction);
     document.addEventListener('keydown', handleInteraction);
-    
+
     // 全域懸停與點擊音效事件代理
     const clickableSelectors = 'button, a, .choice-btn, .back-btn, .icon-btn, .modal-btn, [role="button"]';
-    
+
     document.addEventListener('mouseover', (e) => {
         const target = e.target.closest(clickableSelectors);
         if (target) {
@@ -1317,7 +1317,7 @@ function setupStaticAudio() {
             playStaticSFX('app/static/audio/sfx/bubble_hover.wav');
         }
     });
-    
+
     document.addEventListener('click', (e) => {
         const target = e.target.closest(clickableSelectors);
         if (target) {
@@ -1356,15 +1356,15 @@ function initGame() {
     // 隱藏結局畫面與遊戲畫面，還原選擇畫面
     const endingBox = document.getElementById('ending-box');
     if (endingBox) endingBox.classList.add('hidden');
-    
+
     const storyText = document.getElementById('story-text');
     if (storyText) storyText.classList.remove('hidden');
-    
+
     const choices = document.getElementById('choices');
     if (choices) choices.classList.remove('hidden');
 
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    
+
     const targetGenderSelection = document.getElementById('target-gender-selection');
     if (targetGenderSelection) targetGenderSelection.classList.add('active');
 
