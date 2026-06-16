@@ -114,7 +114,7 @@
 {% if story.node_id == 'start' %}
 <div class="d-flex align-items-center justify-content-center h-100 w-100" style="min-height: 80vh;">
     <div class="glass-panel text-center px-5 py-5" style="border-radius: 24px; max-width: 650px; background: rgba(20,15,30,0.4); border: 1px solid rgba(255,255,255,0.15);">
-        <h1 class="title mb-3" style="font-size: 2.8rem; font-weight: 700; background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 50%, #fecfef 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px;">選擇攻略對象</h1>
+        <h1 class="title mb-3" style="font-size: 2.8rem; font-weight: 700; background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 50%, #fecfef 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px;">選擇攻略對象性別</h1>
         <p class="subtitle mb-5 text-light opacity-75" style="font-size: 1.15rem; letter-spacing: 1px;">命運的紅線，將牽引你走向何方？</p>
         <div class="options-container d-flex gap-4 justify-content-center">
             <form action="{{ url_for('story.make_choice', node_id='start', choice_id=0) }}" method="POST" style="margin: 0;">
@@ -132,7 +132,7 @@
             <form action="{{ url_for('story.make_choice', node_id='start', choice_id=2) }}" method="POST" style="margin: 0;">
                 <button type="submit" class="choice-btn">
                     <span class="icon">❓</span>
-                    <span class="text">男女戀 (HL)</span>
+                    <span class="text">隨機</span>
                 </button>
             </form>
         </div>
@@ -184,25 +184,25 @@
 {% elif story.node_id == 'node_hl_gender' %}
 <div class="d-flex align-items-center justify-content-center h-100 w-100" style="min-height: 80vh;">
     <div class="glass-panel text-center px-5 py-5" style="border-radius: 24px; max-width: 650px; background: rgba(20,15,30,0.4); border: 1px solid rgba(255,255,255,0.15);">
-        <h1 class="title mb-3" style="font-size: 2.8rem; font-weight: 700; background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 50%, #fecfef 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px;">選擇你的化身</h1>
+        <h1 class="title mb-3" style="font-size: 2.8rem; font-weight: 700; background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 50%, #fecfef 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px;">選擇你的性別</h1>
         <p class="subtitle mb-5 text-light opacity-75" style="font-size: 1.15rem; letter-spacing: 1px;">在這段故事中，你將以什麼身分展開？</p>
         <div class="options-container d-flex gap-4 justify-content-center">
             <form action="{{ url_for('story.make_choice', node_id='node_hl_gender', choice_id=0) }}" method="POST" style="margin: 0;">
                 <button type="submit" class="choice-btn">
                     <span class="icon">👦</span>
-                    <span class="text">扮演男生</span>
+                    <span class="text">男性</span>
                 </button>
             </form>
             <form action="{{ url_for('story.make_choice', node_id='node_hl_gender', choice_id=1) }}" method="POST" style="margin: 0;">
                 <button type="submit" class="choice-btn">
                     <span class="icon">👧</span>
-                    <span class="text">扮演女生</span>
+                    <span class="text">女性</span>
                 </button>
             </form>
             <form action="{{ url_for('story.make_choice', node_id='node_hl_gender', choice_id=2) }}" method="POST" style="margin: 0;">
                 <button type="submit" class="choice-btn">
                     <span class="icon">❓</span>
-                    <span class="text">隨機決定</span>
+                    <span class="text">隨機</span>
                 </button>
             </form>
         </div>

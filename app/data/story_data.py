@@ -5,7 +5,9 @@ INITIAL_STATE = {
     'mystery_route': False, 'ice_route': False, 'normal_route': False,
     'discovered_secret': False, 'followed_target': False,
     'recovered_memory': False, 'abandoned_partner': False,
-    'targetKey': None
+    'targetKey': None,
+    'target_gender': None,
+    'player_gender': None
 }
 
 CHARACTERS = {
@@ -20,19 +22,19 @@ CHARACTERS = {
 def build_story_nodes():
     nodes = {
         'start': {
-            'text': "歡迎來到《舊校舍的約定》。\n請選擇你想要體驗的戀愛故事類型：",
+            'text': "歡迎來到《舊校舍的約定》。\n請選擇你想攻略的對象性別：",
             'choices': [
-                {'text': "男男戀 (BL)", 'next': "select_target_m"},
-                {'text': "女女戀 (GL)", 'next': "select_target_f"},
-                {'text': "男女戀 (HL)", 'next': "node_hl_gender"}
+                {'text': "男性", 'next': "node_hl_gender"},
+                {'text': "女性", 'next': "node_hl_gender"},
+                {'text': "隨機", 'next': "node_hl_gender"}
             ]
         },
         'node_hl_gender': {
-            'text': "請選擇你想扮演的性別：",
+            'text': "請選擇你的性別：",
             'choices': [
-                {'text': "扮演男生 (對象為女性)", 'next': "select_target_f"},
-                {'text': "扮演女生 (對象為男性)", 'next': "select_target_m"},
-                {'text': "交給命運決定 (隨機)", 'next': "random_gender"}
+                {'text': "男性", 'next': "select_target_m"},
+                {'text': "女性", 'next': "select_target_m"},
+                {'text': "隨機", 'next': "select_target_m"}
             ]
         },
         'select_target_m': {
