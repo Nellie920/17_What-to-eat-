@@ -13,7 +13,7 @@
 </head>
 <body>
     
-    {% if session.get('user_id') and not (request.blueprint == 'story' and request.endpoint == 'story.play_story') %}
+    {% if session.get('user_id') and not (request.blueprint == 'story' and (request.endpoint == 'story.play_story' or request.endpoint == 'story.show_ending')) %}
     <!-- Sidebar for logged in users -->
     <nav class="sidebar glass-panel">
         <h3 class="section-title">Whispers of Fate</h3>

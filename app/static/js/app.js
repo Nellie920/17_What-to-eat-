@@ -282,6 +282,16 @@ function loadScriptNode(nodeId) {
     });
 
   function renderNode(node) {
+    // 結局處理：隱藏 HUD 導航列，避免玩家點擊存讀檔、成就或帳號選單導致結局畫面消失
+    const hudHeader = document.querySelector('.hud-header');
+    if (hudHeader) {
+      if (node.node_id === 'eval_ending' || node.node_id === 'scene_happy_end' || node.node_id === 'scene_sad_end') {
+        hudHeader.style.display = 'none';
+      } else {
+        hudHeader.style.display = 'flex';
+      }
+    }
+
     // 1. 視覺背景 Cross-fade
     InteractionEffects.applyCrossFade(sceneBg, node.background_image);
 

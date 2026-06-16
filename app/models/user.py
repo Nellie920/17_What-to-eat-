@@ -6,9 +6,11 @@ def get_db_connection():
     建立並回傳與 instance/database.db 的 SQLite 資料庫連線。
     設定 row_factory 讓回傳結果可用欄位名稱取值。
     """
-    db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'instance', 'database.db')
+    # 確保為絕對路徑，避免因執行時工作目錄不同而找不到檔案
+    base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    db_path = os.path.join(base_dir, 'instance', 'database.db')
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30.0)
     conn.row_factory = sqlite3.Row
     return conn
 

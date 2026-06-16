@@ -1,9 +1,17 @@
-// 角色資料（補救用）
+// Character Data (for Selection Screen)
 const charactersData = window.charactersData || {
-    male: [],
-    female: [],
-    other: []
+    male: [
+        { id: 'A1', name: '洛頁彥', icon: '👦' },
+        { id: 'A2', name: '齊勻楠', icon: '🧑' },
+        { id: 'A3', name: '秦陌寂', icon: '👨' }
+    ],
+    female: [
+        { id: 'B1', name: '田媛寧', icon: '👧' },
+        { id: 'B2', name: '張栖鈴', icon: '👩' },
+        { id: 'B3', name: '顧音棉', icon: '👱‍♀️' }
+    ]
 };
+
 // Game State
 let gameState = {
     currentStep: 'targetGender',
@@ -29,20 +37,6 @@ let gameState = {
         mystery_route: false, ice_route: false, normal_route: false,
         followed_target: false, recovered_memory: false, abandoned_partner: false
     }
-};
-
-// Character Data (for Selection Screen)
-const charactersData = {
-    male: [
-        { id: 'A1', name: '洛頁彥', icon: '👦' },
-        { id: 'A2', name: '齊勻楠', icon: '🧑' },
-        { id: 'A3', name: '秦陌寂', icon: '👨' }
-    ],
-    female: [
-        { id: 'B1', name: '田媛寧', icon: '👧' },
-        { id: 'B2', name: '張栖鈴', icon: '👩' },
-        { id: 'B3', name: '顧音棉', icon: '👱‍♀️' }
-    ]
 };
 
 // Character Meta Info (for Story Playing)
@@ -1120,6 +1114,12 @@ function makeChoice(choice) {
 }
 
 function showEnding() {
+    // 隱藏返回按鈕與側邊欄，防止結局畫面消失或被導向走
+    const backBtn = document.getElementById('back-btn');
+    if (backBtn) backBtn.style.display = 'none';
+    const gameSidebar = document.getElementById('game-sidebar');
+    if (gameSidebar) gameSidebar.style.display = 'none';
+
     let endKey = 'end_normal';
     const stats = gameState.stats;
     const flags = gameState.flags;
