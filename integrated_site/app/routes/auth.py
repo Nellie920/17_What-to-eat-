@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, redirect, url_for, session, flash
+from flask import Blueprint, request, render_template, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.user import User
 
@@ -69,3 +69,83 @@ def logout():
     session.pop('user_id', None)
     flash('您已成功登出。', 'info')
     return redirect(url_for('auth.login'))
+
+# ========================================================
+# JSON API 路由 (供沉浸式 SPA 模式使用)
+# ========================================================
+
+@auth_bp.route('/api/auth/login', methods=['POST'])
+def api_login():
+    data = request.get_json() or {}
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({'status': 'error', 'message': '請輸入帳號與密碼。'}), 400
+
+    user = User.get_by_username(username)
+    if not user or not check_password_hash(user['password_hash'], password):
+        return jsonify({'status': 'error', 'message': '帳號或密碼輸入錯誤，請重試。'}), 401
+
+    session['user_id'] = user['id']
+    session.permanent = True
+
+    return jsonify({
+        'status': 'success',
+        'message': '登入成功！',
+        'user': {'id': user['id'], 'username': user['username']}
+    }), 200
+
+@auth_bp.route('/api/auth/register', methods=['POST'])
+def api_register():
+    data = request.get_json() or {}
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({'status': 'error', 'message': '請設定帳號與密碼。'}), 400
+
+    existing_user = User.get_by_username(username)
+    if existing_user:
+        return jsonify({'status': 'error', 'message': '此帳號已被註冊，請更換帳號。'}), 400
+
+    hashed_password = generate_password_hash(password)
+    user_id = User.create(username, hashed_password)
+
+    if not user_id:
+        return jsonify({'status': 'error', 'message': '註冊失敗，請稍後再試。'}), 500
+
+    session['user_id'] = user_id
+    session.permanent = True
+
+    return jsonify({
+        'status': 'success',
+        'message': '註冊成功！',
+        'user': {'id': user_id, 'username': username}
+    }), 200
+
+@auth_bp.route('/api/auth/session', methods=['GET'])
+def api_session():
+    if 'user_id' in session:
+        user = User.get_by_id(session['user_id'])
+        if user:
+            return jsonify({
+                'status': 'success',
+                'logged_in': True,
+                'user': {'id': user['id'], 'username': user['username']}
+            }), 200
+    
+    return jsonify({
+        'status': 'error',
+        'logged_in': False,
+        'message': '用戶目前處於未登入狀態。'
+    }), 401
+
+@auth_bp.route('/api/auth/logout', methods=['POST'])
+def api_logout():
+    session.pop('user_id', None)
+    return jsonify({
+        'status': 'success',
+        'message': '已成功登出系統。'
+    }), 200
+

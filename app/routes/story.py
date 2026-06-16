@@ -187,29 +187,62 @@ def make_choice(node_id, choice_id):
     
     # 偵測選擇流程路線與主角性別
     if node_id == 'start':
-        if choice_id == 0:
+        if choice_id == 0: # BL
             state['relationType'] = 'BL'
             state['playerGender'] = 'male'
-        elif choice_id == 1:
+            state['player_gender'] = 'm'
+            state['target_gender'] = 'm'
+            state['original_target_gender'] = 'm'
+        elif choice_id == 1: # GL
             state['relationType'] = 'GL'
             state['playerGender'] = 'female'
-        elif choice_id == 2:
+            state['player_gender'] = 'f'
+            state['target_gender'] = 'f'
+            state['original_target_gender'] = 'f'
+        elif choice_id == 2: # HL
             state['relationType'] = 'HL'
+            state['original_target_gender'] = 'random'
     elif node_id == 'node_hl_gender':
-        if choice_id == 0:
+        if choice_id == 0: # 扮演男生 (對象為女性)
             state['playerGender'] = 'male'
-        elif choice_id == 1:
+            state['player_gender'] = 'm'
+            state['target_gender'] = 'f'
+            state['original_target_gender'] = 'f'
+        elif choice_id == 1: # 扮演女生 (對象為男性)
             state['playerGender'] = 'female'
+            state['player_gender'] = 'f'
+            state['target_gender'] = 'm'
+            state['original_target_gender'] = 'm'
+        elif choice_id == 2: # 隨機
+            if random.random() > 0.5:
+                state['playerGender'] = 'male'
+                state['player_gender'] = 'm'
+                state['target_gender'] = 'f'
+                state['original_target_gender'] = 'f'
+            else:
+                state['playerGender'] = 'female'
+                state['player_gender'] = 'f'
+                state['target_gender'] = 'm'
+                state['original_target_gender'] = 'm'
             
-    # 角色選擇
-    if 'targetKey' in choice:
-        state['targetKey'] = choice['targetKey']
+    # 角色選擇與隨機角色解析
+    if node_id in ['select_target_m', 'select_target_f']:
+        if choice_id == 3 or choice.get('targetKey') == 'random':
+            if state.get('target_gender') == 'm':
+                state['targetKey'] = random.choice(['m1', 'm2', 'm3'])
+            else:
+                state['targetKey'] = random.choice(['f1', 'f2', 'f3'])
+        else:
+            state['targetKey'] = choice.get('targetKey')
+            
         # 確保 BL/GL 路線有設定對應的主角性別
         if 'playerGender' not in state or not state['playerGender']:
             if node_id == 'select_target_m':
                 state['playerGender'] = 'male'
+                state['player_gender'] = 'm'
             else:
                 state['playerGender'] = 'female'
+                state['player_gender'] = 'f'
         
     # 數值變更
     if 'statChange' in choice:
@@ -283,6 +316,7 @@ def show_ending():
         return redirect(url_for('auth.login'))
         
     user = User.get_by_id(session['user_id'])
+    ending_data = None
     
     # 優先從當前 game_state 取得結局資訊並暫存至 session 與資料庫，以防 game_state 後續被清除或重設時結局畫面消失
     if 'reached_ending' in session and 'game_state' in session:
@@ -339,16 +373,11 @@ def show_ending():
         session.pop('reached_ending', None)
         session.modified = True
     
-    # 自動判定結局成就解鎖 (Happy End / Sad End / 達成初次結局)
-    try:
-        Achievement.create(user['id'], '6') # 達成初次結局
-    except: pass
-
-    if end_key == 'end_true' or end_key == 'end_good':
-        try:
-            Achievement.create(user['id'], '2') # 戀愛大師
-        except: pass
-    elif end_key == 'end_bad':
+    # 讀取結局資料優先序：
+    # 1. 剛剛計算出的 ending_data
+    # 2. 資料庫中的 user['last_ending']
+    # 3. session 中的 last_ending
+    if not ending_data and user and user.get('last_ending'):
         try:
             ending_data = json.loads(user['last_ending'])
         except Exception as e:
@@ -358,7 +387,10 @@ def show_ending():
         ending_data = session['last_ending']
         
     if not ending_data:
-        # 若無當前遊戲進度也無上次結局快取，導回首頁
-        return redirect(url_for('story.home'))
+        # 若無當前遊戲進度也無上次結局快取，提供預設防呆結局，避免畫面閃退
+        ending_data = {
+            'title': '命運交織的平行時空',
+            'desc': '這是一個被命運暫時封存的結局。當你再次啟動旅程，或許能找到不一樣的解答...'
+        }
         
     return render_template('story/ending.html', user=user, ending=ending_data)
