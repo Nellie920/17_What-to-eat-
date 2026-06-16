@@ -524,6 +524,11 @@ function initGame() {
         flags: { mystery_route: false, ice_route: false, normal_route: false, followed_target: false, recovered_memory: false, abandoned_partner: false }
     };
     
+    // 播放/還原背景音樂
+    if (typeof playStaticBGM === 'function') {
+        playStaticBGM('app/static/audio/bgm/sweet_intro.wav');
+    }
+    
     // 隱藏結局畫面，顯示故事畫面
     document.getElementById('ending-box').classList.add('hidden');
     document.getElementById('story-text').classList.remove('hidden');
@@ -615,6 +620,17 @@ function showEnding() {
     let ending = endings[targetKey][endKey];
     if (!ending) ending = endings['m1']['end_normal']; // 預設防呆
     
+    // 切換結局背景音樂
+    let endingBgm = 'app/static/audio/bgm/sweet_intro.wav';
+    if (endKey === 'end_true' || endKey === 'end_good') {
+        endingBgm = 'app/static/audio/bgm/romantic_piano.wav';
+    } else if (endKey === 'end_bad') {
+        endingBgm = 'app/static/audio/bgm/tension_loop.wav';
+    }
+    if (typeof playStaticBGM === 'function') {
+        playStaticBGM(endingBgm);
+    }
+
     // 切換畫面
     document.getElementById('story-text').classList.add('hidden');
     document.getElementById('choices').classList.add('hidden');
@@ -626,8 +642,86 @@ function showEnding() {
     document.getElementById('ending-desc').innerText = ending.desc;
 }
 
+// --- 靜態離線版音訊系統 ---
+let staticBGM = null;
+let audioUnlocked = false;
+
+function playStaticBGM(src) {
+    if (!src) return;
+    
+    // 如果已經在播放同一首，不要重新播放
+    if (staticBGM && staticBGM.src.endsWith(src)) {
+        if (staticBGM.paused && audioUnlocked) {
+            staticBGM.play().catch(err => console.log("BGM play error:", err));
+        }
+        return;
+    }
+    
+    if (staticBGM) {
+        staticBGM.pause();
+    }
+    
+    staticBGM = new Audio(src);
+    staticBGM.loop = true;
+    staticBGM.volume = 0.5;
+    
+    if (audioUnlocked) {
+        staticBGM.play().catch(err => console.log("BGM play error:", err));
+    }
+}
+
+function playStaticSFX(src) {
+    if (!src) return;
+    const sfx = new Audio(src);
+    sfx.volume = 0.8;
+    if (audioUnlocked) {
+        sfx.play().catch(err => console.log("SFX play error:", err));
+    }
+}
+
+function unlockStaticAudio() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    
+    if (staticBGM && staticBGM.paused) {
+        staticBGM.play().catch(err => console.log("BGM play error:", err));
+    }
+}
+
+function setupStaticAudio() {
+    const handleInteraction = () => {
+        unlockStaticAudio();
+        if (!staticBGM) {
+            playStaticBGM('app/static/audio/bgm/sweet_intro.wav');
+        }
+        document.removeEventListener('click', handleInteraction);
+        document.removeEventListener('keydown', handleInteraction);
+    };
+    document.addEventListener('click', handleInteraction);
+    document.addEventListener('keydown', handleInteraction);
+    
+    // 全域懸停與點擊音效事件代理
+    const clickableSelectors = 'button, a, .choice-btn, .back-btn, .icon-btn, .modal-btn, [role="button"]';
+    
+    document.addEventListener('mouseover', (e) => {
+        const target = e.target.closest(clickableSelectors);
+        if (target) {
+            if (e.relatedTarget && target.contains(e.relatedTarget)) return;
+            playStaticSFX('app/static/audio/sfx/bubble_hover.wav');
+        }
+    });
+    
+    document.addEventListener('click', (e) => {
+        const target = e.target.closest(clickableSelectors);
+        if (target) {
+            playStaticSFX('app/static/audio/sfx/select_confirm.wav');
+        }
+    });
+}
+
 // 綁定事件並啟動遊戲
 window.onload = () => {
+    setupStaticAudio();
     document.getElementById('restart-btn').onclick = initGame;
     initGame();
 };
