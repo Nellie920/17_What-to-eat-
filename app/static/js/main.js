@@ -45,4 +45,37 @@ function setupGlobalAudioInteractions() {
       audio.playSFX('/static/audio/sfx/select_confirm.wav');
     }
   });
+
+  // 3. HUD 音量與靜音按鈕綁定
+  const btnMute = document.getElementById('btn-mute');
+  const sliderBGM = document.getElementById('slider-bgm');
+  const sliderSFX = document.getElementById('slider-sfx');
+
+  if (btnMute) {
+    const updateIcon = (muted) => {
+      const icon = btnMute.querySelector('i');
+      if (icon) {
+        icon.className = muted ? 'fa-solid fa-volume-xmark text-danger' : 'fa-solid fa-volume-high';
+      }
+    };
+    btnMute.addEventListener('click', () => {
+      const muted = audio.toggleMute();
+      updateIcon(muted);
+    });
+    updateIcon(audio.isMuted);
+  }
+
+  if (sliderBGM) {
+    sliderBGM.value = audio.bgmVolume;
+    sliderBGM.addEventListener('input', (e) => {
+      audio.setBGMVolume(parseFloat(e.target.value));
+    });
+  }
+
+  if (sliderSFX) {
+    sliderSFX.value = audio.sfxVolume;
+    sliderSFX.addEventListener('input', (e) => {
+      audio.setSFXVolume(parseFloat(e.target.value));
+    });
+  }
 }
