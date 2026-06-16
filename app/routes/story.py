@@ -279,43 +279,58 @@ def confirm_start():
 
 @story_bp.route('/story/ending', methods=['GET'])
 def show_ending():
-    if 'user_id' not in session or 'game_state' not in session:
+    if 'user_id' not in session:
         return redirect(url_for('auth.login'))
         
-    state = session['game_state']
     user = User.get_by_id(session['user_id'])
     
-    end_key = 'end_normal'
-    if state.get('abandoned_partner'):
-        end_key = 'end_comedy'
-    elif state.get('fear', 0) >= 3 and state.get('trust', 0) <= 2:
-        end_key = 'end_bad'
-    elif state.get('trust', 0) >= 5 and state.get('affection', 0) >= 5 and state.get('recovered_memory'):
-        end_key = 'end_true'
-    elif state.get('affection', 0) >= 5 or (state.get('affection', 0) >= 4 and state.get('trust', 0) >= 3):
-        end_key = 'end_good'
+    # 優先從當前 game_state 取得結局資訊並暫存至 session，以防 game_state 後續被清除或重設時結局畫面消失
+    if 'game_state' in session:
+        state = session['game_state']
+        end_key = 'end_normal'
+        if state.get('abandoned_partner'):
+            end_key = 'end_comedy'
+        elif state.get('fear', 0) >= 3 and state.get('trust', 0) <= 2:
+            end_key = 'end_bad'
+        elif state.get('trust', 0) >= 5 and state.get('affection', 0) >= 5 and state.get('recovered_memory'):
+            end_key = 'end_true'
+        elif state.get('affection', 0) >= 4 and state.get('trust', 0) >= 3:
+            end_key = 'end_good'
+            
+        target_key = state.get('targetKey')
+        if not target_key:
+            target_key = 'm1'
+            
+        if target_key in ENDINGS:
+            ending = ENDINGS[target_key][end_key]
+        else:
+            ending = ENDINGS['m1'][end_key] # Fallback
+            
+        ending_data = {
+            'title': ending['title'],
+            'desc': ending['desc']
+        }
         
-    target_key = state.get('targetKey', 'm1') # 預設 fallback
-    
-    if target_key in ENDINGS:
-        ending = ENDINGS[target_key][end_key]
+        # 儲存至 session['last_ending']，實現永久存在
+        session['last_ending'] = ending_data
+        
+        # 自動判定結局成就解鎖 (Happy End / Sad End)
+        if end_key == 'end_true' or end_key == 'end_good':
+            try:
+                Achievement.create(user['id'], '2') # 戀愛大師
+            except: pass
+        elif end_key == 'end_bad':
+            try:
+                Achievement.create(user['id'], '3') # 遺憾的美好
+            except: pass
+            
+        # 清除目前遊戲進度（因為已經保存結局到 last_ending，所以重新整理也不會閃退）
+        session.pop('game_state', None)
+        session.modified = True
+    elif 'last_ending' in session:
+        ending_data = session['last_ending']
     else:
-        ending = ENDINGS['m1'][end_key] # Fallback
-    
-    ending_data = {
-        'title': ending['title'],
-        'desc': ending['desc']
-    }
-    
-    # 自動判定結局成就解鎖 (Happy End / Sad End)
-    if end_key == 'end_true' or end_key == 'end_good':
-        try:
-            Achievement.create(user['id'], '2') # 戀愛大師
-        except: pass
-    elif end_key == 'end_bad':
-        try:
-            Achievement.create(user['id'], '3') # 遺憾的美好
-        except: pass
-    # 這裡不清除遊戲進度，以防用戶重新整理頁面或瀏覽器預載/重發請求時因 session 中無 game_state 而被自動重導向到登入頁面
-    # session.pop('game_state', None)
+        # 若無當前遊戲進度也無上次結局快取，導回首頁
+        return redirect(url_for('story.home'))
+        
     return render_template('story/ending.html', user=user, ending=ending_data)
