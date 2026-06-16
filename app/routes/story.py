@@ -287,6 +287,7 @@ def show_ending():
         return redirect(url_for('auth.login'))
         
     user = User.get_by_id(session['user_id'])
+    ending_data = None
     
     # 優先從當前 game_state 取得結局資訊並暫存至 session 與資料庫，以防 game_state 後續被清除或重設時結局畫面消失
     if 'reached_ending' in session and 'game_state' in session:
@@ -343,16 +344,11 @@ def show_ending():
         session.pop('reached_ending', None)
         session.modified = True
     
-    # 自動判定結局成就解鎖 (Happy End / Sad End / 達成初次結局)
-    try:
-        Achievement.create(user['id'], '6') # 達成初次結局
-    except: pass
-
-    if end_key == 'end_true' or end_key == 'end_good':
-        try:
-            Achievement.create(user['id'], '2') # 戀愛大師
-        except: pass
-    elif end_key == 'end_bad':
+    # 讀取結局資料優先序：
+    # 1. 剛剛計算出的 ending_data
+    # 2. 資料庫中的 user['last_ending']
+    # 3. session 中的 last_ending
+    if not ending_data and user and user.get('last_ending'):
         try:
             ending_data = json.loads(user['last_ending'])
         except Exception as e:
