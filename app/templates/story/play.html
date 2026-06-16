@@ -249,13 +249,6 @@
                     </button>
                     {% endif %}
                     <div class="character-card static" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; width: 180px; display: flex; flex-direction: column; align-items: center; padding: 15px; position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);">
-                        <div class="char-image-area" style="width: 100%; aspect-ratio: 3/4; border-radius: 12px; overflow: hidden; margin-bottom: 1rem; position: relative;">
-                            {% if state.targetKey in ['m1','m2','m3','f1','f2','f3'] %}
-                            <img src="/static/images/characters/char_{{ state.targetKey }}.png" alt="攻略對象" style="width: 100%; height: 100%; object-fit: cover; object-position: top;">
-                            {% else %}
-                            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 4rem; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));">❓</div>
-                            {% endif %}
-                        </div>
                         <div class="char-name-banner" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 0.6rem 0; text-align: center; font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; color: #fff; border-radius: 0 0 16px 16px;">
                             {% if state.targetKey == 'm1' %}洛頁彥
                             {% elif state.targetKey == 'm2' %}齊勻楠
@@ -377,13 +370,7 @@
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
                 {% endif %}
-                <div class="char-image-area" style="width: 100%; aspect-ratio: 3/4; border-radius: 12px; overflow: hidden; margin-bottom: 1rem; position: relative;">
-                    {% if state.targetKey in ['m1','m2','m3','f1','f2','f3'] %}
-                    <img src="/static/images/characters/char_{{ state.targetKey }}.png" alt="攻略對象" style="width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.5s ease;">
-                    {% else %}
-                    <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 5rem; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));">👤</div>
-                    {% endif %}
-                </div>
+                
                 <div class="char-name-banner" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 0.6rem 0; text-align: center; font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; color: #fff;">
                     {% if state.targetKey == 'm1' %}洛頁彥
                     {% elif state.targetKey == 'm2' %}齊勻楠
