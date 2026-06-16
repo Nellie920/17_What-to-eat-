@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     display_name TEXT,
     theme TEXT DEFAULT 'light',
+    last_ending TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
