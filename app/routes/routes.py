@@ -114,34 +114,145 @@ def get_story_node(node_id):
     """
     獲取單一劇本節點，此處整合多媒體播放欄位 (bgm、sfx、視覺特效)
     在實際專案中，劇本通常以 JSON 檔案儲存於靜態目錄 (app/data/)，
-    此處示範路由骨架，可擴展為從資料庫或 JSON 檔案載入。
+    此處示範路由骨架，已擴展為從 STORY_NODES 載入。
     """
-    # 假資料範例，實際實作時可由林永涵撰寫 JSON 讀取邏輯
-    mock_nodes = {
-        "start": {
-            "node_id": "start",
-            "background_image": "/static/images/bg/lobby.jpg",
-            "speaker": "系統旁白",
-            "dialogue": "歡迎來到互動戀愛故事！等一下，要吃什麼呢？點擊前方開啟偶遇吧……",
-            "bgm": "/static/audio/bgm/sweet_intro.mp3",
-            "effects": [],
+    from app.data.story_data import STORY_NODES, CHARACTERS, ENDINGS
+
+    # 1. 邏輯匯流點處理
+    if node_id == 'eval_chapter3':
+        state = session.get('game_state', {})
+        target_key = state.get('targetKey', 'm1')
+        if state.get('curiosity', 0) >= 2 or state.get('followed_target', False):
+            node_id = f'memory_{target_key}'
+        else:
+            node_id = f'memory_alt_{target_key}'
+
+    if node_id == 'eval_ending':
+        state = session.get('game_state', {})
+        end_key = 'end_normal'
+        if state.get('abandoned_partner'):
+            end_key = 'end_comedy'
+        elif state.get('fear', 0) >= 3 and state.get('trust', 0) <= 2:
+            end_key = 'end_bad'
+        elif state.get('trust', 0) >= 5 and state.get('affection', 0) >= 5 and state.get('recovered_memory'):
+            end_key = 'end_true'
+        elif state.get('affection', 0) >= 5 or (state.get('affection', 0) >= 4 and state.get('trust', 0) >= 3):
+            end_key = 'end_good'
+            
+        target_key = state.get('targetKey', 'm1')
+        ending = ENDINGS.get(target_key, ENDINGS['m1']).get(end_key, ENDINGS['m1']['end_normal'])
+        
+        response_node = {
+            "node_id": "eval_ending",
+            "background_image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200",
+            "speaker": "故事結局",
+            "dialogue": f"🎉 達成結局：{ending['title']}\n{ending['desc']}",
+            "bgm": "/static/audio/bgm/sweet_intro.wav",
+            "effects": [{ "type": "flash", "color": "rgba(241,196,15,0.3)", "delay": 200 }],
             "choices": [
-                {"text": "前往櫻花公園", "next_node": "scene_cherry_01"}
+                {
+                    "text": "🌸 重新開始心動旅程",
+                    "next_node": "start",
+                    "sfx_on_hover": "/static/audio/sfx/bubble_hover.wav",
+                    "sfx_on_click": "/static/audio/sfx/select_confirm.wav"
+                }
             ]
         }
-    }
-    
-    node = mock_nodes.get(node_id)
+        return jsonify({
+            'status': 'success',
+            'node': response_node
+        }), 200
+
+    node = STORY_NODES.get(node_id)
     if not node:
-        # 當找不到指定節點時回傳預設結構或錯誤
         return jsonify({
             'status': 'error',
             'message': f'找不到指定的劇本節點：{node_id}'
         }), 404
 
+    # 2. 獲取角色與多媒體等配置
+    bg_image = "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1200"
+    bgm = "/static/audio/bgm/sweet_intro.wav"
+    speaker = "系統旁白"
+    effects = []
+    
+    target_key_detected = None
+    for key in CHARACTERS.keys():
+        if f"_{key}" in node_id or key in node_id:
+            target_key_detected = key
+            break
+            
+    if target_key_detected:
+        speaker = CHARACTERS[target_key_detected]['name']
+        bg_configs = {
+            'm1': {
+                'bg': 'https://images.unsplash.com/photo-1564982752979-3f7bc974d29a?q=80&w=1200',
+                'bgm': '/static/audio/bgm/romantic_piano.wav'
+            },
+            'm2': {
+                'bg': 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200',
+                'bgm': '/static/audio/bgm/tension_loop.wav'
+            },
+            'm3': {
+                'bg': 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1200',
+                'bgm': '/static/audio/bgm/romantic_piano.wav'
+            },
+            'f1': {
+                'bg': 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=1200',
+                'bgm': '/static/audio/bgm/romantic_piano.wav'
+            },
+            'f2': {
+                'bg': 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=1200',
+                'bgm': '/static/audio/bgm/tension_loop.wav'
+            },
+            'f3': {
+                'bg': 'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=1200',
+                'bgm': '/static/audio/bgm/sweet_intro.wav'
+            }
+        }
+        if target_key_detected in bg_configs:
+            bg_image = bg_configs[target_key_detected]['bg']
+            bgm = bg_configs[target_key_detected]['bgm']
+
+    if node_id == 'start':
+        speaker = "系統旁白"
+        bg_image = "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1200"
+        bgm = "/static/audio/bgm/sweet_intro.wav"
+    elif node_id in ['select_target_m', 'select_target_f', 'node_hl_gender', 'confirm_selection']:
+        speaker = "命運指引者"
+        bg_image = "https://images.unsplash.com/photo-1453614512568-c4024d13c247?q=80&w=1200"
+        bgm = "/static/audio/bgm/sweet_intro.wav"
+
+    if 'memory' in node_id:
+        bg_image = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200"
+        effects.append({ "type": "flash", "color": "rgba(255, 182, 193, 0.4)", "delay": 200 })
+        effects.append({ "type": "sfx", "src": "/static/audio/sfx/select_confirm.wav", "delay": 300 })
+    elif 'aftermath' in node_id:
+        effects.append({ "type": "shake", "target": "body", "delay": 100 })
+
+    # 3. 格式化 choices
+    formatted_choices = []
+    for choice in node.get('choices', []):
+        formatted_choices.append({
+            'text': choice.get('text'),
+            'next_node': choice.get('next'),
+            'sfx_on_hover': "/static/audio/sfx/bubble_hover.wav",
+            'sfx_on_click': "/static/audio/sfx/select_confirm.wav"
+        })
+
+    response_node = {
+        "node_id": node_id,
+        "background_image": bg_image,
+        "speaker": speaker,
+        "dialogue": node.get('text'),
+        "bgm": bgm,
+        "effects": effects,
+        "choices": formatted_choices
+    }
+
     return jsonify({
         'status': 'success',
-        'node': node
+        'node': response_node
     }), 200
 
 

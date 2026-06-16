@@ -252,7 +252,8 @@ def make_choice(node_id, choice_id):
                 state['targetKey'] = random.choice(['f1', 'f2', 'f3'])
 
     # 節點跳轉控制
-    next_node = choice.get('next')
+    if next_node != 'confirm_selection':
+        next_node = choice.get('next')
     if node_id == 'start':
         next_node = 'select_target_m' if state.get('target_gender') == 'm' else 'select_target_f'
     elif node_id == 'node_hl_gender':

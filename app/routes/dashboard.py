@@ -24,7 +24,8 @@ def index():
 
     try:
         # 1. 檢測資料庫實體屬性
-        db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'instance', 'database.db')
+        base_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        db_path = os.path.join(base_dir, 'instance', 'database.db')
         if os.path.exists(db_path):
             stats['db_exists'] = True
             stats['db_size_kb'] = round(os.path.getsize(db_path) / 1024, 2)
