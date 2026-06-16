@@ -337,11 +337,16 @@ def show_ending():
         session.pop('reached_ending', None)
         session.modified = True
     
-    # 讀取結局資料優先序：
-    # 1. 資料庫中的 user['last_ending']
-    # 2. session 中的 last_ending
-    ending_data = None
-    if user and user.get('last_ending'):
+    # 自動判定結局成就解鎖 (Happy End / Sad End / 達成初次結局)
+    try:
+        Achievement.create(user['id'], '6') # 達成初次結局
+    except: pass
+
+    if end_key == 'end_true' or end_key == 'end_good':
+        try:
+            Achievement.create(user['id'], '2') # 戀愛大師
+        except: pass
+    elif end_key == 'end_bad':
         try:
             ending_data = json.loads(user['last_ending'])
         except Exception as e:
