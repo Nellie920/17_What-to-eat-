@@ -358,7 +358,10 @@ def show_ending():
         ending_data = session['last_ending']
         
     if not ending_data:
-        # 若無當前遊戲進度也無上次結局快取，導回首頁
-        return redirect(url_for('story.home'))
+        # 若無當前遊戲進度也無上次結局快取，提供預設防呆結局，避免畫面閃退
+        ending_data = {
+            'title': '命運交織的平行時空',
+            'desc': '這是一個被命運暫時封存的結局。當你再次啟動旅程，或許能找到不一樣的解答...'
+        }
         
     return render_template('story/ending.html', user=user, ending=ending_data)
