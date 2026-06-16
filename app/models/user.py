@@ -134,3 +134,25 @@ class User:
         except Exception as e:
             print(f"User.delete Error: {e}")
             return False
+
+    @staticmethod
+    def update_last_ending(user_id, last_ending):
+        """
+        更新使用者的最後結局資料。
+        參數:
+            user_id (int): 使用者 ID
+            last_ending (str): JSON 字串形式的結局資料
+        回傳:
+            bool: 成功回傳 True，否則 False
+        """
+        try:
+            with get_db_connection() as conn:
+                conn.execute(
+                    "UPDATE users SET last_ending = ? WHERE id = ?",
+                    (last_ending, user_id)
+                )
+                conn.commit()
+                return True
+        except Exception as e:
+            print(f"User.update_last_ending Error: {e}")
+            return False

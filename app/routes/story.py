@@ -48,6 +48,7 @@ def play_story(node_id):
             return redirect(url_for('story.play_story', node_id=f'memory_alt_{target_key}'))
             
     if node_id == 'eval_ending':
+        session['reached_ending'] = True
         return redirect(url_for('story.show_ending'))
         
     if node_id not in STORY_NODES:
@@ -284,8 +285,8 @@ def show_ending():
         
     user = User.get_by_id(session['user_id'])
     
-    # 優先從當前 game_state 取得結局資訊並暫存至 session，以防 game_state 後續被清除或重設時結局畫面消失
-    if 'game_state' in session:
+    # 優先從當前 game_state 取得結局資訊並暫存至 session 與資料庫，以防 game_state 後續被清除或重設時結局畫面消失
+    if 'reached_ending' in session and 'game_state' in session:
         state = session['game_state']
         end_key = 'end_normal'
         if state.get('abandoned_partner'):
@@ -311,8 +312,15 @@ def show_ending():
             'desc': ending['desc']
         }
         
-        # 儲存至 session['last_ending']，實現永久存在
+        # 儲存至 session['last_ending']，實現暫存
         session['last_ending'] = ending_data
+        
+        # 同步儲存至資料庫，實現永久存在
+        if user:
+            try:
+                User.update_last_ending(user['id'], json.dumps(ending_data))
+            except Exception as e:
+                print(f"Failed to save ending to DB: {e}")
         
         # 自動判定結局成就解鎖 (Happy End / Sad End)
         if end_key == 'end_true' or end_key == 'end_good':
@@ -324,12 +332,25 @@ def show_ending():
                 Achievement.create(user['id'], '3') # 遺憾的美好
             except: pass
             
-        # 清除目前遊戲進度（因為已經保存結局到 last_ending，所以重新整理也不會閃退）
+        # 清除目前遊戲進度與結局觸發狀態
         session.pop('game_state', None)
+        session.pop('reached_ending', None)
         session.modified = True
-    elif 'last_ending' in session:
+    
+    # 讀取結局資料優先序：
+    # 1. 資料庫中的 user['last_ending']
+    # 2. session 中的 last_ending
+    ending_data = None
+    if user and user.get('last_ending'):
+        try:
+            ending_data = json.loads(user['last_ending'])
+        except Exception as e:
+            print(f"Failed to parse last_ending from DB: {e}")
+            
+    if not ending_data and 'last_ending' in session:
         ending_data = session['last_ending']
-    else:
+        
+    if not ending_data:
         # 若無當前遊戲進度也無上次結局快取，導回首頁
         return redirect(url_for('story.home'))
         
