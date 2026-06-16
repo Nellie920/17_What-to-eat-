@@ -381,7 +381,7 @@ function buildStoryNodes() {
 
             nodes[`rumor_${char_id}_${route}`] = {
                 'text': data[`rumor_${route}`],
-                'choices': data[`rumor_${route}_choices'].map((c, idx) => {
+                'choices': data[`rumor_${route}_choices`].map((c, idx) => {
                     const nextRoute = idx === 0 ? 'a' : (idx === 1 ? 'b' : 'c');
                     return { 'text': c[0], 'statChange': c[1], 'next': `festival_${char_id}_${nextRoute}` };
                 })

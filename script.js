@@ -382,7 +382,7 @@ function buildStoryNodes() {
 
             nodes[`festival_${char_id}_${route}`] = {
                 'text': data[`festival_${route}`],
-                'choices': data[`festival_${route}_choices'].map(c => {
+                'choices': data[`festival_${route}_choices`].map(c => {
                     return { 'text': c[0], 'statChange': c[1], 'next': `${c[2]}_${char_id}` };
                 })
             };
@@ -406,7 +406,7 @@ function buildStoryNodes() {
         ['a', 'b', 'c'].forEach(route => {
             nodes[`aftermath_${char_id}_${route}`] = {
                 'text': data[`aftermath_${route}`],
-                'choices': data[`aftermath_${route}_choices'].map(c => ({ 'text': c[0], 'statChange': c[1], 'next': "eval_chapter3" }))
+                'choices': data[`aftermath_${route}_choices`].map(c => ({ 'text': c[0], 'statChange': c[1], 'next': "eval_chapter3" }))
             };
         });
 
