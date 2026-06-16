@@ -127,9 +127,25 @@ class AudioManager {
     if (!src) return null;
     if (!this.audioUnlocked) this.unlockAudio();
 
-    const sfx = new Audio(src);
+    // 從物件池中尋找已載入且閒置的音訊物件，避免每次播放都建立 new Audio 導致延遲
+    if (!this.sfxPools) {
+      this.sfxPools = new Map();
+    }
+    if (!this.sfxPools.has(src)) {
+      this.sfxPools.set(src, []);
+    }
+    const pool = this.sfxPools.get(src);
+    let sfx = pool.find(audio => audio.paused || audio.ended);
+    if (!sfx) {
+      sfx = new Audio(src);
+      sfx.preload = 'auto';
+      sfx.load();
+      pool.push(sfx);
+    }
+
     sfx.loop = loop;
     sfx.volume = this.isMuted ? 0 : this.sfxVolume;
+    sfx.currentTime = 0; // 重設播放起點
 
     // 觸發音訊避讓 (Ducking)：非循環、響亮的情境音效才避讓
     if (!loop && !this.isMuted && this.currentBGM) {

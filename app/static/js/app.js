@@ -708,6 +708,11 @@ function unlockAchievementApi(achievementId) {
       audio.playSFX('/static/audio/sfx/happy_trumpet.wav');
       alert(`🎉 恭喜達成成就：【${data.achievement.title}】！已獲得 ${data.achievement.points} 積分！`);
     }
+    
+    // 如果解鎖的是戀愛大師(2)或遺憾的美好(3)，自動也解鎖達成初次結局(6)
+    if ((achievementId === 2 || achievementId === 3) && data.status === 'success') {
+      unlockAchievementApi(6);
+    }
   });
 }
 
