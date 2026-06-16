@@ -6,11 +6,16 @@
         <h2 class="mb-4" style="color: #fcd34d; font-size: 2rem;">{{ ending.title }}</h2>
         <p class="fs-5 mb-5" style="white-space: pre-wrap;">{{ ending.desc }}</p>
         
-        <form action="{{ url_for('story.start_story') }}" method="POST">
-            <button type="submit" class="btn btn-gold btn-lg py-3 px-5 fs-4">
-                <i class="fa-solid fa-rotate-right me-2"></i> 重新開始故事
-            </button>
-        </form>
+        <div class="d-flex justify-content-center gap-4 mt-4">
+            <a href="{{ url_for('story.home') }}" class="btn btn-glass btn-lg py-3 px-4 fs-5">
+                <i class="fa-solid fa-house me-2"></i> 回首頁
+            </a>
+            <form action="{{ url_for('story.start_story') }}" method="POST" style="margin: 0;">
+                <button type="submit" class="btn btn-gold btn-lg py-3 px-4 fs-5">
+                    <i class="fa-solid fa-rotate-right me-2"></i> 再玩一次
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 
