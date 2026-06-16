@@ -64,6 +64,14 @@ def play_story(node_id):
     }
     
     for idx, choice in enumerate(node['choices']):
+        # Filter choices: remove random choices if the target gender was selected explicitly (i.e. BL/GL candidate pathways)
+        if node_id in ['select_target_m', 'select_target_f']:
+            if state.get('original_target_gender') in ['m', 'f'] and (choice.get('targetKey') == 'random' or '隨機' in choice.get('text', '')):
+                continue
+        elif node_id == 'node_hl_gender':
+            if state.get('original_target_gender') in ['m', 'f'] and (choice.get('next') == 'random_gender' or '隨機' in choice.get('text', '')):
+                continue
+
         story_data['choices'].append({
             'id': idx,
             'text': parse_text(choice['text'], target_key)
@@ -73,7 +81,7 @@ def play_story(node_id):
     # 沉浸式多媒體主線整合核心 (BGM, 背景, 特效動態分配)
     # ========================================================
     bg_image = "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1200" # 預設大廳
-    bgm = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" # 預設前奏
+    bgm = "/static/audio/bgm/sweet_intro.wav" # 預設前奏 (使用本機 WAV)
     speaker = "系統廣播"
     effects = []
     
@@ -87,31 +95,31 @@ def play_story(node_id):
     if target_key_detected:
         speaker = CHARACTERS[target_key_detected]['name']
         
-        # 根據不同的攻略對象，載入個性化的高級 Unsplash 浪漫背景圖與專屬 BGM 連結
+        # 根據不同的攻略對象，載入個性化的高級 Unsplash 浪漫背景圖與專屬 BGM 本機路徑
         bg_configs = {
             'm1': {
                 'bg': 'https://images.unsplash.com/photo-1564982752979-3f7bc974d29a?q=80&w=1200', # 洛頁彥：夕陽滑板大道
-                'bgm': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' # 熱血輕快
+                'bgm': '/static/audio/bgm/romantic_piano.wav' # 使用本機浪漫鋼琴
             },
             'm2': {
                 'bg': 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200', # 齊勻楠：沉穩理性的湛藍科技室
-                'bgm': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' # 爵士Lofi
+                'bgm': '/static/audio/bgm/tension_loop.wav' # 使用本機懸疑循環
             },
             'm3': {
                 'bg': 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1200', # 秦陌寂：溫馨的木質圖書館
-                'bgm': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3' # 溫柔木吉他
+                'bgm': '/static/audio/bgm/romantic_piano.wav' # 使用本機浪漫鋼琴
             },
             'f1': {
                 'bg': 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=1200', # 田媛寧：百花盛開的秘密花園
-                'bgm': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3' # 恬靜鋼琴
+                'bgm': '/static/audio/bgm/romantic_piano.wav' # 使用本機浪漫鋼琴
             },
             'f2': {
                 'bg': 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=1200', # 張栖鈴：高貴幽雅的夢幻紫羅蘭沙龍
-                'bgm': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3' # 華麗圓舞曲
+                'bgm': '/static/audio/bgm/tension_loop.wav' # 使用本機懸疑循環
             },
             'f3': {
                 'bg': 'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=1200', # 顧音棉：甜美俏皮的櫻粉派對空間
-                'bgm': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3' # 歡樂電子樂
+                'bgm': '/static/audio/bgm/sweet_intro.wav' # 使用本機微甜前奏
             }
         }
         
@@ -123,17 +131,17 @@ def play_story(node_id):
     if node_id == 'start':
         speaker = "系統廣播"
         bg_image = "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1200"
-        bgm = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-    elif node_id in ['select_target_m', 'select_target_f', 'node_hl_gender']:
+        bgm = "/static/audio/bgm/sweet_intro.wav"
+    elif node_id in ['select_target_m', 'select_target_f', 'node_hl_gender', 'confirm_selection']:
         speaker = "命運指引者"
         bg_image = "https://images.unsplash.com/photo-1453614512568-c4024d13c247?q=80&w=1200" # 咖啡館
-        bgm = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+        bgm = "/static/audio/bgm/sweet_intro.wav"
         
     # 特殊情感值觸發的特效與音效 (F-06 Ducking & effects 整合)
     if 'memory' in node_id:
         bg_image = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200" # 溫馨大餐
         effects.append({ "type": "flash", "color": "rgba(255, 182, 193, 0.4)", "delay": 200 })
-        effects.append({ "type": "sfx", "src": "https://actions.google.com/sounds/v1/ui/beep_short.ogg", "delay": 300 })
+        effects.append({ "type": "sfx", "src": "/static/audio/sfx/select_confirm.wav", "delay": 300 })
     elif 'aftermath' in node_id:
         effects.append({ "type": "shake", "target": "body", "delay": 100 })
         
@@ -176,9 +184,37 @@ def make_choice(node_id, choice_id):
         
     choice = node['choices'][choice_id]
     
+    # 偵測選擇流程路線與主角性別
+    if node_id == 'start':
+        if choice_id == 0:
+            state['relationType'] = 'BL'
+            state['playerGender'] = 'male'
+        elif choice_id == 1:
+            state['relationType'] = 'GL'
+            state['playerGender'] = 'female'
+        elif choice_id == 2:
+            state['relationType'] = 'HL'
+    elif node_id == 'node_hl_gender':
+        if choice_id == 0:
+            state['playerGender'] = 'male'
+        elif choice_id == 1:
+            state['playerGender'] = 'female'
+            
     # 角色選擇
     if 'targetKey' in choice:
         state['targetKey'] = choice['targetKey']
+        # 確保 BL/GL 路線有設定對應的主角性別
+        if 'playerGender' not in state or not state['playerGender']:
+            if node_id == 'select_target_m':
+                state['playerGender'] = 'male'
+            else:
+                state['playerGender'] = 'female'
+        
+        # 儲存下一個劇情節點並跳轉到確認畫面
+        state['next_story_node'] = choice.get('next')
+        next_node = 'confirm_selection'
+    else:
+        next_node = choice.get('next')
         
     # 數值變更
     if 'statChange' in choice:
@@ -188,10 +224,39 @@ def make_choice(node_id, choice_id):
             else:
                 state[k] = state.get(k, 0) + v
                 
-    # 隨機性別處理
+    # 儲存三層選擇性別與角色並解析隨機性別與角色
+    if node_id == 'start':
+        gender_map = {0: 'm', 1: 'f', 2: 'random'}
+        t_gender = gender_map.get(choice_id, 'random')
+        state['original_target_gender'] = t_gender
+        if t_gender == 'random':
+            t_gender = 'm' if random.random() > 0.5 else 'f'
+        state['target_gender'] = t_gender
+    elif node_id in ['select_target_m', 'select_target_f']:
+        if choice_id == 3 or choice.get('targetKey') == 'random':
+            state['targetKey'] = 'random'
+        else:
+            state['targetKey'] = choice.get('targetKey')
+    elif node_id == 'node_hl_gender':
+        gender_map = {0: 'm', 1: 'f', 2: 'random'}
+        p_gender = gender_map.get(choice_id, 'random')
+        if p_gender == 'random':
+            p_gender = 'm' if random.random() > 0.5 else 'f'
+        state['player_gender'] = p_gender
+        
+        # 解析隨機角色
+        if state.get('targetKey') == 'random':
+            if state.get('target_gender') == 'm':
+                state['targetKey'] = random.choice(['m1', 'm2', 'm3'])
+            else:
+                state['targetKey'] = random.choice(['f1', 'f2', 'f3'])
+
+    # 節點跳轉控制
     next_node = choice.get('next')
-    if next_node == 'random_gender':
-        next_node = 'select_target_m' if random.random() > 0.5 else 'select_target_f'
+    if node_id == 'start':
+        next_node = 'select_target_m' if state.get('target_gender') == 'm' else 'select_target_f'
+    elif node_id == 'node_hl_gender':
+        next_node = f"intro_{state.get('targetKey')}"
         
     # 更新 session
     session.modified = True
@@ -199,6 +264,18 @@ def make_choice(node_id, choice_id):
     if next_node:
         return redirect(url_for('story.play_story', node_id=next_node))
     return redirect(url_for('story.home'))
+
+@story_bp.route('/story/confirm_start', methods=['POST'])
+def confirm_start():
+    if 'user_id' not in session or 'game_state' not in session:
+        return redirect(url_for('auth.login'))
+        
+    state = session['game_state']
+    next_node = state.get('next_story_node')
+    if not next_node:
+        next_node = 'intro_m1' # Default fallback
+        
+    return redirect(url_for('story.play_story', node_id=next_node))
 
 @story_bp.route('/story/ending', methods=['GET'])
 def show_ending():
@@ -257,5 +334,3 @@ def show_ending():
         return redirect(url_for('story.home'))
         
     return render_template('story/ending.html', user=user, ending=ending_data)
-
-

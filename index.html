@@ -17,10 +17,9 @@
             <span class="icon">⟵</span>
         </button>
         
-        <!-- 攻略對象性別選擇畫面 -->
         <div id="target-gender-selection" class="screen active">
             <div class="glass-panel">
-                <h1 class="title">選擇攻略對象</h1>
+                <h1 class="title">選擇攻略對象性別</h1>
                 <p class="subtitle">命運的紅線，將牽引你走向何方？</p>
                 <div class="options-container">
                     <button class="choice-btn" onclick="selectTargetGender('male', event)">
@@ -50,10 +49,9 @@
             </div>
         </div>
 
-        <!-- 玩家自身性別選擇畫面 -->
         <div id="player-gender-selection" class="screen">
             <div class="glass-panel">
-                <h1 class="title">選擇你的化身</h1>
+                <h1 class="title">選擇你的性別</h1>
                 <p class="subtitle">在這段故事中，你將以什麼身分展開？</p>
                 <div class="options-container">
                     <button class="choice-btn" onclick="selectPlayerGender('male', event)">
@@ -64,7 +62,7 @@
                         <span class="icon">👧</span>
                         <span class="text">女性</span>
                     </button>
-                    <button class="choice-btn" onclick="selectPlayerGender('random', event)">
+                    <button class="choice-btn" id="player-random-btn" onclick="selectPlayerGender('random', event)">
                         <span class="icon">❓</span>
                         <span class="text">隨機</span>
                     </button>
@@ -83,6 +81,7 @@
                         <div id="confirm-target-card" class="character-card static">
                             <!-- JS將填入攻略對象資訊 -->
                         </div>
+                        <div id="confirm-target-info" class="result-info"></div>
                     </div>
                     <div class="heart-divider">♥️</div>
                     <div class="result-box">
@@ -90,6 +89,7 @@
                         <div id="confirm-player-card" class="character-card static">
                             <!-- JS將填入玩家資訊 -->
                         </div>
+                        <div id="confirm-player-info" class="result-info"></div>
                     </div>
                 </div>
                 <button class="choice-btn primary" onclick="startGame()">確認並開始遊玩</button>
@@ -127,7 +127,7 @@
                                 <p class="system-text">歡迎進入《愛與選擇之書》，接下來的故事將由此展開...</p>
                                 <p class="dialogue-line"><span class="speaker">神秘聲音</span>這將是你與對方的故事開端。</p>
                                 <!-- 預設塞入測試對話，產生捲動軸以測試功能 -->
-                                <p class="dialogue-line system"><span class="speaker">系統</span><span class="action-text">(測試長對話)</span> 如果對話超過版面，可以往下滑動。</p>
+                                <p class="dialogue-line system"><span class="speaker">系統</span><span class="action-text">(測試長對話)</span> 如果對話超過版面，可以往下滑動查看完整內容。</p>
                                 <p class="dialogue-line player"><span class="speaker">你</span><span class="action-text">(點了點頭)</span> 測試紀錄1...</p>
                                 <p class="dialogue-line npc"><span class="speaker">對方</span><span class="action-text">(微微一笑)</span> 測試紀錄2...</p>
                                 <p class="dialogue-line player"><span class="speaker">你</span>測試紀錄3...</p>
@@ -192,7 +192,7 @@
                     <input type="color" id="action-color-picker" value="#b0b0b0" style="width: 60px; height: 35px; cursor: pointer; border: none; background: transparent;">
                 </div>
                 
-                <p id="settings-error" class="error-msg" style="color: #ff4d4f; font-size: 1rem; display: none; text-align: center; margin-bottom: 1rem;">防呆提示：雙方顏色不得完全相同！</p>
+                <p id="settings-error" class="error-msg" style="color: #ff4d4f; font-size: 1rem; display: none; text-align: center; margin-bottom: 1rem;">防呆提示：雙方顏色不得完全相同，請調整設定！</p>
                 
                 <div class="modal-actions">
                     <button class="modal-btn cancel" onclick="closeSettingsModal(event)">取消</button>
