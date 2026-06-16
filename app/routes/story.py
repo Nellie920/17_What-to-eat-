@@ -244,16 +244,6 @@ def make_choice(node_id, choice_id):
                 state['playerGender'] = 'female'
                 state['player_gender'] = 'f'
         
-        # 儲存下一個劇情節點並跳轉到確認畫面
-        state['next_story_node'] = f"intro_{state['targetKey']}"
-        next_node = 'confirm_selection'
-    else:
-        # 其它非角色選擇節點跳轉
-        next_node = choice.get('next')
-        if node_id == 'node_hl_gender':
-            # 男女戀選完主角性別後，跳轉到對應性別的攻略角色選擇畫面
-            next_node = 'select_target_m' if state.get('target_gender') == 'm' else 'select_target_f'
-        
     # 數值變更
     if 'statChange' in choice:
         for k, v in choice['statChange'].items():
@@ -261,6 +251,45 @@ def make_choice(node_id, choice_id):
                 state[k] = v
             else:
                 state[k] = state.get(k, 0) + v
+                
+    # 儲存三層選擇性別與角色並解析隨機性別與角色
+    if node_id == 'start':
+        gender_map = {0: 'm', 1: 'f', 2: 'random'}
+        t_gender = gender_map.get(choice_id, 'random')
+        state['original_target_gender'] = t_gender
+        if t_gender == 'random':
+            t_gender = 'm' if random.random() > 0.5 else 'f'
+        state['target_gender'] = t_gender
+    elif node_id in ['select_target_m', 'select_target_f']:
+        if choice_id == 3 or choice.get('targetKey') == 'random':
+            state['targetKey'] = 'random'
+        else:
+            state['targetKey'] = choice.get('targetKey')
+    elif node_id == 'node_hl_gender':
+        gender_map = {0: 'm', 1: 'f', 2: 'random'}
+        p_gender = gender_map.get(choice_id, 'random')
+        if p_gender == 'random':
+            p_gender = 'm' if random.random() > 0.5 else 'f'
+        state['player_gender'] = p_gender
+        state['playerGender'] = 'male' if p_gender == 'm' else 'female'
+        
+        # 解析隨機角色
+        if state.get('targetKey') == 'random':
+            if state.get('target_gender') == 'm':
+                state['targetKey'] = random.choice(['m1', 'm2', 'm3'])
+            else:
+                state['targetKey'] = random.choice(['f1', 'f2', 'f3'])
+
+    # 節點跳轉控制
+    if node_id == 'start':
+        next_node = 'select_target_m' if state.get('target_gender') == 'm' else 'select_target_f'
+    elif node_id in ['select_target_m', 'select_target_f']:
+        next_node = 'node_hl_gender'
+    elif node_id == 'node_hl_gender':
+        state['next_story_node'] = f"intro_{state.get('targetKey')}"
+        next_node = 'confirm_selection'
+    else:
+        next_node = choice.get('next')
         
     # 更新 session
     session.modified = True
