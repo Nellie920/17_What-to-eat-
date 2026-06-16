@@ -216,14 +216,32 @@ def make_choice(node_id, choice_id):
             else:
                 state[k] = state.get(k, 0) + v
                 
-    # 隨機性別處理
-    if next_node == 'random_gender':
-        if random.random() > 0.5:
-            next_node = 'select_target_m'
-            state['playerGender'] = 'female'
-        else:
-            next_node = 'select_target_f'
-            state['playerGender'] = 'male'
+    # 儲存兩層選擇性別並解析隨機性別
+    if node_id == 'start':
+        gender_map = {0: 'm', 1: 'f', 2: 'random'}
+        state['target_gender'] = gender_map.get(choice_id, 'random')
+    elif node_id == 'node_hl_gender':
+        gender_map = {0: 'm', 1: 'f', 2: 'random'}
+        state['player_gender'] = gender_map.get(choice_id, 'random')
+        
+        # 解析隨機攻略對象性別
+        t_gender = state.get('target_gender', 'random')
+        if t_gender == 'random':
+            t_gender = 'm' if random.random() > 0.5 else 'f'
+            state['target_gender'] = t_gender
+            
+        # 解析隨機玩家自己性別
+        p_gender = state.get('player_gender', 'random')
+        if p_gender == 'random':
+            p_gender = 'm' if random.random() > 0.5 else 'f'
+            state['player_gender'] = p_gender
+
+    # 隨機性別處理與下一個節點跳轉
+    next_node = choice.get('next')
+    if node_id == 'node_hl_gender':
+        next_node = 'select_target_m' if state.get('target_gender') == 'm' else 'select_target_f'
+    elif next_node == 'random_gender':
+        next_node = 'select_target_m' if random.random() > 0.5 else 'select_target_f'
         
     # 更新 session
     session.modified = True
