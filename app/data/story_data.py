@@ -11,12 +11,60 @@ INITIAL_STATE = {
 }
 
 CHARACTERS = {
-    'm1': { 'name': "洛頁彥" },
-    'm2': { 'name': "齊勻楠" },
-    'm3': { 'name': "秦陌寂" },
-    'f1': { 'name': "田媛寧" },
-    'f2': { 'name': "張栖鈴" },
-    'f3': { 'name': "顧音棉" }
+    'm1': {
+        'name': "洛頁彥",
+        'gender': 'male',
+        'image': '/static/images/characters/char_m1.png',
+        'appearance': "笑起來有些孩子氣，艷紅色的頭髮，情緒都寫在臉上",
+        'personality': "性格開朗、大膽，敢於主動探尋未知事物。有時會因為粗心或錯估自己能力而出錯，但都能積極補救局面。",
+        'traits': ["開朗", "大膽", "粗心", "積極"],
+        'quote': "「本大爺帶著你衝過去，怕什麼！」"
+    },
+    'm2': {
+        'name': "齊勻楠",
+        'gender': 'male',
+        'image': '/static/images/characters/char_m2.png',
+        'appearance': "長相俊朗，黑色的頭髮，偶爾笑起來會有酒窩",
+        'personality': "性格沉穩、細心，做足準備才會付諸行動。有時可能會因為猶豫而錯失良機，但都能靠他的機智挽救。",
+        'traits': ["沉穩", "細心", "理性", "機智"],
+        'quote': "「我計算過了，跟著我走最安全。」"
+    },
+    'm3': {
+        'name': "秦陌寂",
+        'gender': 'male',
+        'image': '/static/images/characters/char_m3.png',
+        'appearance': "長相溫和、斯文，棕褐色的頭髮，戴著銀框眼鏡",
+        'personality': "性格樂觀、體貼，做事穩當讓人安心放鬆。在遇到危機情況下能給人最大的安撫，並保持冷靜解決事情。",
+        'traits': ["樂觀", "體貼", "穩重", "冷靜"],
+        'quote': "「別擔心，有我在。深呼吸，沒事的。」"
+    },
+    'f1': {
+        'name': "田媛寧",
+        'gender': 'female',
+        'image': '/static/images/characters/char_f1.png',
+        'appearance': "面容溫柔，深褐色捲髮，無語時會保持著禮貌的微笑",
+        'personality': "性格內斂、謙遜，做事有條理不忙亂。有時會因為他人不配合或計畫被打亂而不高興，但仍會盡可能規劃新的解決方案。",
+        'traits': ["內斂", "謙遜", "有條理", "溫柔"],
+        'quote': "「我整理了行程，請放心，一切都在掌握中。」"
+    },
+    'f2': {
+        'name': "張栖鈴",
+        'gender': 'female',
+        'image': '/static/images/characters/char_f2.png',
+        'appearance': "面容艷麗，黑色長髮，思考時習慣蹙眉",
+        'personality': "性格機靈、敏銳，經常能發現細節與特點。有時會懶於行動而有些怠惰，但在需要認真時也會高效率的做好事情。",
+        'traits': ["機靈", "敏銳", "怠惰", "高效"],
+        'quote': "「哼，算你有眼光，本小姐就勉為其難幫你一次吧。」"
+    },
+    'f3': {
+        'name': "顧音棉",
+        'gender': 'female',
+        'image': '/static/images/characters/char_f3.png',
+        'appearance': "俏皮靈動，粉髮雙麻花辮，不高興時會鼓著腮幫子",
+        'personality': "性格張揚、自信，喜歡觀察各種新奇事物。想法千奇百怪而做事情我行我素，若是不順她的意便會各種不配合。",
+        'traits': ["張揚", "自信", "我行我素", "好奇"],
+        'quote': "「本小姐的發明最厲害了！你就乖乖跟著我吧！」"
+    }
 }
 
 def build_story_nodes():
