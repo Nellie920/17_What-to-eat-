@@ -966,6 +966,12 @@ function openSettingsModal() {
     document.getElementById('action-color-picker').value = actionColor;
     document.getElementById('settings-error').style.display = 'none';
 
+    // Populate volume sliders
+    const bgmVolInput = document.getElementById('static-slider-bgm');
+    const sfxVolInput = document.getElementById('static-slider-sfx');
+    if (bgmVolInput) bgmVolInput.value = staticBGMVolume;
+    if (sfxVolInput) sfxVolInput.value = staticSFXVolume;
+
     document.getElementById('settings-modal').classList.add('active');
 }
 
@@ -991,6 +997,21 @@ function saveSettings() {
         errorMsg.innerText = '防呆提示：一般文字顏色必須比動作文字更顯眼(亮度較高)！';
         errorMsg.style.display = 'block';
         return;
+    }
+
+    // Save volume configuration
+    const bgmVolInput = document.getElementById('static-slider-bgm');
+    const sfxVolInput = document.getElementById('static-slider-sfx');
+    if (bgmVolInput) {
+        staticBGMVolume = parseFloat(bgmVolInput.value);
+        localStorage.setItem('whispers_static_bgm_volume', staticBGMVolume);
+        if (staticBGM) {
+            staticBGM.volume = staticBGMVolume;
+        }
+    }
+    if (sfxVolInput) {
+        staticSFXVolume = parseFloat(sfxVolInput.value);
+        localStorage.setItem('whispers_static_sfx_volume', staticSFXVolume);
     }
 
     gameState.preferences = {
@@ -1298,6 +1319,17 @@ function showEnding() {
 let staticBGM = null;
 let audioUnlocked = false;
 
+let staticBGMVolume = 0.5;
+let staticSFXVolume = 0.8;
+try {
+    const cachedBGM = localStorage.getItem('whispers_static_bgm_volume');
+    if (cachedBGM !== null) staticBGMVolume = parseFloat(cachedBGM);
+    const cachedSFX = localStorage.getItem('whispers_static_sfx_volume');
+    if (cachedSFX !== null) staticSFXVolume = parseFloat(cachedSFX);
+} catch (e) {
+    console.error("Failed to load volume preferences:", e);
+}
+
 function playStaticBGM(src) {
     if (!src) return;
 
@@ -1315,8 +1347,8 @@ function playStaticBGM(src) {
 
     staticBGM = new Audio(src);
     staticBGM.loop = true;
-    staticBGM.volume = 0.5;
-
+    staticBGM.volume = staticBGMVolume;
+    
     if (audioUnlocked) {
         staticBGM.play().catch(err => console.log("BGM play error:", err));
     }
@@ -1325,7 +1357,7 @@ function playStaticBGM(src) {
 function playStaticSFX(src) {
     if (!src) return;
     const sfx = new Audio(src);
-    sfx.volume = 0.8;
+    sfx.volume = staticSFXVolume;
     if (audioUnlocked) {
         sfx.play().catch(err => console.log("SFX play error:", err));
     }

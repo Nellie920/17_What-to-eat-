@@ -357,14 +357,14 @@
                 <div class="mb-2">
                     <div class="d-flex justify-content-between" style="font-size: 0.75rem; color: #cbd5e1;">
                         <span>🎵 音樂音量:</span>
-                        <span id="bgm-volume-txt-vn">50%</span>
+                        <span id="bgm-volume-txt-vn">50</span>
                     </div>
                     <input type="range" id="slider-bgm-vn" class="w-100" min="0" max="1" step="0.05" value="0.5" style="accent-color: #D4AF37;">
                 </div>
                 <div class="mb-2">
                     <div class="d-flex justify-content-between" style="font-size: 0.75rem; color: #cbd5e1;">
                         <span>✨ 音效音量:</span>
-                        <span id="sfx-volume-txt-vn">80%</span>
+                        <span id="sfx-volume-txt-vn">80</span>
                     </div>
                     <input type="range" id="slider-sfx-vn" class="w-100" min="0" max="1" step="0.05" value="0.8" style="accent-color: #D4AF37;">
                 </div>
@@ -477,11 +477,11 @@
         // 還原靜音與滑桿狀態
         if (sliderBGM) {
             sliderBGM.value = audio.bgmVolume;
-            bgmTxt.textContent = Math.round(audio.bgmVolume * 100) + '%';
+            bgmTxt.textContent = Math.round(audio.bgmVolume * 100);
         }
         if (sliderSFX) {
             sliderSFX.value = audio.sfxVolume;
-            sfxTxt.textContent = Math.round(audio.sfxVolume * 100) + '%';
+            sfxTxt.textContent = Math.round(audio.sfxVolume * 100);
         }
         updateMuteIcon();
 
@@ -530,13 +530,13 @@
         sliderBGM?.addEventListener('input', (e) => {
             const val = parseFloat(e.target.value);
             audio.setBGMVolume(val);
-            bgmTxt.textContent = Math.round(val * 100) + '%';
+            bgmTxt.textContent = Math.round(val * 100);
         });
 
         sliderSFX?.addEventListener('input', (e) => {
             const val = parseFloat(e.target.value);
             audio.setSFXVolume(val);
-            sfxTxt.textContent = Math.round(val * 100) + '%';
+            sfxTxt.textContent = Math.round(val * 100);
         });
 
         function updateMuteIcon() {

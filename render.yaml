@@ -1,9 +1,11 @@
 services:
   - type: web
-    name: love-story-17
+    name: one7-what-to-eat
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn run:app
     envVars:
       - key: SECRET_KEY
         generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.9
