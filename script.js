@@ -7,7 +7,7 @@ function getCharacterImageUrl(key) {
         'f1': 'f1', 'f2': 'f2', 'f3': 'f3'
     };
     const mapped = charMap[key] || key;
-    return `app/static/images/characters/${mapped}.png`;
+    return `integrated_site/app/static/images/characters/${mapped}.png`;
 }
 
 // Character Data (for Selection Screen)
@@ -744,11 +744,15 @@ function showConfirmationScreen() {
     }
 
     // 隱藏結局畫面，顯示故事畫面
-    document.getElementById('ending-box').classList.add('hidden');
-    document.getElementById('story-text').classList.remove('hidden');
-    document.getElementById('choices').classList.remove('hidden');
+    const endingBox = document.getElementById('ending-box');
+    if (endingBox) endingBox.classList.add('hidden');
+    const storyText = document.getElementById('story-text');
+    if (storyText) storyText.classList.remove('hidden');
+    const choices = document.getElementById('choices');
+    if (choices) choices.classList.remove('hidden');
     setTimeout(() => {
-        document.getElementById('confirmation-screen').classList.add('active');
+        const confirmScreen = document.getElementById('confirmation-screen');
+        if (confirmScreen) confirmScreen.classList.add('active');
     }, 50);
 }
 

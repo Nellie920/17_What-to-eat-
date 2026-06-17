@@ -48,7 +48,51 @@
                 <h1 class="title">選擇心儀的對象</h1>
                 <p class="subtitle">誰會是你這段故事的羈絆？</p>
                 <div class="character-grid" id="character-grid">
-                    <!-- 動態生成角色卡片 -->
+                    <!-- 男生角色 -->
+                    <div class="character-card male-card" onclick="selectTargetCharacter('A1', event)">
+                        <div class="char-image-placeholder">
+                            <img src="integrated_site/app/static/images/characters/m1.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">
+                            <div class="info-icon" onclick="showCharacterInfo('A1', event)">🔍</div>
+                            <div class="char-name-banner">洛頁彥</div>
+                        </div>
+                    </div>
+                    <div class="character-card male-card" onclick="selectTargetCharacter('A2', event)">
+                        <div class="char-image-placeholder">
+                            <img src="integrated_site/app/static/images/characters/m2.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
+                            <div class="info-icon" onclick="showCharacterInfo('A2', event)">🔍</div>
+                            <div class="char-name-banner">齊勻楠</div>
+                        </div>
+                    </div>
+                    <div class="character-card male-card" onclick="selectTargetCharacter('A3', event)">
+                        <div class="char-image-placeholder">
+                            <img src="integrated_site/app/static/images/characters/m3.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
+                            <div class="info-icon" onclick="showCharacterInfo('A3', event)">🔍</div>
+                            <div class="char-name-banner">秦陌寂</div>
+                        </div>
+                    </div>
+
+                    <!-- 女生角色 -->
+                    <div class="character-card female-card" onclick="selectTargetCharacter('B1', event)">
+                        <div class="char-image-placeholder">
+                            <img src="integrated_site/app/static/images/characters/f1.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
+                            <div class="info-icon" onclick="showCharacterInfo('B1', event)">🔍</div>
+                            <div class="char-name-banner">田媛寧</div>
+                        </div>
+                    </div>
+                    <div class="character-card female-card" onclick="selectTargetCharacter('B2', event)">
+                        <div class="char-image-placeholder">
+                            <img src="integrated_site/app/static/images/characters/f2.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
+                            <div class="info-icon" onclick="showCharacterInfo('B2', event)">🔍</div>
+                            <div class="char-name-banner">張栖鈴</div>
+                        </div>
+                    </div>
+                    <div class="character-card female-card" onclick="selectTargetCharacter('B3', event)">
+                        <div class="char-image-placeholder">
+                            <img src="integrated_site/app/static/images/characters/f3.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
+                            <div class="info-icon" onclick="showCharacterInfo('B3', event)">🔍</div>
+                            <div class="char-name-banner">顧音棉</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
