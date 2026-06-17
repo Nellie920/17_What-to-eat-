@@ -391,10 +391,15 @@
             <div class="story-history-panel glass-panel" id="dialogue-history" style="height: 100%;">
                 <div class="history-content">
                     <p class="system-text">歡迎進入《愛與選擇之書》，接下來的故事將由此展開...</p>
-                    <p class="dialogue-line npc">
-                        <span class="speaker">{{ speaker or '對方' }}</span>
-                        {{ story.text }}
-                    </p>
+                    <div class="dialogue-line npc" style="display: flex; align-items: flex-start; gap: 15px;">
+                        {% if state.targetKey in ['m1','m2','m3','f1','f2','f3'] %}
+                        <img src="{{ url_for('static', filename='images/characters/' + state.targetKey + '.png') }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--npc-dialogue-border);" alt="{{ speaker or '對方' }}">
+                        {% endif %}
+                        <div style="flex: 1;">
+                            <span class="speaker">{{ speaker or '對方' }}</span>
+                            <div style="margin-top: 5px;">{{ story.text }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

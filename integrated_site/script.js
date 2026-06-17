@@ -1150,15 +1150,29 @@ function renderNode(nodeId) {
     // 渲染對話到對話紀錄面板
     const historyContent = document.querySelector('.history-content');
     if (historyContent) {
-        const dialogLine = document.createElement('p');
+        const dialogLine = document.createElement('div');
+        dialogLine.className = 'dialogue-line npc';
+        dialogLine.style.display = 'flex';
+        dialogLine.style.alignItems = 'flex-start';
+        dialogLine.style.gap = '15px';
+        
         let speakerName = "對方";
         if (gameState.targetKey && characters[gameState.targetKey]) {
             speakerName = characters[gameState.targetKey].name;
         }
 
-        dialogLine.className = 'dialogue-line npc';
         const formattedText = formatDialogueText(node.text);
-        dialogLine.innerHTML = `<span class="speaker">${speakerName}</span>${formattedText}`;
+        let avatarHtml = '';
+        if (gameState.targetKey) {
+            avatarHtml = `<img src="app/static/images/characters/${gameState.targetKey}.png" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--npc-dialogue-border);" alt="${speakerName}">`;
+        }
+        dialogLine.innerHTML = `
+            ${avatarHtml}
+            <div style="flex: 1;">
+                <span class="speaker">${speakerName}</span>
+                <div style="margin-top: 5px;">${formattedText}</div>
+            </div>
+        `;
         historyContent.appendChild(dialogLine);
         scrollToBottom();
     }
