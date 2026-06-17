@@ -87,6 +87,10 @@ body {
     opacity: 1;
 }
 
+.hidden {
+    display: none !important;
+}
+
 .glass-panel {
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
