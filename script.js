@@ -1,12 +1,12 @@
 // Helper to get character image URL based on environment (Flask vs Local File)
 function getCharacterImageUrl(key) {
     const charMap = {
-        'A1': 'char_m1', 'A2': 'char_m2', 'A3': 'char_m3',
-        'B1': 'char_f1', 'B2': 'char_f2', 'B3': 'char_f3',
-        'm1': 'char_m1', 'm2': 'char_m2', 'm3': 'char_m3',
-        'f1': 'char_f1', 'f2': 'char_f2', 'f3': 'char_f3'
+        'A1': 'm1', 'A2': 'm2', 'A3': 'm3',
+        'B1': 'f1', 'B2': 'f2', 'B3': 'f3',
+        'm1': 'm1', 'm2': 'm2', 'm3': 'm3',
+        'f1': 'f1', 'f2': 'f2', 'f3': 'f3'
     };
-    const mapped = charMap[key] || ('char_' + key);
+    const mapped = charMap[key] || key;
     if (window.location.protocol.startsWith('http')) {
         return `/static/images/characters/${mapped}.png`;
     } else {
@@ -782,6 +782,8 @@ function startGame() {
 
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('back-btn').style.display = 'none';
+    const renderBtn = document.getElementById('render-btn');
+    if (renderBtn) renderBtn.style.display = 'none';
 
     const targetCharData = charactersData[gameState.resolvedTargetGender].find(c => c.id === gameState.resolvedTargetCharacter);
     const charCardHtml = `
@@ -1240,6 +1242,8 @@ function showEnding() {
     // 隱藏返回按鈕與側邊欄，防止結局畫面消失或被導向走
     const backBtn = document.getElementById('back-btn');
     if (backBtn) backBtn.style.display = 'none';
+    const renderBtn = document.getElementById('render-btn');
+    if (renderBtn) renderBtn.style.display = 'none';
     const gameSidebar = document.getElementById('game-sidebar');
     if (gameSidebar) gameSidebar.style.display = 'none';
 
@@ -1416,6 +1420,11 @@ function initGame() {
     const backBtn = document.getElementById('back-btn');
     if (backBtn) {
         backBtn.style.display = 'none'; // 初始頁面隱藏返回按鈕
+    }
+
+    const renderBtn = document.getElementById('render-btn');
+    if (renderBtn) {
+        renderBtn.style.display = 'flex'; // 顯示線上版按鈕
     }
 
     const gameSidebar = document.getElementById('game-sidebar');

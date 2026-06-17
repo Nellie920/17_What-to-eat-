@@ -1,12 +1,12 @@
 // Helper to get character image URL based on environment (Flask vs Local File)
 function getCharacterImageUrl(key) {
     const charMap = {
-        'A1': 'char_m1', 'A2': 'char_m2', 'A3': 'char_m3',
-        'B1': 'char_f1', 'B2': 'char_f2', 'B3': 'char_f3',
-        'm1': 'char_m1', 'm2': 'char_m2', 'm3': 'char_m3',
-        'f1': 'char_f1', 'f2': 'char_f2', 'f3': 'char_f3'
+        'A1': 'm1', 'A2': 'm2', 'A3': 'm3',
+        'B1': 'f1', 'B2': 'f2', 'B3': 'f3',
+        'm1': 'm1', 'm2': 'm2', 'm3': 'm3',
+        'f1': 'f1', 'f2': 'f2', 'f3': 'f3'
     };
-    const mapped = charMap[key] || ('char_' + key);
+    const mapped = charMap[key] || key;
     if (window.location.protocol.startsWith('http')) {
         return `/static/images/characters/${mapped}.png`;
     } else {
