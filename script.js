@@ -25,6 +25,7 @@ const charactersData = window.charactersData || {
 };
 
 // Game State
+let endingTimeout = null;
 let gameState = {
     currentStep: 'targetGender',
     targetGender: null,
@@ -1311,6 +1312,7 @@ function showEnding() {
     if (endingBox) {
         endingBox.classList.add('active');
         endingBox.classList.remove('hidden');
+        startEndingTimeout(); // 啟動 30 秒倒數
     }
 
     const endingTitle = document.getElementById('ending-title');
@@ -1409,6 +1411,10 @@ function setupStaticAudio() {
 
 // 初始化/重置遊戲狀態與UI
 function initGame() {
+    if (endingTimeout) {
+        clearTimeout(endingTimeout);
+        endingTimeout = null;
+    }
     gameState = {
         currentStep: 'targetGender',
         targetGender: null,
@@ -1478,9 +1484,33 @@ function initGame() {
     });
 }
 
+// 結局畫面 30 秒自動返回首頁計時器
+function startEndingTimeout() {
+    if (endingTimeout) clearTimeout(endingTimeout);
+    endingTimeout = setTimeout(() => {
+        console.log("結局畫面 30 秒無操作，自動返回主頁");
+        initGame();
+    }, 30000);
+}
+
+function resetEndingTimeout() {
+    if (endingTimeout) {
+        startEndingTimeout();
+    }
+}
+
 // 綁定事件並啟動遊戲
 window.onload = () => {
     setupStaticAudio();
     document.getElementById('restart-btn').onclick = initGame;
+    
+    // 監聽結局畫面的使用者動作以重設計時器
+    const endingBox = document.getElementById('ending-box');
+    if (endingBox) {
+        endingBox.addEventListener('click', resetEndingTimeout);
+        endingBox.addEventListener('mousemove', resetEndingTimeout);
+        endingBox.addEventListener('keypress', resetEndingTimeout);
+    }
+    
     initGame();
 };
