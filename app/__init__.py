@@ -20,6 +20,14 @@ def create_app():
 
     # 初始化 SQLAlchemy db 實例
     db.init_app(app)
+    
+    with app.app_context():
+        try:
+            from sqlalchemy import text
+            db.session.execute(text("DELETE FROM achievements WHERE title='找到隱藏彩蛋'"))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
 
     # 伺服器啟動時自動初始化資料庫結構與種子資料
     with app.app_context():

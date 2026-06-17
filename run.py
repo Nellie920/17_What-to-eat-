@@ -21,6 +21,11 @@ def init_db(app):
                 # 欄位已存在，忽略此錯誤
                 pass
             
+            try:
+                conn.execute("DELETE FROM achievements WHERE title='找到隱藏彩蛋'")
+            except Exception:
+                pass
+            
             conn.commit()
 
 def create_app():
