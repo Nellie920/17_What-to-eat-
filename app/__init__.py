@@ -20,6 +20,14 @@ def create_app():
 
     # 初始化 SQLAlchemy db 實例
     db.init_app(app)
+    
+    with app.app_context():
+        try:
+            from sqlalchemy import text
+            db.session.execute(text("DELETE FROM achievements WHERE title='找到隱藏彩蛋'"))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
 
     # 註冊多個功能模組的 Blueprints 路由
     from app.routes.routes import auth_bp, story_bp, saves_bp, achievements_bp
