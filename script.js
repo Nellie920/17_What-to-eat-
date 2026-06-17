@@ -7,11 +7,7 @@ function getCharacterImageUrl(key) {
         'f1': 'f1', 'f2': 'f2', 'f3': 'f3'
     };
     const mapped = charMap[key] || key;
-    if (window.location.protocol.startsWith('http')) {
-        return `/static/images/characters/${mapped}.png`;
-    } else {
-        return `app/static/images/characters/${mapped}.png`;
-    }
+    return `app/static/images/characters/${mapped}.png`;
 }
 
 // Character Data (for Selection Screen)
