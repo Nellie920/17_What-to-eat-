@@ -1,14 +1,30 @@
+// Helper to get character image URL based on environment (Flask vs Local File)
+function getCharacterImageUrl(key) {
+    const charMap = {
+        'A1': 'char_m1', 'A2': 'char_m2', 'A3': 'char_m3',
+        'B1': 'char_f1', 'B2': 'char_f2', 'B3': 'char_f3',
+        'm1': 'char_m1', 'm2': 'char_m2', 'm3': 'char_m3',
+        'f1': 'char_f1', 'f2': 'char_f2', 'f3': 'char_f3'
+    };
+    const mapped = charMap[key] || ('char_' + key);
+    if (window.location.protocol.startsWith('http')) {
+        return `/static/images/characters/${mapped}.png`;
+    } else {
+        return `app/static/images/characters/${mapped}.png`;
+    }
+}
+
 // Character Data (for Selection Screen)
 const charactersData = window.charactersData || {
     male: [
-        { id: 'A1', name: '洛頁彥', icon: '<img src="app/static/images/characters/m1.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">' },
-        { id: 'A2', name: '齊勻楠', icon: '<img src="app/static/images/characters/m2.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">' },
-        { id: 'A3', name: '秦陌寂', icon: '<img src="app/static/images/characters/m3.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">' }
+        { id: 'A1', name: '洛頁彥', get icon() { return `<img src="${getCharacterImageUrl('m1')}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">`; } },
+        { id: 'A2', name: '齊勻楠', get icon() { return `<img src="${getCharacterImageUrl('m2')}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">`; } },
+        { id: 'A3', name: '秦陌寂', get icon() { return `<img src="${getCharacterImageUrl('m3')}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">`; } }
     ],
     female: [
-        { id: 'B1', name: '田媛寧', icon: '<img src="app/static/images/characters/f1.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">' },
-        { id: 'B2', name: '張栖鈴', icon: '<img src="app/static/images/characters/f2.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">' },
-        { id: 'B3', name: '顧音棉', icon: '<img src="app/static/images/characters/f3.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">' }
+        { id: 'B1', name: '田媛寧', get icon() { return `<img src="${getCharacterImageUrl('f1')}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">`; } },
+        { id: 'B2', name: '張栖鈴', get icon() { return `<img src="${getCharacterImageUrl('f2')}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">`; } },
+        { id: 'B3', name: '顧音棉', get icon() { return `<img src="${getCharacterImageUrl('f3')}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">`; } }
     ]
 };
 
@@ -1164,7 +1180,7 @@ function renderNode(nodeId) {
         const formattedText = formatDialogueText(node.text);
         let avatarHtml = '';
         if (gameState.targetKey) {
-            avatarHtml = `<img src="app/static/images/characters/${gameState.targetKey}.png" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--npc-dialogue-border);" alt="${speakerName}">`;
+            avatarHtml = `<img src="${getCharacterImageUrl(gameState.targetKey)}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--npc-dialogue-border);" alt="${speakerName}">`;
         }
         dialogLine.innerHTML = `
             ${avatarHtml}

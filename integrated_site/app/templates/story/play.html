@@ -153,17 +153,17 @@
                 <button type="submit" class="character-card" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; width: 200px; display: flex; flex-direction: column; align-items: center; padding: 15px; cursor: pointer; transition: all 0.3s ease;">
                     <div class="char-image-placeholder" style="width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; font-size: 4rem; position: relative; overflow: hidden;">
                         {% if '洛頁彥' in choice.text or 'm1' in choice.text or choice.id == 0 and story.node_id == 'select_target_m' %}
-                            <img src="{{ url_for('static', filename='images/characters/m1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">
+                            <img src="{{ url_for('static', filename='images/characters/char_m1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">
                         {% elif '齊勻楠' in choice.text or 'm2' in choice.text or choice.id == 1 and story.node_id == 'select_target_m' %}
-                            <img src="{{ url_for('static', filename='images/characters/m2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
+                            <img src="{{ url_for('static', filename='images/characters/char_m2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
                         {% elif '秦陌寂' in choice.text or 'm3' in choice.text or choice.id == 2 and story.node_id == 'select_target_m' %}
-                            <img src="{{ url_for('static', filename='images/characters/m3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
+                            <img src="{{ url_for('static', filename='images/characters/char_m3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
                         {% elif '田媛寧' in choice.text or 'f1' in choice.text or choice.id == 0 and story.node_id == 'select_target_f' %}
-                            <img src="{{ url_for('static', filename='images/characters/f1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
+                            <img src="{{ url_for('static', filename='images/characters/char_f1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
                         {% elif '張栖鈴' in choice.text or 'f2' in choice.text or choice.id == 1 and story.node_id == 'select_target_f' %}
-                            <img src="{{ url_for('static', filename='images/characters/f2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
+                            <img src="{{ url_for('static', filename='images/characters/char_f2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
                         {% elif '顧音棉' in choice.text or 'f3' in choice.text or choice.id == 2 and story.node_id == 'select_target_f' %}
-                            <img src="{{ url_for('static', filename='images/characters/f3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
+                            <img src="{{ url_for('static', filename='images/characters/char_f3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
                         {% else %}❓
                         {% endif %}
                     </div>
@@ -231,17 +231,17 @@
                 <div class="character-card static" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; width: 180px; display: flex; flex-direction: column; align-items: center; padding: 15px; position: relative; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);">
                     <div class="char-image-placeholder" style="width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; font-size: 4rem; position: relative; overflow: hidden;">
                         {% if state.targetKey == 'm1' %}
-                            <img src="{{ url_for('static', filename='images/characters/m1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">
+                            <img src="{{ url_for('static', filename='images/characters/char_m1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">
                         {% elif state.targetKey == 'm2' %}
-                            <img src="{{ url_for('static', filename='images/characters/m2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
+                            <img src="{{ url_for('static', filename='images/characters/char_m2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
                         {% elif state.targetKey == 'm3' %}
-                            <img src="{{ url_for('static', filename='images/characters/m3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
+                            <img src="{{ url_for('static', filename='images/characters/char_m3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
                         {% elif state.targetKey == 'f1' %}
-                            <img src="{{ url_for('static', filename='images/characters/f1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
+                            <img src="{{ url_for('static', filename='images/characters/char_f1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
                         {% elif state.targetKey == 'f2' %}
-                            <img src="{{ url_for('static', filename='images/characters/f2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
+                            <img src="{{ url_for('static', filename='images/characters/char_f2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
                         {% elif state.targetKey == 'f3' %}
-                            <img src="{{ url_for('static', filename='images/characters/f3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
+                            <img src="{{ url_for('static', filename='images/characters/char_f3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
                         {% else %}❓
                         {% endif %}
                     </div>
@@ -361,17 +361,17 @@
             <div id="game-character-card" class="character-card static">
                 <div class="char-image-placeholder" style="font-size: 5rem; width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; position: relative; overflow: hidden;">
                     {% if state.targetKey == 'm1' %}
-                        <img src="{{ url_for('static', filename='images/characters/m1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">
+                        <img src="{{ url_for('static', filename='images/characters/char_m1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">
                     {% elif state.targetKey == 'm2' %}
-                        <img src="{{ url_for('static', filename='images/characters/m2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
+                        <img src="{{ url_for('static', filename='images/characters/char_m2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
                     {% elif state.targetKey == 'm3' %}
-                        <img src="{{ url_for('static', filename='images/characters/m3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
+                        <img src="{{ url_for('static', filename='images/characters/char_m3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
                     {% elif state.targetKey == 'f1' %}
-                        <img src="{{ url_for('static', filename='images/characters/f1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
+                        <img src="{{ url_for('static', filename='images/characters/char_f1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
                     {% elif state.targetKey == 'f2' %}
-                        <img src="{{ url_for('static', filename='images/characters/f2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
+                        <img src="{{ url_for('static', filename='images/characters/char_f2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
                     {% elif state.targetKey == 'f3' %}
-                        <img src="{{ url_for('static', filename='images/characters/f3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
+                        <img src="{{ url_for('static', filename='images/characters/char_f3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
                     {% else %}👤
                     {% endif %}
                 </div>
@@ -393,7 +393,7 @@
                     <p class="system-text">歡迎進入《愛與選擇之書》，接下來的故事將由此展開...</p>
                     <div class="dialogue-line npc" style="display: flex; align-items: flex-start; gap: 15px;">
                         {% if state.targetKey in ['m1','m2','m3','f1','f2','f3'] %}
-                        <img src="{{ url_for('static', filename='images/characters/' + state.targetKey + '.png') }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--npc-dialogue-border);" alt="{{ speaker or '對方' }}">
+                        <img src="{{ url_for('static', filename='images/characters/char_' + state.targetKey + '.png') }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--npc-dialogue-border);" alt="{{ speaker or '對方' }}">
                         {% endif %}
                         <div style="flex: 1;">
                             <span class="speaker">{{ speaker or '對方' }}</span>
