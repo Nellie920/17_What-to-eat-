@@ -1219,10 +1219,19 @@ function showEnding() {
             restartBtn.className = 'choice-btn primary';
             restartBtn.innerText = '重新開始故事';
             restartBtn.style.width = '100%';
+            restartBtn.style.opacity = '0.5';
+            restartBtn.style.pointerEvents = 'none';
+            restartBtn.style.transition = 'opacity 0.5s ease';
             restartBtn.onclick = () => {
                 location.reload();
             };
             choicesList.appendChild(restartBtn);
+
+            // 延遲 800ms 啟用按鈕，避免玩家雙擊對話框時誤觸
+            setTimeout(() => {
+                restartBtn.style.opacity = '1';
+                restartBtn.style.pointerEvents = 'auto';
+            }, 800);
         }
     }
 }

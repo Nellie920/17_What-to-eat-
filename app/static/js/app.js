@@ -15,6 +15,7 @@ let currentUser = null;
 let currentCustomName = "主角";
 let currentTheme = "default-pink";
 let currentNodeId = "start";
+let currentShowChoicesCallback = null;
 
 // 劇本離線緩存，用於預載及本機展示
 const offlineScript = {
@@ -253,7 +254,11 @@ function setupLobbyAndCoreEvents() {
 
   // 點擊對話框快速跳過打字機 (Skip Mechanism)
   dialogueBox?.addEventListener('click', () => {
-    InteractionEffects.skipTypewriter(dialogueText);
+    if (currentShowChoicesCallback) {
+      InteractionEffects.skipTypewriter(dialogueText, currentShowChoicesCallback);
+    } else {
+      InteractionEffects.skipTypewriter(dialogueText);
+    }
   });
 }
 
@@ -318,10 +323,25 @@ function loadScriptNode(nodeId) {
 
     // 4. 對話框逐字顯示打字機效果
     speakerLabel.textContent = node.speaker;
-    InteractionEffects.typewriter(dialogueText, node.dialogue, 45);
+    
+    // 定義顯示與啟用選項的 Callback
+    const showChoices = () => {
+      choicesContainer.style.opacity = "1";
+      // 延遲 300ms 啟用點擊，避免玩家雙擊對話框 Skip 時誤觸選項
+      setTimeout(() => {
+        choicesContainer.style.pointerEvents = "auto";
+      }, 300);
+    };
+    
+    currentShowChoicesCallback = showChoices;
+    
+    InteractionEffects.typewriter(dialogueText, node.dialogue, 45, showChoices);
 
     // 5. 渲染分支選擇肢
     choicesContainer.innerHTML = "";
+    choicesContainer.style.opacity = "0";
+    choicesContainer.style.pointerEvents = "none";
+    choicesContainer.style.transition = "opacity 0.3s ease";
     if (node.choices && node.choices.length > 0) {
       node.choices.forEach(ch => {
         const btn = document.createElement('button');
