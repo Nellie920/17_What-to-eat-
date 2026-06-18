@@ -87,6 +87,10 @@ body {
     opacity: 1;
 }
 
+.hidden {
+    display: none !important;
+}
+
 .glass-panel {
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
@@ -242,6 +246,56 @@ body {
 .back-btn:hover .icon {
     transform: scale(1.1);
 }
+
+/* 連結到 Render 線上版按鈕 */
+.render-btn {
+    position: absolute;
+    top: 2.5rem;
+    right: 2.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    color: var(--text-light);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    text-decoration: none;
+}
+
+.render-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2), 0 0 15px rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.render-btn .icon {
+    font-size: 1.8rem;
+    line-height: 1;
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+.render-btn:hover .icon {
+    animation: rotateGlobe 4s linear infinite;
+}
+
+@keyframes rotateGlobe {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 
 /* 彈窗背景遮罩 */
 .modal-overlay {

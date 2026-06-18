@@ -18,4 +18,35 @@
         </div>
     </div>
 </div>
+<style>
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<script>
+    (function() {
+        let timeout = null;
+        
+        function startTimer() {
+            if (timeout) clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                window.location.href = "{{ url_for('story.home') }}";
+            }, 30000);
+        }
+        
+        function resetTimer() {
+            if (timeout) {
+                startTimer();
+            }
+        }
+        
+        startTimer();
+        
+        document.addEventListener('click', resetTimer);
+        document.addEventListener('mousemove', resetTimer);
+        document.addEventListener('keypress', resetTimer);
+    })();
+</script>
 {% endblock %}

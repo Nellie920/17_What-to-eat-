@@ -1,27 +1,525 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex flex-column h-100">
-    <div class="story-box glass-panel shadow-lg">
-        <p class="mb-0">{{ story.text }}</p>
-    </div>
+<style>
+    /* 🎬 D1463471 遊戲視聽與側邊欄進階融合樣式 🎬 */
+    body {
+        background: radial-gradient(circle at center, #2d1637 0%, #0f0a18 100%) !important;
+    }
     
-    <div class="options-container">
-        <!-- 虛擬選項供示範 -->
-        <a href="{{ url_for('story.play_story', node_id='chapter1') }}" class="option-btn fs-5">
-            1. 繼續前進，探索前方的未知。
-        </a>
-        <a href="{{ url_for('story.play_story', node_id='secret_ending') }}" class="option-btn fs-5">
-            2. 觸碰那發光的神秘水晶。
-        </a>
-        
-        <!-- 自動存檔觸發器 (隱藏)，取代原本的手動存檔表單 -->
-        <script>
-            // 當進入新節點時，自動呼叫 Widget 進行存檔
-            if (window.saveWidget) {
-                window.saveWidget.triggerSave(1, '{{ story.node_id }}', {});
-            }
-        </script>
+    .main-content {
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    .game-sidebar-vn {
+        position: fixed;
+        left: 0;
+        top: 80px;
+        width: 260px;
+        height: auto;
+        max-height: 80vh;
+        background: rgba(20, 15, 30, 0.95);
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        border-left: none;
+        border-radius: 0 20px 20px 0;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 999;
+        box-shadow: 5px 0 25px rgba(0,0,0,0.5);
+        padding: 20px 15px;
+    }
+    
+    .game-sidebar-vn.collapsed {
+        left: -260px;
+    }
+    
+    .game-sidebar-vn .toggle-tab {
+        position: absolute;
+        right: -45px;
+        top: 20px;
+        width: 45px;
+        height: 50px;
+        background: rgba(20, 15, 30, 0.95);
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        border-left: none;
+        border-radius: 0 12px 12px 0;
+        backdrop-filter: blur(15px);
+        color: #fff;
+        font-size: 1.5rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .game-sidebar-vn .toggle-tab:hover {
+        color: #D4AF37;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+    
+    .game-sidebar-vn .nav-item-vn {
+        padding: 12px 20px;
+        margin: 4px 0;
+        color: #F5E6E6;
+        text-decoration: none;
+        font-size: 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid transparent;
+    }
+    
+    .game-sidebar-vn .nav-item-vn i {
+        width: 20px;
+        text-align: center;
+        color: #D4AF37;
+    }
+    
+    .game-sidebar-vn .nav-item-vn:hover {
+        background: rgba(212, 175, 55, 0.15);
+        border: 1px solid rgba(212, 175, 55, 0.4);
+        transform: translateX(5px);
+    }
+    
+    .sidebar-overlay-vn {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0);
+        z-index: 998;
+        pointer-events: none;
+        transition: background 0.3s ease;
+    }
+    
+    .sidebar-overlay-vn.active {
+        pointer-events: auto;
+        background: rgba(0,0,0,0.4);
+    }
+</style>
+
+<!-- 🌸 ========================================== 🌸 -->
+<!-- 🌸 第一階段：攻略對象性別選擇畫面 (node_id == 'start') 🌸 -->
+<!-- 🌸 ========================================== 🌸 -->
+{% if story.node_id == 'start' %}
+<div class="d-flex align-items-center justify-content-center h-100 w-100" style="min-height: 80vh;">
+    <div class="glass-panel text-center px-5 py-5" style="border-radius: 24px; max-width: 650px; background: rgba(20,15,30,0.4); border: 1px solid rgba(255,255,255,0.15);">
+        <h1 class="title mb-3" style="font-size: 2.8rem; font-weight: 700; background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 50%, #fecfef 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px;">選擇攻略對象性別</h1>
+        <p class="subtitle mb-5 text-light opacity-75" style="font-size: 1.15rem; letter-spacing: 1px;">命運的紅線，將牽引你走向何方？</p>
+        <div class="options-container d-flex gap-4 justify-content-center">
+            <form action="{{ url_for('story.make_choice', node_id='start', choice_id=0) }}" method="POST" style="margin: 0;">
+                <button type="submit" class="choice-btn">
+                    <span class="icon">♂</span>
+                    <span class="text">男性</span>
+                </button>
+            </form>
+            <form action="{{ url_for('story.make_choice', node_id='start', choice_id=1) }}" method="POST" style="margin: 0;">
+                <button type="submit" class="choice-btn">
+                    <span class="icon">♀</span>
+                    <span class="text">女性</span>
+                </button>
+            </form>
+            <form action="{{ url_for('story.make_choice', node_id='start', choice_id=2) }}" method="POST" style="margin: 0;">
+                <button type="submit" class="choice-btn">
+                    <span class="icon">❓</span>
+                    <span class="text">隨機</span>
+                </button>
+            </form>
+        </div>
     </div>
 </div>
+
+<!-- 🌸 ========================================== 🌸 -->
+<!-- 🌸 第二階段：攻略對象特定角色選擇網格 (select_target_m / f) 🌸 -->
+<!-- 🌸 ========================================== 🌸 -->
+{% elif story.node_id in ['select_target_m', 'select_target_f'] %}
+<div class="d-flex align-items-center justify-content-center h-100 w-100" style="min-height: 80vh;">
+    <div class="glass-panel large text-center px-5 py-5" style="border-radius: 24px; max-width: 900px; width: 95%; background: rgba(20,15,30,0.4); border: 1px solid rgba(255,255,255,0.15);">
+        <h1 class="title mb-3" style="font-size: 2.8rem; font-weight: 700; background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 50%, #fecfef 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px;">選擇心儀的對象</h1>
+        <p class="subtitle mb-5 text-light opacity-75" style="font-size: 1.15rem; letter-spacing: 1px;">誰會是你這段故事的羈絆？</p>
+        <div class="character-grid d-flex flex-wrap gap-4 justify-content-center">
+            {% for choice in story.choices %}
+            <form action="{{ url_for('story.make_choice', node_id=story.node_id, choice_id=choice.id) }}" method="POST" style="margin: 0;">
+                <button type="submit" class="character-card" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; width: 200px; display: flex; flex-direction: column; align-items: center; padding: 15px; cursor: pointer; transition: all 0.3s ease;">
+                    <div class="char-image-placeholder" style="width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; font-size: 4rem; position: relative; overflow: hidden;">
+                        {% if '洛頁彥' in choice.text or 'm1' in choice.text or choice.id == 0 and story.node_id == 'select_target_m' %}
+                            <img src="{{ url_for('static', filename='images/characters/m1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">
+                        {% elif '齊勻楠' in choice.text or 'm2' in choice.text or choice.id == 1 and story.node_id == 'select_target_m' %}
+                            <img src="{{ url_for('static', filename='images/characters/m2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
+                        {% elif '秦陌寂' in choice.text or 'm3' in choice.text or choice.id == 2 and story.node_id == 'select_target_m' %}
+                            <img src="{{ url_for('static', filename='images/characters/m3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
+                        {% elif '田媛寧' in choice.text or 'f1' in choice.text or choice.id == 0 and story.node_id == 'select_target_f' %}
+                            <img src="{{ url_for('static', filename='images/characters/f1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
+                        {% elif '張栖鈴' in choice.text or 'f2' in choice.text or choice.id == 1 and story.node_id == 'select_target_f' %}
+                            <img src="{{ url_for('static', filename='images/characters/f2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
+                        {% elif '顧音棉' in choice.text or 'f3' in choice.text or choice.id == 2 and story.node_id == 'select_target_f' %}
+                            <img src="{{ url_for('static', filename='images/characters/f3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
+                        {% else %}❓
+                        {% endif %}
+                    </div>
+                    <div class="char-name-banner" style="font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; color: #fff;">
+                        {% if '洛頁彥' in choice.text %}洛頁彥
+                        {% elif '齊勻楠' in choice.text %}齊勻楠
+                        {% elif '秦陌寂' in choice.text %}秦陌寂
+                        {% elif '田媛寧' in choice.text %}田媛寧
+                        {% elif '張栖鈴' in choice.text %}張栖鈴
+                        {% elif '顧音棉' in choice.text %}顧音棉
+                        {% else %}{{ choice.text.split('(')[0] }}
+                        {% endif %}
+                    </div>
+                </button>
+            </form>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- 🌸 ========================================== 🌸 -->
+<!-- 🌸 第三階段：玩家自選身分性別畫面 (node_hl_gender) 🌸 -->
+<!-- 🌸 ========================================== 🌸 -->
+{% elif story.node_id == 'node_hl_gender' %}
+<div class="d-flex align-items-center justify-content-center h-100 w-100" style="min-height: 80vh;">
+    <div class="glass-panel text-center px-5 py-5" style="border-radius: 24px; max-width: 650px; background: rgba(20,15,30,0.4); border: 1px solid rgba(255,255,255,0.15);">
+        <h1 class="title mb-3" style="font-size: 2.8rem; font-weight: 700; background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 50%, #fecfef 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px;">選擇你的性別</h1>
+        <p class="subtitle mb-5 text-light opacity-75" style="font-size: 1.15rem; letter-spacing: 1px;">在這段故事中，你將以什麼身分展開？</p>
+        <div class="options-container d-flex gap-4 justify-content-center">
+            <form action="{{ url_for('story.make_choice', node_id='node_hl_gender', choice_id=0) }}" method="POST" style="margin: 0;">
+                <button type="submit" class="choice-btn">
+                    <span class="icon">👦</span>
+                    <span class="text">男性</span>
+                </button>
+            </form>
+            <form action="{{ url_for('story.make_choice', node_id='node_hl_gender', choice_id=1) }}" method="POST" style="margin: 0;">
+                <button type="submit" class="choice-btn">
+                    <span class="icon">👧</span>
+                    <span class="text">女性</span>
+                </button>
+            </form>
+            <form action="{{ url_for('story.make_choice', node_id='node_hl_gender', choice_id=2) }}" method="POST" style="margin: 0;">
+                <button type="submit" class="choice-btn">
+                    <span class="icon">❓</span>
+                    <span class="text">隨機</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 🌸 ========================================== 🌸 -->
+<!-- 🌸 第四階段：確認選擇結果畫面 (node_id == 'confirm_selection') 🌸 -->
+<!-- 🌸 ========================================== 🌸 -->
+{% elif story.node_id == 'confirm_selection' %}
+<div class="d-flex align-items-center justify-content-center h-100 w-100" style="min-height: 80vh;">
+    <div class="glass-panel text-center px-5 py-5" style="border-radius: 24px; max-width: 750px; background: rgba(20,15,30,0.4); border: 1px solid rgba(255,255,255,0.15);">
+        <h1 class="title mb-3" style="font-size: 2.8rem; font-weight: 700; background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 50%, #fecfef 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 3px;">命運已定</h1>
+        <p class="subtitle mb-5 text-light opacity-75" style="font-size: 1.15rem; letter-spacing: 1px;">這將是你與對方的故事開端</p>
+        
+        <div class="confirmation-content d-flex justify-content-center align-items-center gap-5 mb-5">
+            <!-- 攻略對象 -->
+            <div class="result-box d-flex flex-column align-items-center gap-2">
+                <p class="result-label text-light opacity-75" style="font-size: 1.1rem; letter-spacing: 2px;">攻略對象</p>
+                <div class="character-card static" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; width: 180px; display: flex; flex-direction: column; align-items: center; padding: 15px; position: relative; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);">
+                    <div class="char-image-placeholder" style="width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; font-size: 4rem; position: relative; overflow: hidden;">
+                        {% if state.targetKey == 'm1' %}
+                            <img src="{{ url_for('static', filename='images/characters/m1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">
+                        {% elif state.targetKey == 'm2' %}
+                            <img src="{{ url_for('static', filename='images/characters/m2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
+                        {% elif state.targetKey == 'm3' %}
+                            <img src="{{ url_for('static', filename='images/characters/m3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
+                        {% elif state.targetKey == 'f1' %}
+                            <img src="{{ url_for('static', filename='images/characters/f1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
+                        {% elif state.targetKey == 'f2' %}
+                            <img src="{{ url_for('static', filename='images/characters/f2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
+                        {% elif state.targetKey == 'f3' %}
+                            <img src="{{ url_for('static', filename='images/characters/f3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
+                        {% else %}❓
+                        {% endif %}
+                    </div>
+                    <div class="char-name-banner" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 0.6rem 0; text-align: center; font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; color: #fff; border-radius: 0 0 16px 16px;">
+                        {% if state.targetKey == 'm1' %}洛頁彥
+                        {% elif state.targetKey == 'm2' %}齊勻楠
+                        {% elif state.targetKey == 'm3' %}秦陌寂
+                        {% elif state.targetKey == 'f1' %}田媛寧
+                        {% elif state.targetKey == 'f2' %}張栖鈴
+                        {% elif state.targetKey == 'f3' %}顧音棉
+                        {% else %}未知角色
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 愛心 -->
+            <div class="heart-divider" style="font-size: 2.5rem; color: #d6336c; animation: heartbeat 2s infinite; text-shadow: 0 0 20px rgba(214, 51, 108, 0.4);">♥️</div>
+            
+            <!-- 你的化身 -->
+            <div class="result-box d-flex flex-column align-items-center gap-2">
+                <p class="result-label text-light opacity-75" style="font-size: 1.1rem; letter-spacing: 2px;">你的化身</p>
+                <div class="character-card static" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; width: 180px; display: flex; flex-direction: column; align-items: center; padding: 15px; position: relative; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);">
+                    <div class="char-image-placeholder" style="width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; font-size: 4rem;">
+                        {% if state.playerGender == 'male' %}👦
+                        {% elif state.playerGender == 'female' %}👧
+                        {% else %}👤
+                        {% endif %}
+                    </div>
+                    <div class="char-name-banner" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 0.6rem 0; text-align: center; font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; color: #fff; border-radius: 0 0 16px 16px;">
+                        {% if state.playerGender == 'male' %}扮演男生
+                        {% elif state.playerGender == 'female' %}扮演女生
+                        {% else %}冒險者
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <form action="{{ url_for('story.confirm_start') }}" method="POST">
+            <button type="submit" class="choice-btn primary" style="background: #d6336c; border-color: #d6336c; flex-direction: row; padding: 1.2rem 3.5rem; font-size: 1.3rem; box-shadow: 0 5px 20px rgba(214, 51, 108, 0.4); margin: 0 auto; color: #fff; border-radius: 20px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
+                確認並開始遊玩
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- 🌸 ========================================== 🌸 -->
+<!-- 🌸 第四階段：經典雙欄電影遊玩畫面 (其他所有節點) 🌸 -->
+<!-- 🌸 ========================================== 🌸 -->
+{% else %}
+<div class="game-container column-layout">
+    <!-- 側邊欄與防誤觸遮罩 -->
+    <div id="sidebar-overlay-vn" class="sidebar-overlay-vn" onclick="toggleSidebarVn()"></div>
+    <div id="game-sidebar-vn" class="game-sidebar-vn collapsed">
+        <button class="toggle-tab" onclick="toggleSidebarVn()">☰</button>
+        <div class="sidebar-content-vn">
+            <h3 style="text-align: center; color: #D4AF37; font-family: 'Cinzel', serif; font-size: 1.3rem; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(212,175,55,0.3);">Whispers of Fate</h3>
+            
+            <a href="{{ url_for('story.home') }}" class="nav-item-vn">
+                <i class="fa-solid fa-book-open"></i> 今日章節
+            </a>
+            
+            <form action="{{ url_for('save.create_save') }}" method="POST" style="margin: 0; display: block; width: 100%;">
+                <input type="hidden" name="node_id" value="{{ story.node_id }}">
+                <button type="submit" class="nav-item-vn" style="background: transparent; border: none; width: 100%; text-align: left; padding: 12px 20px;">
+                    <i class="fa-solid fa-floppy-disk"></i> 儲存目前進度
+                </button>
+            </form>
+            
+            <a href="{{ url_for('save.list_saves') }}" class="nav-item-vn">
+                <i class="fa-solid fa-folder-open"></i> 載入存檔
+            </a>
+            
+            <a href="{{ url_for('user.settings') }}" class="nav-item-vn">
+                <i class="fa-solid fa-gear"></i> 個人設定
+            </a>
+            
+            <a href="{{ url_for('user.achievements') }}" class="nav-item-vn">
+                <i class="fa-solid fa-trophy"></i> 畫廊成就
+            </a>
+
+            <!-- F-06: 沉浸式多媒體音量控制 -->
+            <div class="sidebar-audio-panel mt-2" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-inline: 5px;">
+                <p class="text-gold mb-2" style="font-size: 0.85rem; font-weight: bold; color: #D4AF37;"><i class="fa-solid fa-headphones"></i> 音訊控制</p>
+                <div class="d-flex align-items-center mb-2 justify-content-between">
+                    <span style="font-size: 0.8rem; color: #cbd5e1;">一鍵靜音:</span>
+                    <button id="btn-mute-vn" class="btn btn-sm btn-glass py-0 px-2" style="border-color: rgba(255,255,255,0.2);" title="切換靜音">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between" style="font-size: 0.75rem; color: #cbd5e1;">
+                        <span>🎵 音樂音量:</span>
+                        <span id="bgm-volume-txt-vn">50%</span>
+                    </div>
+                    <input type="range" id="slider-bgm-vn" class="w-100" min="0" max="1" step="0.05" value="0.5" style="accent-color: #D4AF37;">
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between" style="font-size: 0.75rem; color: #cbd5e1;">
+                        <span>✨ 音效音量:</span>
+                        <span id="sfx-volume-txt-vn">80%</span>
+                    </div>
+                    <input type="range" id="slider-sfx-vn" class="w-100" min="0" max="1" step="0.05" value="0.8" style="accent-color: #D4AF37;">
+                </div>
+            </div>
+            
+            <a href="{{ url_for('auth.logout') }}" class="nav-item-vn" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; width: 100%;">
+                <i class="fa-solid fa-right-from-bracket"></i> 登出
+            </a>
+        </div>
+    </div>
+
+    <!-- 上部: 劇情與立繪 (3/4) -->
+    <div class="top-area">
+        <div class="character-display">
+            <div id="game-character-card" class="character-card static">
+                <div class="char-image-placeholder" style="font-size: 5rem; width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; position: relative; overflow: hidden;">
+                    {% if state.targetKey == 'm1' %}
+                        <img src="{{ url_for('static', filename='images/characters/m1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">
+                    {% elif state.targetKey == 'm2' %}
+                        <img src="{{ url_for('static', filename='images/characters/m2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
+                    {% elif state.targetKey == 'm3' %}
+                        <img src="{{ url_for('static', filename='images/characters/m3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
+                    {% elif state.targetKey == 'f1' %}
+                        <img src="{{ url_for('static', filename='images/characters/f1.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
+                    {% elif state.targetKey == 'f2' %}
+                        <img src="{{ url_for('static', filename='images/characters/f2.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
+                    {% elif state.targetKey == 'f3' %}
+                        <img src="{{ url_for('static', filename='images/characters/f3.png') }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
+                    {% else %}👤
+                    {% endif %}
+                </div>
+                <div class="char-name-banner" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 0.6rem 0; text-align: center; font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; color: #fff;">
+                    {% if state.targetKey == 'm1' %}洛頁彥
+                    {% elif state.targetKey == 'm2' %}齊勻楠
+                    {% elif state.targetKey == 'm3' %}秦陌寂
+                    {% elif state.targetKey == 'f1' %}田媛寧
+                    {% elif state.targetKey == 'f2' %}張栖鈴
+                    {% elif state.targetKey == 'f3' %}顧音棉
+                    {% else %}攻略對象
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="story-history-wrapper">
+            <div class="story-history-panel glass-panel" id="dialogue-history" style="height: 100%;">
+                <div class="history-content">
+                    <p class="system-text">歡迎進入《愛與選擇之書》，接下來的故事將由此展開...</p>
+                    <div class="dialogue-line npc" style="display: flex; align-items: flex-start; gap: 15px;">
+                        {% if state.targetKey in ['m1','m2','m3','f1','f2','f3'] %}
+                        <img src="{{ url_for('static', filename='images/characters/' + state.targetKey + '.png') }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--npc-dialogue-border);" alt="{{ speaker or '對方' }}">
+                        {% endif %}
+                        <div style="flex: 1;">
+                            <span class="speaker">{{ speaker or '對方' }}</span>
+                            <div style="margin-top: 5px;">{{ story.text }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 下部: 玩家選項區 (1/4) -->
+    <div class="bottom-area">
+        <div class="choices-container glass-panel">
+            <h3 class="choices-title">你的回應...</h3>
+            <div class="choices-list horizontal">
+                {% for choice in story.choices %}
+                <form action="{{ url_for('story.make_choice', node_id=story.node_id, choice_id=choice.id) }}" method="POST" style="flex: 1; min-width: 250px; max-width: 350px; display: flex; margin: 5px;">
+                    <button type="submit" class="choice-btn" style="width: 100%; height: 60px; font-family: inherit; font-size: 1.1rem; border-radius: 20px; display: flex; align-items: center; justify-content: center; text-align: center; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+                        {{ choice.text }}
+                    </button>
+                </form>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔌 ES6 Module: 側邊欄收折與全域音量控制對接 🔌 -->
+<script type="module">
+    import AudioManager from "{{ url_for('static', filename='js/audio_manager.js') }}";
+    import InteractionEffects from "{{ url_for('static', filename='js/effects.js') }}";
+    const audio = AudioManager.getInstance();
+
+    // 展開/收起側邊欄
+    window.toggleSidebarVn = function() {
+        const sidebar = document.getElementById('game-sidebar-vn');
+        const overlay = document.getElementById('sidebar-overlay-vn');
+        if (sidebar && overlay) {
+            sidebar.classList.toggle('collapsed');
+            overlay.classList.toggle('active');
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnMute = document.getElementById('btn-mute-vn');
+        const sliderBGM = document.getElementById('slider-bgm-vn');
+        const sliderSFX = document.getElementById('slider-sfx-vn');
+        const bgmTxt = document.getElementById('bgm-volume-txt-vn');
+        const sfxTxt = document.getElementById('sfx-volume-txt-vn');
+
+        // 還原靜音與滑桿狀態
+        if (sliderBGM) {
+            sliderBGM.value = audio.bgmVolume;
+            bgmTxt.textContent = Math.round(audio.bgmVolume * 100) + '%';
+        }
+        if (sliderSFX) {
+            sliderSFX.value = audio.sfxVolume;
+            sfxTxt.textContent = Math.round(audio.sfxVolume * 100) + '%';
+        }
+        updateMuteIcon();
+
+        // 嘗試播放背景音樂
+        {% if bgm %}
+        const tryPlayBGM = () => {
+            audio.playBGM("{{ bgm }}");
+        };
+        tryPlayBGM();
+
+        // Autoplay 防線：若被瀏覽器阻擋，在使用者首次點擊或按鍵後啟動
+        const unlockAndPlay = () => {
+            audio.unlockAudio();
+            tryPlayBGM();
+            document.removeEventListener('click', unlockAndPlay);
+            document.removeEventListener('keydown', unlockAndPlay);
+        };
+        document.addEventListener('click', unlockAndPlay);
+        document.addEventListener('keydown', unlockAndPlay);
+        {% endif %}
+
+        // 執行場景特效與音效
+        const effects = {{ effects_json | safe if effects_json else '[]' }};
+        if (effects && effects.length > 0) {
+            effects.forEach(eff => {
+                setTimeout(() => {
+                    if (eff.type === 'shake') {
+                        const target = document.querySelector(eff.target) || document.body;
+                        InteractionEffects.triggerShake(target);
+                    } else if (eff.type === 'flash') {
+                        InteractionEffects.triggerFlash(eff.color);
+                    } else if (eff.type === 'sfx') {
+                        audio.playSFX(eff.src);
+                    }
+                }, eff.delay || 0);
+            });
+        }
+
+        // 靜音按鈕事件
+        btnMute?.addEventListener('click', () => {
+            const isMuted = audio.toggleMute();
+            updateMuteIcon();
+        });
+
+        // 音量滑動事件
+        sliderBGM?.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            audio.setBGMVolume(val);
+            bgmTxt.textContent = Math.round(val * 100) + '%';
+        });
+
+        sliderSFX?.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            audio.setSFXVolume(val);
+            sfxTxt.textContent = Math.round(val * 100) + '%';
+        });
+
+        function updateMuteIcon() {
+            if (!btnMute) return;
+            const icon = btnMute.querySelector('i');
+            if (audio.isMuted) {
+                icon.className = 'fa-solid fa-volume-xmark text-danger';
+            } else {
+                icon.className = 'fa-solid fa-volume-high';
+            }
+        }
+    });
+</script>
+{% endif %}
 {% endblock %}

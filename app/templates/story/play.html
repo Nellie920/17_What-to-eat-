@@ -149,30 +149,50 @@
         <p class="subtitle mb-5 text-light opacity-75" style="font-size: 1.15rem; letter-spacing: 1px;">誰會是你這段故事的羈絆？</p>
         <div class="character-grid d-flex flex-wrap gap-4 justify-content-center">
             {% for choice in story.choices %}
-            <form action="{{ url_for('story.make_choice', node_id=story.node_id, choice_id=choice.id) }}" method="POST" style="margin: 0;">
-                <button type="submit" class="character-card" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; width: 200px; display: flex; flex-direction: column; align-items: center; padding: 15px; cursor: pointer; transition: all 0.3s ease;">
-                    <div class="char-image-placeholder" style="width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; font-size: 4rem;">
-                        {% if '洛頁彥' in choice.text or 'm1' in choice.text or choice.id == 0 and story.node_id == 'select_target_m' %}🛹
-                        {% elif '齊勻楠' in choice.text or 'm2' in choice.text or choice.id == 1 and story.node_id == 'select_target_m' %}💻
-                        {% elif '秦陌寂' in choice.text or 'm3' in choice.text or choice.id == 2 and story.node_id == 'select_target_m' %}📖
-                        {% elif '田媛寧' in choice.text or 'f1' in choice.text or choice.id == 0 and story.node_id == 'select_target_f' %}🌸
-                        {% elif '張栖鈴' in choice.text or 'f2' in choice.text or choice.id == 1 and story.node_id == 'select_target_f' %}🎻
-                        {% elif '顧音棉' in choice.text or 'f3' in choice.text or choice.id == 2 and story.node_id == 'select_target_f' %}🍭
-                        {% else %}❓
-                        {% endif %}
-                    </div>
-                    <div class="char-name-banner" style="font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; color: #fff;">
-                        {% if '洛頁彥' in choice.text %}洛頁彥
-                        {% elif '齊勻楠' in choice.text %}齊勻楠
-                        {% elif '秦陌寂' in choice.text %}秦陌寂
-                        {% elif '田媛寧' in choice.text %}田媛寧
-                        {% elif '張栖鈴' in choice.text %}張栖鈴
-                        {% elif '顧音棉' in choice.text %}顧音棉
-                        {% else %}{{ choice.text.split('(')[0] }}
-                        {% endif %}
-                    </div>
+            {% if '洛頁彥' in choice.text %}
+                {% set char_key = 'm1' %}
+            {% elif '齊勻楠' in choice.text %}
+                {% set char_key = 'm2' %}
+            {% elif '秦陌寂' in choice.text %}
+                {% set char_key = 'm3' %}
+            {% elif '田媛寧' in choice.text %}
+                {% set char_key = 'f1' %}
+            {% elif '張栖鈴' in choice.text %}
+                {% set char_key = 'f2' %}
+            {% elif '顧音棉' in choice.text %}
+                {% set char_key = 'f3' %}
+            {% else %}
+                {% set char_key = '' %}
+            {% endif %}
+            <div style="position: relative; display: inline-block;">
+                {% if char_key %}
+                <!-- 放大鏡圖標：查看人物介紹 -->
+                <button type="button" class="char-info-btn" onclick="event.stopPropagation(); showCharInfo('{{ char_key }}')" title="查看人物介紹" aria-label="查看{{ choice.text.split('(')[0] }}人物介紹">
+                    <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
-            </form>
+                {% endif %}
+                <form action="{{ url_for('story.make_choice', node_id=story.node_id, choice_id=choice.id) }}" method="POST" style="margin: 0;">
+                    <button type="submit" class="character-card" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; width: 200px; display: flex; flex-direction: column; align-items: center; padding: 15px; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden;">
+                        <div class="char-image-area" style="width: 100%; aspect-ratio: 3/4; border-radius: 12px; overflow: hidden; margin-bottom: 1rem; position: relative;">
+                            {% if char_key %}
+                            <img src="{{ url_for('static', filename='images/characters/' + char_key + '.png') }}" alt="{% if '洛頁彥' in choice.text %}洛頁彥{% elif '齊勻楠' in choice.text %}齊勻楠{% elif '秦陌寂' in choice.text %}秦陌寂{% elif '田媛寧' in choice.text %}田媛寧{% elif '張栖鈴' in choice.text %}張栖鈴{% elif '顧音棉' in choice.text %}顧音棉{% else %}角色{% endif %}" style="width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.4s ease;">
+                            {% else %}
+                            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; font-size: 4rem; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));">❓</div>
+                            {% endif %}
+                        </div>
+                        <div class="char-name-banner" style="font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; color: #fff;">
+                            {% if '洛頁彥' in choice.text %}洛頁彥
+                            {% elif '齊勻楠' in choice.text %}齊勻楠
+                            {% elif '秦陌寂' in choice.text %}秦陌寂
+                            {% elif '田媛寧' in choice.text %}田媛寧
+                            {% elif '張栖鈴' in choice.text %}張栖鈴
+                            {% elif '顧音棉' in choice.text %}顧音棉
+                            {% else %}{{ choice.text.split('(')[0] }}
+                            {% endif %}
+                        </div>
+                    </button>
+                </form>
+            </div>
             {% endfor %}
         </div>
     </div>
@@ -222,26 +242,39 @@
             <!-- 攻略對象 -->
             <div class="result-box d-flex flex-column align-items-center gap-2">
                 <p class="result-label text-light opacity-75" style="font-size: 1.1rem; letter-spacing: 2px;">攻略對象</p>
-                <div class="character-card static" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; width: 180px; display: flex; flex-direction: column; align-items: center; padding: 15px; position: relative; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);">
-                    <div class="char-image-placeholder" style="width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; font-size: 4rem;">
-                        {% if state.targetKey == 'm1' %}🛹
-                        {% elif state.targetKey == 'm2' %}💻
-                        {% elif state.targetKey == 'm3' %}📖
-                        {% elif state.targetKey == 'f1' %}🌸
-                        {% elif state.targetKey == 'f2' %}🎻
-                        {% elif state.targetKey == 'f3' %}🍭
-                        {% else %}❓
-                        {% endif %}
-                    </div>
-                    <div class="char-name-banner" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 0.6rem 0; text-align: center; font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; color: #fff; border-radius: 0 0 16px 16px;">
-                        {% if state.targetKey == 'm1' %}洛頁彥
-                        {% elif state.targetKey == 'm2' %}齊勻楠
-                        {% elif state.targetKey == 'm3' %}秦陌寂
-                        {% elif state.targetKey == 'f1' %}田媛寧
-                        {% elif state.targetKey == 'f2' %}張栖鈴
-                        {% elif state.targetKey == 'f3' %}顧音棉
-                        {% else %}未知角色
-                        {% endif %}
+                <div style="position: relative; display: inline-block;">
+                    {% if state.targetKey in ['m1','m2','m3','f1','f2','f3'] %}
+                    <button type="button" class="char-info-btn" onclick="showCharInfo('{{ state.targetKey }}')" title="查看人物介紹" aria-label="查看人物介紹">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    {% endif %}
+                    <div class="character-card static" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; width: 180px; display: flex; flex-direction: column; align-items: center; padding: 15px; position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);">
+                        <div class="char-image-placeholder" style="width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; font-size: 4rem; position: relative; overflow: hidden;">
+                            {% if state.targetKey == 'm1' %}
+                                <img src="/static/images/characters/m1.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">
+                            {% elif state.targetKey == 'm2' %}
+                                <img src="/static/images/characters/m2.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
+                            {% elif state.targetKey == 'm3' %}
+                                <img src="/static/images/characters/m3.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
+                            {% elif state.targetKey == 'f1' %}
+                                <img src="/static/images/characters/f1.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
+                            {% elif state.targetKey == 'f2' %}
+                                <img src="/static/images/characters/f2.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
+                            {% elif state.targetKey == 'f3' %}
+                                <img src="/static/images/characters/f3.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
+                            {% else %}❓
+                            {% endif %}
+                        </div>
+                        <div class="char-name-banner" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); padding: 0.6rem 0; text-align: center; font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; color: #fff; border-radius: 0 0 16px 16px;">
+                            {% if state.targetKey == 'm1' %}洛頁彥
+                            {% elif state.targetKey == 'm2' %}齊勻楠
+                            {% elif state.targetKey == 'm3' %}秦陌寂
+                            {% elif state.targetKey == 'f1' %}田媛寧
+                            {% elif state.targetKey == 'f2' %}張栖鈴
+                            {% elif state.targetKey == 'f3' %}顧音棉
+                            {% else %}未知角色
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -346,17 +379,31 @@
     <!-- 上部: 劇情與立繪 (3/4) -->
     <div class="top-area">
         <div class="character-display">
-            <div id="game-character-card" class="character-card static">
-                <div class="char-image-placeholder" style="font-size: 5rem; width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); display: flex; justify-content: center; align-items: center; margin-bottom: 1rem;">
-                    {% if state.targetKey == 'm1' %}🛹
-                    {% elif state.targetKey == 'm2' %}💻
-                    {% elif state.targetKey == 'm3' %}📖
-                    {% elif state.targetKey == 'f1' %}🌸
-                    {% elif state.targetKey == 'f2' %}🎻
-                    {% elif state.targetKey == 'f3' %}🍭
+            <div id="game-character-card" class="character-card static" style="position: relative;">
+                <!-- 放大鏡圖標：劇情遊玩中查看人物介紹 -->
+                {% if state.targetKey in ['m1','m2','m3','f1','f2','f3'] %}
+                <button type="button" class="char-info-btn in-game" onclick="showCharInfo('{{ state.targetKey }}')" title="查看人物介紹" aria-label="查看人物介紹">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                {% endif %}
+                
+                <div class="char-image-placeholder" style="font-size: 5rem; width: 100%; aspect-ratio: 3/4; border-radius: 12px; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); display: flex; justify-content: center; align-items: center; margin-bottom: 1rem; position: relative; overflow: hidden;">
+                    {% if state.targetKey == 'm1' %}
+                        <img src="/static/images/characters/m1.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="洛頁彥">
+                    {% elif state.targetKey == 'm2' %}
+                        <img src="/static/images/characters/m2.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="齊勻楠">
+                    {% elif state.targetKey == 'm3' %}
+                        <img src="/static/images/characters/m3.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="秦陌寂">
+                    {% elif state.targetKey == 'f1' %}
+                        <img src="/static/images/characters/f1.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="田媛寧">
+                    {% elif state.targetKey == 'f2' %}
+                        <img src="/static/images/characters/f2.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="張栖鈴">
+                    {% elif state.targetKey == 'f3' %}
+                        <img src="/static/images/characters/f3.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="顧音棉">
                     {% else %}👤
                     {% endif %}
                 </div>
+                
                 <div class="char-name-banner" style="position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 0.6rem 0; text-align: center; font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 1.1rem; color: #fff;">
                     {% if state.targetKey == 'm1' %}洛頁彥
                     {% elif state.targetKey == 'm2' %}齊勻楠
@@ -373,10 +420,15 @@
             <div class="story-history-panel glass-panel" id="dialogue-history" style="height: 100%;">
                 <div class="history-content">
                     <p class="system-text">歡迎進入《愛與選擇之書》，接下來的故事將由此展開...</p>
-                    <p class="dialogue-line npc">
-                        <span class="speaker">{{ speaker or '對方' }}</span>
-                        {{ story.text }}
-                    </p>
+                    <div class="dialogue-line npc" style="display: flex; align-items: flex-start; gap: 15px;">
+                        {% if state.targetKey in ['m1','m2','m3','f1','f2','f3'] %}
+                        <img src="{{ url_for('static', filename='images/characters/' + state.targetKey + '.png') }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid var(--npc-dialogue-border);" alt="{{ speaker or '對方' }}">
+                        {% endif %}
+                        <div style="flex: 1;">
+                            <span class="speaker">{{ speaker or '對方' }}</span>
+                            <div style="margin-top: 5px;">{{ story.text }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -499,4 +551,349 @@
     });
 </script>
 {% endif %}
+
+<!-- ================================================= -->
+<!-- 🔍 人物介紹 Modal (全頁面共用，不限 node_id) 🔍 -->
+<!-- ================================================= -->
+<div id="char-info-modal" class="char-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-char-name" style="display: none;">
+    <div class="char-modal-card glassmorphism">
+        <button id="btn-close-char-modal" class="char-modal-close" onclick="closeCharInfo()" aria-label="關閉人物介紹">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="char-modal-inner">
+            <!-- 左：角色圖像 -->
+            <div class="char-modal-portrait">
+                <img id="modal-char-img" src="" alt="角色圖像">
+                <div class="portrait-glow"></div>
+            </div>
+            <!-- 右：角色資訊 -->
+            <div class="char-modal-info">
+                <div class="modal-char-header">
+                    <span id="modal-char-gender-icon" class="gender-badge"></span>
+                    <h2 id="modal-char-name" class="modal-char-name"></h2>
+                </div>
+                <div class="modal-section">
+                    <h4><i class="fa-solid fa-eye"></i> 外貌特徵</h4>
+                    <p id="modal-char-appearance"></p>
+                </div>
+                <div class="modal-section">
+                    <h4><i class="fa-solid fa-heart"></i> 性格介紹</h4>
+                    <p id="modal-char-personality"></p>
+                </div>
+                <div class="modal-section">
+                    <h4><i class="fa-solid fa-star"></i> 性格標籤</h4>
+                    <div id="modal-char-traits" class="trait-tags"></div>
+                </div>
+                <div class="modal-quote" id="modal-char-quote"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ========================================
+   放大鏡圖標樣式
+   ======================================== */
+.char-info-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 20;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid rgba(212, 175, 55, 0.8);
+    background: rgba(10, 5, 20, 0.85);
+    color: #D4AF37;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 12px rgba(212, 175, 55, 0.35);
+}
+.char-info-btn:hover {
+    background: rgba(212, 175, 55, 0.25);
+    transform: scale(1.15);
+    box-shadow: 0 4px 18px rgba(212, 175, 55, 0.6);
+    color: #fff;
+}
+.char-info-btn.in-game {
+    bottom: 60px;
+    right: 8px;
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+}
+/* hover 時角色卡圖像放大 */
+.character-card:hover .char-image-area img {
+    transform: scale(1.05);
+}
+
+/* ========================================
+   人物介紹 Modal 樣式
+   ======================================== */
+.char-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(5, 3, 15, 0.75);
+    backdrop-filter: blur(8px);
+    animation: fadeInOverlay 0.25s ease;
+    padding: 20px;
+}
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.char-modal-card {
+    position: relative;
+    width: min(820px, 95vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 24px;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    background: rgba(15, 10, 28, 0.96);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 60px rgba(212,175,55,0.1);
+    animation: slideUpModal 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212,175,55,0.4) transparent;
+}
+@keyframes slideUpModal {
+    from { transform: translateY(40px) scale(0.95); opacity: 0; }
+    to   { transform: translateY(0)     scale(1);    opacity: 1; }
+}
+.char-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.08);
+    color: #ccc;
+    font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+.char-modal-close:hover {
+    background: rgba(255,80,80,0.25);
+    color: #fff;
+    border-color: rgba(255,80,80,0.5);
+}
+.char-modal-inner {
+    display: flex;
+    gap: 30px;
+    padding: 36px;
+}
+.char-modal-portrait {
+    flex: 0 0 220px;
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.5);
+    aspect-ratio: 3/4;
+    align-self: flex-start;
+}
+.char-modal-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+}
+.portrait-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    box-shadow: inset 0 -60px 60px rgba(0,0,0,0.6);
+    pointer-events: none;
+}
+.char-modal-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
+}
+.modal-char-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(212,175,55,0.25);
+    padding-bottom: 14px;
+}
+.modal-char-name {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    background: linear-gradient(135deg, #fff 0%, #D4AF37 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 3px;
+}
+.gender-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+.gender-badge.male {
+    background: rgba(70, 130, 180, 0.25);
+    border: 1px solid rgba(70, 130, 180, 0.6);
+    color: #87CEEB;
+}
+.gender-badge.female {
+    background: rgba(255, 105, 180, 0.25);
+    border: 1px solid rgba(255, 105, 180, 0.6);
+    color: #FFB6C1;
+}
+.modal-section h4 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #D4AF37;
+    letter-spacing: 2px;
+    margin: 0 0 8px 0;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.modal-section h4 i {
+    font-size: 0.8rem;
+}
+.modal-section p {
+    font-size: 0.95rem;
+    color: #d0c8d8;
+    line-height: 1.75;
+    margin: 0;
+}
+.trait-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
+}
+.trait-tag {
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border: 1px solid rgba(212,175,55,0.5);
+    background: rgba(212,175,55,0.1);
+    color: #e8d9a0;
+}
+.modal-quote {
+    margin-top: 4px;
+    padding: 14px 18px;
+    border-left: 3px solid #D4AF37;
+    background: rgba(212,175,55,0.07);
+    border-radius: 0 10px 10px 0;
+    font-style: italic;
+    color: #c8b875;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    letter-spacing: 0.5px;
+}
+@media (max-width: 600px) {
+    .char-modal-inner { flex-direction: column; padding: 24px 20px; }
+    .char-modal-portrait { flex: none; width: 160px; margin: 0 auto; }
+    .modal-char-name { font-size: 1.5rem; }
+}
+</style>
+
+<script>
+/* ========================================
+   showCharInfo / closeCharInfo 全域函式
+   ======================================== */
+window.showCharInfo = function(charKey) {
+    const modal = document.getElementById('char-info-modal');
+    if (!modal) return;
+    
+    fetch(`/api/character/${charKey}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) return;
+            
+            // 填充圖像
+            const img = document.getElementById('modal-char-img');
+            img.src = data.image;
+            img.alt = data.name;
+            
+            // 填充名字
+            document.getElementById('modal-char-name').textContent = data.name;
+            
+            // 性別徽章
+            const genderBadge = document.getElementById('modal-char-gender-icon');
+            if (data.gender === 'male') {
+                genderBadge.textContent = '♂';
+                genderBadge.className = 'gender-badge male';
+            } else {
+                genderBadge.textContent = '♀';
+                genderBadge.className = 'gender-badge female';
+            }
+            
+            // 填充資訊
+            document.getElementById('modal-char-appearance').textContent = data.appearance;
+            document.getElementById('modal-char-personality').textContent = data.personality;
+            document.getElementById('modal-char-quote').textContent = data.quote;
+            
+            // 性格標籤
+            const traitsEl = document.getElementById('modal-char-traits');
+            traitsEl.innerHTML = '';
+            (data.traits || []).forEach(t => {
+                const span = document.createElement('span');
+                span.className = 'trait-tag';
+                span.textContent = t;
+                traitsEl.appendChild(span);
+            });
+            
+            // 顯示 modal
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        })
+        .catch(err => console.error('Failed to load char info:', err));
+};
+
+window.closeCharInfo = function() {
+    const modal = document.getElementById('char-info-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+};
+
+// 點擊遮罩關閉
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('char-info-modal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeCharInfo();
+        });
+    }
+    // ESC 關閉
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeCharInfo();
+    });
+});
+</script>
 {% endblock %}

@@ -21,6 +21,5 @@ INSERT OR IGNORE INTO achievements (id, title, description, badge_url, points) V
 (4, '音律沉浸者', '在設定中調整過音量或靜音開關。', '/static/images/achievements/music_lover.png', 10),
 (5, '百變主角', '自訂角色暱稱並更換介面主題。', '/static/images/achievements/custom_hero.png', 15),
 (6, '達成初次結局', '恭喜你完成了遊戲的第一次結局！', '/static/badges/first_ending.png', 20),
-(7, '找到隱藏彩蛋', '你發現了開發者藏起來的秘密！', '/static/badges/easter_egg.png', 15),
 (8, '母胎單身狗', '遊戲裡外都保持著完美的單身紀錄。', '/static/badges/single_dog.png', 10);
 

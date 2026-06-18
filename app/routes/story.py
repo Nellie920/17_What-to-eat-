@@ -275,31 +275,70 @@ def make_choice(node_id, choice_id):
         
     choice = node['choices'][choice_id]
     
-    # 偵測選擇流程路線與主角性別
+    # ========================================================
+    # 第一步：選擇攻略對象性別 (start)
+    # ⚠️ 此步驟只決定「攻略對象性別」
+    # relationType 留待第三步玩家選完自己性別後才推算
+    # ========================================================
     if node_id == 'start':
-        if choice_id == 0:
-            state['relationType'] = 'BL'
-            state['playerGender'] = 'male'
-        elif choice_id == 1:
-            state['relationType'] = 'GL'
-            state['playerGender'] = 'female'
-        elif choice_id == 2:
-            state['relationType'] = 'HL'
+        if choice_id == 0:  # 攻略男性
+            state['target_gender'] = 'm'
+            state['original_target_gender'] = 'm'
+        elif choice_id == 1:  # 攻略女性
+            state['target_gender'] = 'f'
+            state['original_target_gender'] = 'f'
+        elif choice_id == 2:  # 隨機
+            state['original_target_gender'] = 'random'
+            t_gender = 'm' if random.random() > 0.5 else 'f'
+            state['target_gender'] = t_gender
+
+    # ========================================================
+    # 第三步：選擇玩家自己的性別 (node_hl_gender)
+    # 根據「攻略對象性別 + 玩家性別」推算 relationType
+    # 男攻男 → BL | 女攻女 → GL | 男女互攻 → HL
+    # ========================================================
     elif node_id == 'node_hl_gender':
         if choice_id == 0:
             state['playerGender'] = 'male'
+            state['player_gender'] = 'm'
         elif choice_id == 1:
             state['playerGender'] = 'female'
-            
-    # 角色選擇
-    if 'targetKey' in choice:
-        state['targetKey'] = choice['targetKey']
-        # 確保 BL/GL 路線有設定對應的主角性別
-        if 'playerGender' not in state or not state['playerGender']:
-            if node_id == 'select_target_m':
+            state['player_gender'] = 'f'
+        elif choice_id == 2:  # 隨機
+            if random.random() > 0.5:
                 state['playerGender'] = 'male'
+                state['player_gender'] = 'm'
             else:
                 state['playerGender'] = 'female'
+                state['player_gender'] = 'f'
+        
+        # 推算關係類型（在玩家選完自己性別後才決定）
+        t_g = state.get('target_gender', 'm')
+        p_g = state.get('player_gender', 'm')
+        if t_g == 'm' and p_g == 'm':
+            state['relationType'] = 'BL'
+        elif t_g == 'f' and p_g == 'f':
+            state['relationType'] = 'GL'
+        else:
+            state['relationType'] = 'HL'
+        
+        # 解析隨機角色（若第二步選了隨機角色，在此時才確定）
+        if state.get('targetKey') == 'random':
+            if state.get('target_gender') == 'm':
+                state['targetKey'] = random.choice(['m1', 'm2', 'm3'])
+            else:
+                state['targetKey'] = random.choice(['f1', 'f2', 'f3'])
+            
+    # ========================================================
+    # 第二步：選擇攻略對象 (select_target_m / select_target_f)
+    # ========================================================
+    if node_id in ['select_target_m', 'select_target_f']:
+        if choice_id == 3 or choice.get('targetKey') == 'random':
+            state['targetKey'] = 'random'
+        else:
+            state['targetKey'] = choice.get('targetKey')
+    elif 'targetKey' in choice and node_id not in ['start', 'node_hl_gender']:
+        state['targetKey'] = choice['targetKey']
         
     # 數值變更
     if 'statChange' in choice:
@@ -308,34 +347,6 @@ def make_choice(node_id, choice_id):
                 state[k] = v
             else:
                 state[k] = state.get(k, 0) + v
-                
-    # 儲存三層選擇性別與角色並解析隨機性別與角色
-    if node_id == 'start':
-        gender_map = {0: 'm', 1: 'f', 2: 'random'}
-        t_gender = gender_map.get(choice_id, 'random')
-        state['original_target_gender'] = t_gender
-        if t_gender == 'random':
-            t_gender = 'm' if random.random() > 0.5 else 'f'
-        state['target_gender'] = t_gender
-    elif node_id in ['select_target_m', 'select_target_f']:
-        if choice_id == 3 or choice.get('targetKey') == 'random':
-            state['targetKey'] = 'random'
-        else:
-            state['targetKey'] = choice.get('targetKey')
-    elif node_id == 'node_hl_gender':
-        gender_map = {0: 'm', 1: 'f', 2: 'random'}
-        p_gender = gender_map.get(choice_id, 'random')
-        if p_gender == 'random':
-            p_gender = 'm' if random.random() > 0.5 else 'f'
-        state['player_gender'] = p_gender
-        state['playerGender'] = 'male' if p_gender == 'm' else 'female'
-        
-        # 解析隨機角色
-        if state.get('targetKey') == 'random':
-            if state.get('target_gender') == 'm':
-                state['targetKey'] = random.choice(['m1', 'm2', 'm3'])
-            else:
-                state['targetKey'] = random.choice(['f1', 'f2', 'f3'])
 
     # 節點跳轉控制
     if node_id == 'start':
@@ -366,3 +377,11 @@ def confirm_start():
         next_node = 'intro_m1' # Default fallback
         
     return redirect(url_for('story.play_story', node_id=next_node))
+
+@story_bp.route('/api/character/<key>', methods=['GET'])
+def get_character_info(key):
+    """API: 回傳角色詳細資訊 (供放大鏡人物介紹 Modal 使用)"""
+    char = CHARACTERS.get(key)
+    if not char:
+        return jsonify({'error': 'Character not found'}), 404
+    return jsonify(char)
