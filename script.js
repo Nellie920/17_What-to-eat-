@@ -743,14 +743,15 @@ function showConfirmationScreen() {
     if (typeof playStaticBGM === 'function') {
         playStaticBGM('app/static/audio/bgm/sweet_intro.wav');
     }
-
-    // 隱藏結局畫面，顯示故事畫面
-    const endingBox = document.getElementById('ending-box');
-    if (endingBox) endingBox.classList.add('hidden');
-    const storyText = document.getElementById('story-text');
-    if (storyText) storyText.classList.remove('hidden');
-    const choices = document.getElementById('choices');
-    if (choices) choices.classList.remove('hidden');
+    
+    // 隱藏結局畫面，顯示故事畫面 (加入 DOM 安全檢查)
+    const endingBoxEl = document.getElementById('ending-box');
+    const storyTextEl = document.getElementById('story-text');
+    const choicesEl = document.getElementById('choices');
+    if (endingBoxEl) endingBoxEl.classList.add('hidden');
+    if (storyTextEl) storyTextEl.classList.remove('hidden');
+    if (choicesEl) choicesEl.classList.remove('hidden');
+    
     setTimeout(() => {
         const confirmScreen = document.getElementById('confirmation-screen');
         if (confirmScreen) confirmScreen.classList.add('active');
@@ -1302,23 +1303,65 @@ function showEnding() {
     }
 
     // 切換畫面
-    const storyText = document.getElementById('story-text');
-    if (storyText) storyText.classList.add('hidden');
-    const choices = document.getElementById('choices');
-    if (choices) choices.classList.add('hidden');
+    const storyTextEl = document.getElementById('story-text');
+    const choicesEl = document.getElementById('choices');
+    const endingBoxEl = document.getElementById('ending-box');
+    const endingTitleEl = document.getElementById('ending-title');
+    const endingDescEl = document.getElementById('ending-desc');
 
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    const endingBox = document.getElementById('ending-box');
-    if (endingBox) {
-        endingBox.classList.add('active');
-        endingBox.classList.remove('hidden');
-        startEndingTimeout(); // 啟動 30 秒倒數
+    if (storyTextEl && choicesEl && endingBoxEl && endingTitleEl && endingDescEl) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        storyTextEl.classList.add('hidden');
+        choicesEl.classList.add('hidden');
+        endingBoxEl.classList.add('active');
+        endingBoxEl.classList.remove('hidden');
+        endingTitleEl.innerText = ending.title;
+        endingDescEl.innerText = ending.desc;
+        if (typeof startEndingTimeout === 'function') startEndingTimeout();
+    } else {
+        // 針對無對應 DOM 元素的 index.html 版本進行相容處理
+        const historyContent = document.querySelector('.history-content');
+        if (historyContent) {
+            const titleLine = document.createElement('p');
+            titleLine.className = 'dialogue-line system';
+            titleLine.innerHTML = `<span class="speaker" style="color: #fcd34d; font-size: 1.4rem; display: block; margin-bottom: 0.5rem;">🎉 達成結局：${ending.title}</span>`;
+            historyContent.appendChild(titleLine);
+
+            const descLine = document.createElement('p');
+            descLine.className = 'dialogue-line';
+            descLine.style.borderLeftColor = '#fcd34d';
+            descLine.innerText = ending.desc;
+            historyContent.appendChild(descLine);
+
+            const historyPanel = document.getElementById('dialogue-history');
+            if (historyPanel) {
+                historyPanel.scrollTop = historyPanel.scrollHeight;
+            }
+        }
+
+        // 在選項區塊渲染一個「重新開始故事」的按鈕
+        const choicesList = document.querySelector('.choices-list');
+        if (choicesList) {
+            choicesList.innerHTML = '';
+            const restartBtn = document.createElement('button');
+            restartBtn.className = 'choice-btn primary';
+            restartBtn.innerText = '重新開始故事';
+            restartBtn.style.width = '100%';
+            restartBtn.style.opacity = '0.5';
+            restartBtn.style.pointerEvents = 'none';
+            restartBtn.style.transition = 'opacity 0.5s ease';
+            restartBtn.onclick = () => {
+                location.reload();
+            };
+            choicesList.appendChild(restartBtn);
+
+            // 延遲 800ms 啟用按鈕，避免玩家雙擊對話框時誤觸
+            setTimeout(() => {
+                restartBtn.style.opacity = '1';
+                restartBtn.style.pointerEvents = 'auto';
+            }, 800);
+        }
     }
-
-    const endingTitle = document.getElementById('ending-title');
-    if (endingTitle) endingTitle.innerText = ending.title;
-    const endingDesc = document.getElementById('ending-desc');
-    if (endingDesc) endingDesc.innerText = ending.desc;
 }
 
 // --- 靜態離線版音訊系統 ---
@@ -1411,7 +1454,7 @@ function setupStaticAudio() {
 
 // 初始化/重置遊戲狀態與UI
 function initGame() {
-    if (endingTimeout) {
+    if (typeof endingTimeout !== 'undefined' && endingTimeout) {
         clearTimeout(endingTimeout);
         endingTimeout = null;
     }
@@ -1482,11 +1525,15 @@ function initGame() {
         card.classList.remove('selected');
         card.style.pointerEvents = 'auto';
     });
+
+    // 清空角色卡片網格
+    const grid = document.getElementById('character-grid');
+    if (grid) grid.innerHTML = '';
 }
 
 // 結局畫面 30 秒自動返回首頁計時器
 function startEndingTimeout() {
-    if (endingTimeout) clearTimeout(endingTimeout);
+    if (typeof endingTimeout !== 'undefined' && endingTimeout) clearTimeout(endingTimeout);
     endingTimeout = setTimeout(() => {
         console.log("結局畫面 30 秒無操作，自動返回主頁");
         initGame();
@@ -1494,7 +1541,7 @@ function startEndingTimeout() {
 }
 
 function resetEndingTimeout() {
-    if (endingTimeout) {
+    if (typeof endingTimeout !== 'undefined' && endingTimeout) {
         startEndingTimeout();
     }
 }
@@ -1502,15 +1549,15 @@ function resetEndingTimeout() {
 // 綁定事件並啟動遊戲
 window.onload = () => {
     setupStaticAudio();
-    document.getElementById('restart-btn').onclick = initGame;
+    const restartBtn = document.getElementById('restart-btn');
+    if (restartBtn) restartBtn.onclick = initGame;
     
     // 監聽結局畫面的使用者動作以重設計時器
-    const endingBox = document.getElementById('ending-box');
-    if (endingBox) {
-        endingBox.addEventListener('click', resetEndingTimeout);
-        endingBox.addEventListener('mousemove', resetEndingTimeout);
-        endingBox.addEventListener('keypress', resetEndingTimeout);
+    const endingBoxEl = document.getElementById('ending-box');
+    if (endingBoxEl) {
+        endingBoxEl.addEventListener('click', resetEndingTimeout);
+        endingBoxEl.addEventListener('mousemove', resetEndingTimeout);
+        endingBoxEl.addEventListener('keypress', resetEndingTimeout);
     }
-    
     initGame();
 };

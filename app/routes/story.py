@@ -26,6 +26,96 @@ def start_story():
     init_game_state()
     return redirect(url_for('story.play_story', node_id='start'))
 
+@story_bp.route('/story/ending', methods=['GET'])
+def show_ending():
+    if 'user_id' not in session:
+        return redirect(url_for('auth.login'))
+        
+    user = User.get_by_id(session['user_id'])
+    
+    # 首次到達結局：從 game_state 計算結局並儲存至 session 與 DB
+    if 'reached_ending' in session and 'game_state' in session:
+        state = session['game_state']
+        end_key = 'end_normal'
+        if state.get('abandoned_partner'):
+            end_key = 'end_comedy'
+        elif state.get('fear', 0) >= 3 and state.get('trust', 0) <= 2:
+            end_key = 'end_bad'
+        elif state.get('trust', 0) >= 5 and state.get('affection', 0) >= 5 and state.get('recovered_memory'):
+            end_key = 'end_true'
+        elif state.get('affection', 0) >= 4 and state.get('trust', 0) >= 3:
+            end_key = 'end_good'
+            
+        target_key = state.get('targetKey')
+        if not target_key:
+            target_key = 'm1'
+            
+        if target_key in ENDINGS:
+            ending = ENDINGS[target_key][end_key]
+        else:
+            ending = ENDINGS['m1'][end_key] # Fallback
+            
+        ending_data = {
+            'title': ending['title'],
+            'desc': ending['desc']
+        }
+        
+        # 儲存至 session['last_ending']，實現暫存
+        session['last_ending'] = ending_data
+        
+        # 同步儲存至資料庫，實現永久存在
+        if user:
+            try:
+                User.update_last_ending(user['id'], json.dumps(ending_data))
+            except Exception as e:
+                print(f"Failed to save ending to DB: {e}")
+        
+        # 自動判定結局成就解鎖 (Happy End / Sad End / 達成初次結局)
+        try:
+            Achievement.create(user['id'], '6') # 達成初次結局
+        except: pass
+
+        if end_key == 'end_true' or end_key == 'end_good':
+            try:
+                Achievement.create(user['id'], '2') # 戀愛大師
+            except: pass
+        elif end_key == 'end_bad':
+            try:
+                Achievement.create(user['id'], '3') # 遺憾的美好
+            except: pass
+            
+        # 清除結局觸發狀態（不清除 game_state 以防止結局頁面被重新導向）
+        session.pop('reached_ending', None)
+        session.modified = True
+        
+        # ending_data 已計算完成，直接渲染，無需再查詢
+        return render_template('story/ending.html', user=user, ending=ending_data)
+    
+    # 重新整理或二次進入結局頁：依序從 session / DB 讀取上次結局
+    ending_data = None
+    
+    if 'last_ending' in session:
+        ending_data = session['last_ending']
+    
+    if not ending_data and user:
+        # 重新從 DB 取得（user 物件是 request 開頭取的舊資料，last_ending 可能尚未寫入）
+        fresh_user = User.get_by_id(user['id'])
+        if fresh_user and fresh_user.get('last_ending'):
+            try:
+                ending_data = json.loads(fresh_user['last_ending'])
+            except Exception as e:
+                print(f"Failed to parse last_ending from DB: {e}")
+        
+    if not ending_data:
+        # 若無當前遊戲進度也無上次結局快取，提供預設結局 Fallback，避免頁面跳轉至首頁
+        ending_data = {
+            'title': "【NORMAL END】個別故事的終章",
+            'desc': "你與攻略對象的故事在安穩中迎來了終章。雖然沒有波瀾壯闊的發展，但也過著平靜而溫馨的生活。"
+        }
+        
+    return render_template('story/ending.html', user=user, ending=ending_data)
+
+
 @story_bp.route('/story/<node_id>', methods=['GET'])
 def play_story(node_id):
     if 'user_id' not in session:
@@ -287,91 +377,6 @@ def confirm_start():
         next_node = 'intro_m1' # Default fallback
         
     return redirect(url_for('story.play_story', node_id=next_node))
-
-@story_bp.route('/story/ending', methods=['GET'])
-def show_ending():
-    if 'user_id' not in session:
-        return redirect(url_for('auth.login'))
-        
-    user = User.get_by_id(session['user_id'])
-    ending_data = None
-    
-    # 優先從當前 game_state 取得結局資訊並暫存至 session 與資料庫，以防 game_state 後續被清除或重設時結局畫面消失
-    if 'reached_ending' in session and 'game_state' in session:
-        state = session['game_state']
-        end_key = 'end_normal'
-        if state.get('abandoned_partner'):
-            end_key = 'end_comedy'
-        elif state.get('fear', 0) >= 3 and state.get('trust', 0) <= 2:
-            end_key = 'end_bad'
-        elif state.get('trust', 0) >= 5 and state.get('affection', 0) >= 5 and state.get('recovered_memory'):
-            end_key = 'end_true'
-        elif state.get('affection', 0) >= 4 and state.get('trust', 0) >= 3:
-            end_key = 'end_good'
-            
-        target_key = state.get('targetKey')
-        if not target_key:
-            target_key = 'm1'
-            
-        if target_key in ENDINGS:
-            ending = ENDINGS[target_key][end_key]
-        else:
-            ending = ENDINGS['m1'][end_key] # Fallback
-            
-        ending_data = {
-            'title': ending['title'],
-            'desc': ending['desc']
-        }
-        
-        # 儲存至 session['last_ending']，實現暫存
-        session['last_ending'] = ending_data
-        
-        # 同步儲存至資料庫，實現永久存在
-        if user:
-            try:
-                User.update_last_ending(user['id'], json.dumps(ending_data))
-            except Exception as e:
-                print(f"Failed to save ending to DB: {e}")
-        
-        # 自動判定結局成就解鎖 (Happy End / Sad End / 達成初次結局)
-        try:
-            Achievement.create(user['id'], '6') # 達成初次結局
-        except: pass
-
-        if end_key == 'end_true' or end_key == 'end_good':
-            try:
-                Achievement.create(user['id'], '2') # 戀愛大師
-            except: pass
-        elif end_key == 'end_bad':
-            try:
-                Achievement.create(user['id'], '3') # 遺憾的美好
-            except: pass
-            
-        # 清除結局觸發狀態（不清除 game_state 以防止結局頁面被重新導向）
-        session.pop('reached_ending', None)
-        session.modified = True
-    
-    # 讀取結局資料優先序：
-    # 1. 剛剛計算出的 ending_data
-    # 2. 資料庫中的 user['last_ending']
-    # 3. session 中的 last_ending
-    if not ending_data and user and user.get('last_ending'):
-        try:
-            ending_data = json.loads(user['last_ending'])
-        except Exception as e:
-            print(f"Failed to parse last_ending from DB: {e}")
-            
-    if not ending_data and 'last_ending' in session:
-        ending_data = session['last_ending']
-        
-    if not ending_data:
-        # 若無當前遊戲進度也無上次結局快取，提供預設防呆結局，避免畫面閃退
-        ending_data = {
-            'title': '命運交織的平行時空',
-            'desc': '這是一個被命運暫時封存的結局。當你再次啟動旅程，或許能找到不一樣的解答...'
-        }
-        
-    return render_template('story/ending.html', user=user, ending=ending_data)
 
 @story_bp.route('/api/character/<key>', methods=['GET'])
 def get_character_info(key):
