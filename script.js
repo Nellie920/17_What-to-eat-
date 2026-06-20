@@ -127,7 +127,17 @@ function buildStoryNodes() {
             'aftermath_c': "人潮散去後，洛頁彥有些害羞地靠在你的肩上，耳根通紅：「呼...剛剛牽著你擠出人群的時候，我心跳得超快...不只是因為熱，更是因為你靠得這麼近...」",
             'aftermath_c_choices': [["也靠著他：「謝謝你陪我逛祭典。」", { "affection": 3, "trust": 2 }], ["「你的心跳真的好快呢...」", { "affection": 2, "curiosity": 1 }]],
             'memory': "在廢棄教室，你找到一個生鏽的滑板頭盔。當年你差點從二樓摔下，是他墊在你身下，頭盔上的裂痕就是證明。\n洛頁彥紅著眼眶：「對不起讓你久等了！我一直都在這裡喔！」",
+            'memory_choices': [
+                ["「我想起來了...這頂頭盔，是你替我擋下危險的證明。」", { "trust": 3, "affection": 3, "recovered_memory": true }],
+                ["有些生氣地捶他胸口：「笨蛋！為什麼受傷了還要瞞著我！」", { "affection": 2, "courage": 1 }],
+                ["看著頭盔上的裂痕，感到害怕而後退", { "fear": 3, "abandoned_partner": true }]
+            ],
             'memory_alt': "煙火升空，洛頁彥看著天空，艷紅的頭髮隨風飄動。\n「要是能一直這樣開心就好了...對吧？」",
+            'memory_alt_choices': [
+                ["主動拉住他的衣角：「只要和你在一起，每天都會這麼開心。」", { "affection": 3, "trust": 2 }],
+                ["「我們...以前是不是也踩著滑板看過煙火？」", { "curiosity": 2, "recovered_memory": true }],
+                ["「人太多了，我有點累，想先走。」", { "abandoned_partner": true }]
+            ],
         },
         'm2': {
             'intro': "走廊上，一名黑髮少年正拿著捲尺測量距離。他停下動作，深邃的眼神鎖定你。\n「……你果然回來了。誤差不到一天，剛好是約定好的日子。」",
@@ -169,7 +179,17 @@ function buildStoryNodes() {
             'aftermath_c': "坐下休息時，齊勻楠輕輕將你拉到長椅上，他的手依然緊握著你的手，眼底滿是溫柔的酒窩：「我的心跳頻率是每分鐘120次...這並非體能消耗，而是因為你在我身邊。」",
             'aftermath_c_choices': [["握緊他的手：「那我的心跳應該也是。」", { "affection": 3, "trust": 2 }], ["「這是什麼奇怪的測量數據啦。」", { "affection": 1, "curiosity": 1 }]],
             'memory': "你找到一本上了密碼鎖的日記，密碼是你的生日。裡面寫滿了他為了尋找讓你恢復記憶的方法，研究舊校舍多年的紀錄。\n齊勻楠握緊你的手：「我也想起來了...這一次，我不會再放手。」",
+            'memory_choices': [
+                ["「原來你的邏輯和計算裡，全部都寫滿了我。」", { "trust": 3, "affection": 3, "recovered_memory": true }],
+                ["「這本日記...你到底瞞著我研究了多久？」", { "curiosity": 2, "affection": 1 }],
+                ["覺得他的執念深沉得有些可怕，下意識抽回手", { "fear": 3, "abandoned_partner": true }]
+            ],
             'memory_alt': "煙火綻放，他早已計算好最佳的觀賞角度。\n「只要你平安開心就好...其他的，我來承擔。」",
+            'memory_alt_choices': [
+                ["握緊他的手：「那我的餘生，也交給你來計算吧。」", { "affection": 3, "trust": 2 }],
+                ["「我們以前...是不是也曾算出過完美的約定？」", { "curiosity": 2, "recovered_memory": true }],
+                ["「煙火好吵，我們還是回去吧。」", { "abandoned_partner": true }]
+            ],
         },
         'm3': {
             'intro': "你不小心撞落了書本，一名戴著銀框眼鏡的棕髮學長溫柔地幫你撿起。\n他推了推眼鏡，露出安心的微笑：「太好了，你果然回來了。這不是夢吧？」",
@@ -211,7 +231,17 @@ function buildStoryNodes() {
             'aftermath_c': "安全後，秦陌寂溫柔地將你擁入懷中，他的呼吸在你耳畔起伏，溫暖而令人安心：「太好了...你沒事。那一瞬間，我真的差點嚇瘋了...」",
             'aftermath_c_choices': [["緊緊抱住他：「學長別慌，我沒事。」", { "affection": 3, "trust": 2 }], ["「學長的懷抱好溫暖...」", { "affection": 3, "fear": -1 }]],
             'memory': "你在一個廢棄櫃子裡找到一個舊醫藥箱。當年你因為傳聞跑來探險而受重傷，是他用這個醫藥箱幫你止血，並陪了你整晚。\n秦陌寂輕撫你的臉龐：「太好了...你終於想起來了。這段時間辛苦你了。」",
+            'memory_choices': [
+                ["「學長，這一次，換我來溫暖你那顆自責的心吧。」", { "trust": 3, "affection": 3, "recovered_memory": true }],
+                ["「那晚的血跡...學長是為了救我才留下傷疤的嗎？」", { "curiosity": 2, "affection": 1 }],
+                ["看著生鏽的鐵盒與灰塵，感到驚恐而轉身逃跑", { "fear": 3, "abandoned_partner": true }]
+            ],
             'memory_alt': "煙火的光芒映照在他的眼鏡上。\n「只要你平安開心就好...忘記過去也沒關係。」",
+            'memory_alt_choices': [
+                ["靠在他的肩膀上：「過去不重要，只要現在有學長在就好。」", { "affection": 3, "trust": 2 }],
+                ["「學長眼中的煙火...是不是藏著十年前的倒影？」", { "curiosity": 2, "recovered_memory": true }],
+                ["避開他溫柔的目光，藉口去買熱茶離開", { "abandoned_partner": true }]
+            ],
         },
         'f1': {
             'intro': "走廊角落，深褐色捲髮的少女正在插花。看到你，她手中的花不慎掉落。\n她微微一愣，隨即露出溫柔禮貌的微笑：「你果然回來了呢，我一直相信著...」",
@@ -253,7 +283,17 @@ function buildStoryNodes() {
             'aftermath_c': "夕陽西下時，田媛寧輕輕靠在你的肩膀上，雙手與你十指緊扣，臉頰通紅但笑容無比溫柔內斂：「今天能和你單獨在頂樓吃便當...我真的覺得好幸福。我剛才默默許願，希望時間能永遠停在這一刻...」",
             'aftermath_c_choices': [["輕撫她的捲髮：「我也很珍惜和妳在一起的時光。」", { "affection": 3, "trust": 2 }], ["「妳許了什麼願望呢？」", { "affection": 1, "curiosity": 1 }]],
             'memory': "你在舊校舍後方發現了一個枯萎的秘密花園。當年你們一起在這裡種花，卻因為事故花園荒廢，你也失去了記憶。\n田媛寧溫柔地拭去眼淚：「沒關係的，只要你現在想起來就好了...我們重新開始吧。」",
+            'memory_choices': [
+                ["「那我們再一起種下風信子，重新培育屬於我們的約定吧。」", { "trust": 3, "affection": 3, "recovered_memory": true }],
+                ["「這些枯萎的花...妳一個人默默守護了十年嗎？」", { "affection": 2, "curiosity": 1 }],
+                ["看著荒涼的花園和殘破圍欄，感到一陣眩暈，推開她逃跑", { "fear": 3, "abandoned_partner": true }]
+            ],
             'memory_alt': "煙火在夜空綻放，她雙手交握祈禱。\n「只要你平安開心就好...這是我唯一的願望。」",
+            'memory_alt_choices': [
+                ["與她十指緊扣：「我的願望是，年年都陪媛寧看煙火。」", { "affection": 3, "trust": 2 }],
+                ["「媛寧...我們以前種的花，也是在煙火下盛開的嗎？」", { "curiosity": 2, "recovered_memory": true }],
+                ["假裝被煙火吸引注意，迴避了她熾熱的視線", { "abandoned_partner": true }]
+            ],
         },
         'f2': {
             'intro': "一名豔麗的黑髮少女正靠在走廊牆上打瞌睡。她睜開銳利的雙眼，打量著你。\n「呵，你果然回來了。算你遵守約定，沒讓我白等。」",
@@ -295,7 +335,17 @@ function buildStoryNodes() {
             'aftermath_c': "買完飲料後，張栖鈴紅著臉坐在長椅上，傲嬌地看著你，豔麗的面容在夕陽下更顯嬌羞：「笨蛋...人那麼多，你剛剛要是走丟了，我可不管你！不過...謝謝你幫我買奶茶，這次就勉為其難原諒你的遲鈍了。」",
             'aftermath_c_choices': [["牽起她的手：「我答應妳，會一直陪在妳身邊的。」", { "affection": 3, "trust": 2 }], ["「只是因為感謝奶茶嗎？」", { "affection": 2, "curiosity": 1 }]],
             'memory': "你找到了一個機關複雜的機關盒，當年她懶得解開，是你興沖沖地解開卻引發了意外。\n張栖鈴冷哼了一聲，眼角卻帶著淚光：「算你還有點良心。以後可不准再忘記了，聽見沒？」",
+            'memory_choices': [
+                ["「本大爺這輩子，就只解開妳這一個最麻煩的密碼盒。」", { "trust": 3, "affection": 3, "recovered_memory": true }],
+                ["「既然是我的糗照，那妳剛才是不是偷偷藏起來了？」", { "affection": 2, "curiosity": 1 }],
+                ["看著鐵盒有些不知所措，因為害怕被責備而轉身跑走", { "fear": 3, "abandoned_partner": true }]
+            ],
             'memory_alt': "她看著煙火，無聊地打了個哈欠。\n「只要你平安開心就好...雖然照顧你真的很麻煩。」",
+            'memory_alt_choices': [
+                ["遞上買好的珍珠奶茶：「照顧我是妳的專屬特權，不准辭職！」", { "affection": 3, "trust": 2 }],
+                ["「大小姐，妳打哈欠的樣子，是不是跟十年前一樣懶散？」", { "curiosity": 2, "recovered_memory": true }],
+                ["「既然嫌麻煩，那我先回去了。」", { "abandoned_partner": true }]
+            ],
         },
         'f3': {
             'intro': "「喀嚓！」鎂光燈閃過，粉髮雙馬尾的少女拿著相機拍下你驚訝的臉。\n「哼！你果然回來了嘛！本小姐等你好久了！」",
@@ -337,7 +387,17 @@ function buildStoryNodes() {
             'aftermath_c': "祭典狂歡後，顧音棉突然笑嘻嘻地撲進你懷裡，粉色雙馬尾蹭得你胸口發癢。她緊緊抱著你，仰起頭看著你：「笨蛋！今天戴著貓耳陪我玩了一整天，本小姐超級開心的！以後你也要一直被我耍得團團轉喔！」",
             'aftermath_c_choices': [["抱緊她：「好吧，既然妳高興，以後就繼續陪妳瘋吧。」", { "affection": 3, "trust": 2 }], ["「本小姐真的有這麼開心嗎？」", { "affection": 2, "curiosity": 1 }]],
             'memory': "你找到了一台手動舊相機。當年她為了拍「幽靈」給你看看，硬拉著你來探險，導致你跌落樓梯失去記憶。\n顧音棉大哭著撲進你懷裡：「笨蛋！你怎麼現在才想起來啦！害我一直提心吊膽的！」",
+            'memory_choices': [
+                ["「對不起，以後我的每個快門，都只記錄妳的笑容。」", { "trust": 3, "affection": 3, "recovered_memory": true }],
+                ["「這台相機...就是害我變成大冰山的罪魁禍首嗎？」", { "affection": 2, "curiosity": 1 }],
+                ["被她的大哭嚇到，不知如何是好，驚慌失措地退開", { "fear": 3, "abandoned_partner": true }]
+            ],
             'memory_alt': "煙火升空，她得意地拿著相機拍下煙火。\n「只要你平安開心就好...本小姐的技術不錯吧！」",
+            'memory_alt_choices': [
+                ["擺好姿勢：「那抓鬼大師願不願意把我也拍進妳的風景裡？」", { "affection": 3, "trust": 2 }],
+                ["「音棉，我們小時候大笑的合照，真的是用這台相機拍的嗎？」", { "curiosity": 2, "recovered_memory": true }],
+                ["「煙火放完了，相機收起來回家吧。」", { "abandoned_partner": true }]
+            ],
         },
     };
 
@@ -410,22 +470,13 @@ function buildStoryNodes() {
             };
         });
 
-        let memoryText = char_id.startsWith('f') ? "「我都想起來了，對不起讓妳久等了。」" : "「我都想起來了，對不起讓你久等了。」";
         nodes[`memory_${char_id}`] = {
             'text': data['memory'],
-            'choices': [
-                { 'text': memoryText, 'statChange': { 'trust': 3, 'affection': 3, 'recovered_memory': true }, 'next': "eval_ending" },
-                { 'text': "崩潰地質問：「為什麼要瞞著我！」", 'statChange': { 'fear': 3, 'affection': -2 }, 'next': "eval_ending" },
-                { 'text': "無法承受事實，轉身逃跑", 'statChange': { 'abandoned_partner': true }, 'next': "eval_ending" }
-            ]
+            'choices': data['memory_choices'].map(c => ({ 'text': c[0], 'statChange': c[1], 'next': "eval_ending" }))
         };
         nodes[`memory_alt_${char_id}`] = {
             'text': data['memory_alt'],
-            'choices': [
-                { 'text': "牽起手：「以後也一起來看煙火吧。」", 'statChange': { 'affection': 3, 'trust': 2 }, 'next': "eval_ending" },
-                { 'text': "「我們...是不是小時候一起看過煙火？」", 'statChange': { 'trust': 3, 'recovered_memory': true }, 'next': "eval_ending" },
-                { 'text': "假裝沒聽見", 'statChange': { 'abandoned_partner': true }, 'next': "eval_ending" }
-            ]
+            'choices': data['memory_alt_choices'].map(c => ({ 'text': c[0], 'statChange': c[1], 'next': "eval_ending" }))
         };
     }
     return nodes;
@@ -732,9 +783,12 @@ function showConfirmationScreen() {
     }
 
     // 隱藏結局畫面，顯示故事畫面
-    document.getElementById('ending-box').classList.add('hidden');
-    document.getElementById('story-text').classList.remove('hidden');
-    document.getElementById('choices').classList.remove('hidden');
+    const endingBox = document.getElementById('ending-box');
+    if (endingBox) endingBox.classList.add('hidden');
+    const storyText = document.getElementById('story-text');
+    if (storyText) storyText.classList.remove('hidden');
+    const choices = document.getElementById('choices');
+    if (choices) choices.classList.remove('hidden');
     setTimeout(() => {
         document.getElementById('confirmation-screen').classList.add('active');
     }, 50);
@@ -1126,10 +1180,10 @@ function renderNode(nodeId) {
     if (nodeId === 'eval_chapter3') {
         let tKey = gameState.targetKey;
         if (!tKey) tKey = 'm1'; // 防呆
-        if (gameState.stats.curiosity >= 2 || gameState.flags.followed_target) {
-            nodeId = `memory_${tKey}`;
-        } else {
+        if (gameState.flags.normal_route) {
             nodeId = `memory_alt_${tKey}`;
+        } else {
+            nodeId = `memory_${tKey}`;
         }
     }
 

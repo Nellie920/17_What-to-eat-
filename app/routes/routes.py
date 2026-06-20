@@ -122,10 +122,10 @@ def get_story_node(node_id):
     if node_id == 'eval_chapter3':
         state = session.get('game_state', {})
         target_key = state.get('targetKey', 'm1')
-        if state.get('curiosity', 0) >= 2 or state.get('followed_target', False):
-            node_id = f'memory_{target_key}'
-        else:
+        if state.get('normal_route'):
             node_id = f'memory_alt_{target_key}'
+        else:
+            node_id = f'memory_{target_key}'
 
     if node_id == 'eval_ending':
         state = session.get('game_state', {})

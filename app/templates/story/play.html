@@ -461,7 +461,7 @@
         {% endif %}
 
         // 執行場景特效與音效
-        const effects = {{ effects_json | safe if effects_json else '[]' }};
+        const effects = JSON.parse('{{ effects_json | safe if effects_json else "[]" }}');
         if (effects && effects.length > 0) {
             effects.forEach(eff => {
                 setTimeout(() => {

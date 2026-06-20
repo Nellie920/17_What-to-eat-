@@ -42,10 +42,10 @@ def play_story(node_id):
     # 邏輯匯流點處理
     if node_id == 'eval_chapter3':
         target_key = state.get('targetKey')
-        if state.get('curiosity', 0) >= 2 or state.get('followed_target', False):
-            return redirect(url_for('story.play_story', node_id=f'memory_{target_key}'))
-        else:
+        if state.get('normal_route'):
             return redirect(url_for('story.play_story', node_id=f'memory_alt_{target_key}'))
+        else:
+            return redirect(url_for('story.play_story', node_id=f'memory_{target_key}'))
             
     if node_id == 'eval_ending':
         session['reached_ending'] = True
